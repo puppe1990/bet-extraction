@@ -112,6 +112,82 @@ code {
   width: min(1200px, calc(100vw - 2rem));
 }
 
+.route-spinner-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.route-spinner-shell--visible {
+  opacity: 1;
+}
+
+.route-spinner-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, rgba(243, 195, 106, 0.95), rgba(42, 230, 171, 0.8), transparent);
+  animation: routeSpinnerSweep 1s ease-in-out infinite;
+}
+
+.route-spinner-chip {
+  position: fixed;
+  top: 5.2rem;
+  right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 9, 12, 0.9);
+  backdrop-filter: blur(18px);
+  padding: 0.65rem 0.95rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+  color: #eef1f6;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.route-spinner-ring {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  border-top-color: #f3c36a;
+  border-right-color: #2ae6ab;
+  animation: routeSpinnerRotate 0.85s linear infinite;
+}
+
+@keyframes routeSpinnerRotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes routeSpinnerSweep {
+  0% {
+    transform: translateX(-55%);
+    opacity: 0.45;
+  }
+
+  50% {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(55%);
+    opacity: 0.45;
+  }
+}
+
 .marketing-shell-frame,
 .app-shell-frame {
   min-height: 100vh;
@@ -128,11 +204,86 @@ code {
 .brand-lockup {
   display: inline-flex;
   align-items: center;
+  flex: 0 0 auto;
+  min-width: 0;
   gap: 0.9rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
   padding: 0.55rem 0.95rem;
+}
+
+.header-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-desktop-nav {
+  display: flex;
+  flex: 1 1 auto;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.header-actions {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.header-control-group {
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.25rem;
+}
+
+.header-utility-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-account-card {
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 0;
+  max-width: 17rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.55rem 0.85rem;
+}
+
+.header-account-card__label {
+  font-size: 0.58rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #6f7888;
+}
+
+.header-account-card__value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 0.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #eef1f6;
+}
+
+.header-signout-button {
+  min-height: 2.75rem;
+  border-radius: 1rem;
+}
+
+.header-desktop-nav .nav-pill {
+  white-space: nowrap;
+  letter-spacing: 0.16em;
+  padding-inline: 0.9rem;
 }
 
 .mobile-product-session {
@@ -565,8 +716,20 @@ code {
 }
 
 @media (max-width: 767px) {
+  .header-bar {
+    gap: 0.7rem;
+  }
+
   .page-wrap {
     width: min(100vw - 0.9rem, 1200px);
+  }
+
+  .route-spinner-chip {
+    top: 4.6rem;
+    right: 0.75rem;
+    padding: 0.58rem 0.8rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
   }
 
   .app-shell-frame {
@@ -592,7 +755,13 @@ code {
   }
 
   .mobile-locale-switch {
-    order: 3;
+    margin-left: auto;
+  }
+
+  .header-actions {
+    display: flex;
+    justify-content: flex-end;
+    width: auto;
     margin-left: 0;
   }
 

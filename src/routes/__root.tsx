@@ -5,6 +5,7 @@ import {
 	HeadContent,
 	Scripts,
 	useLocation,
+	useRouterState,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import Footer from "../components/Footer";
@@ -92,6 +93,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 
 function AppChrome({ children }: { children: React.ReactNode }) {
 	const location = useLocation();
+	const isNavigating = useRouterState({
+		select: (state) =>
+			state.isLoading || state.matches.some((match) => match.status === "pending"),
+	});
 	const inProduct =
 		location.pathname === "/app" ||
 		location.pathname.startsWith("/bets") ||
@@ -101,10 +106,26 @@ function AppChrome({ children }: { children: React.ReactNode }) {
 	return (
 		<div className={inProduct ? "app-shell-frame" : "marketing-shell-frame"}>
 			<Header />
+			<RouteSpinner visible={isNavigating} />
 			<div className={inProduct ? "app-shell-content" : "marketing-shell-content"}>
 				{children}
 			</div>
 			<Footer />
+		</div>
+	);
+}
+
+function RouteSpinner({ visible }: { visible: boolean }) {
+	return (
+		<div
+			aria-hidden={!visible}
+			className={`route-spinner-shell ${visible ? "route-spinner-shell--visible" : ""}`}
+		>
+			<div className="route-spinner-bar" />
+			<div className="route-spinner-chip">
+				<div className="route-spinner-ring" />
+				<span>Syncing view</span>
+			</div>
 		</div>
 	);
 }

@@ -31,7 +31,7 @@ export default function Header() {
 	return (
 		<>
 		<header className="sticky top-0 z-50 border-b border-white/6 bg-[rgba(8,9,12,0.84)] backdrop-blur-xl">
-			<nav className="page-wrap flex flex-wrap items-center gap-3 py-3 md:py-4">
+			<nav className="page-wrap header-bar flex flex-wrap items-center gap-3 py-3 md:py-4">
 				<Link to={homeTarget} className="brand-lockup no-underline">
 					<span className="brand-dot" />
 					<div>
@@ -43,7 +43,7 @@ export default function Header() {
 				</Link>
 
 				{!compact && inProduct ? (
-					<div className="ml-auto hidden flex-wrap items-center gap-2 md:flex">
+					<div className="header-desktop-nav hidden md:flex">
 						<Link
 							to="/app"
 							className="nav-pill"
@@ -76,7 +76,7 @@ export default function Header() {
 				) : null}
 
 				{!compact && !authenticated ? (
-					<div className="ml-auto hidden flex-wrap items-center gap-2 md:flex">
+					<div className="header-desktop-nav hidden md:flex">
 						<a href="/#extension" className="nav-pill">
 							{t("header.extension")}
 						</a>
@@ -92,7 +92,7 @@ export default function Header() {
 					</div>
 				) : null}
 
-				<div className="mobile-locale-switch sm:hidden">
+				<div className="mobile-locale-switch md:hidden">
 					{appLocales.map((option) => (
 						<button
 							key={option}
@@ -109,8 +109,8 @@ export default function Header() {
 					))}
 				</div>
 
-				<div className="ml-auto flex items-center gap-2 sm:gap-3">
-					<div className="hidden items-center gap-1 rounded-full border border-white/8 bg-white/[0.04] p-1 sm:flex">
+				<div className="header-actions ml-auto flex items-center gap-2 sm:gap-3">
+					<div className="header-control-group hidden items-center gap-1 md:flex">
 						{appLocales.map((option) => (
 							<button
 								key={option}
@@ -126,29 +126,24 @@ export default function Header() {
 							</button>
 						))}
 					</div>
-					{!compact && inProduct && sessionQuery.data?.user ? (
-						<div className="hidden text-right sm:block">
-							<div className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
-								{t("header.activeSession")}
+
+					<div className="header-utility-cluster">
+						<ThemeToggle />
+						{!compact && inProduct && sessionQuery.data?.user ? (
+							<div className="header-account-card hidden lg:flex">
+								<div className="header-account-card__label">
+									{t("header.activeSession")}
+								</div>
+								<div className="header-account-card__value">
+									{sessionQuery.data.user.email}
+								</div>
 							</div>
-							<div className="text-sm font-medium text-zinc-200">
-								{sessionQuery.data.user.email}
-							</div>
-						</div>
-					) : null}
-					<ThemeToggle />
-					{!compact && inProduct ? (
-						<div className="mobile-product-session md:hidden">
-							<div className="mobile-product-session__label">{t("header.activeSession")}</div>
-							<div className="mobile-product-session__value">
-								{sessionQuery.data?.user.email?.split("@")[0] ?? "Ledger"}
-							</div>
-						</div>
-					) : null}
+						) : null}
+					</div>
 					{!compact && authenticated ? (
 						<Button
 							variant="outline"
-							className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10 max-md:h-11 max-md:w-11 max-md:rounded-2xl max-md:px-0"
+							className="header-signout-button border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10 max-md:h-11 max-md:w-11 max-md:rounded-2xl max-md:px-0"
 							onClick={() => logoutMutation.mutate()}
 						>
 							<span className="max-md:hidden">{t("header.signOut")}</span>
