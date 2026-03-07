@@ -157,24 +157,46 @@ The repository now includes a Manifest V3 scaffold in `extension/` with:
 - popup UI
 - background service worker
 - content script draft capture
-- extension auth handshake against the app
+- direct login/signup inside the popup
+- account snapshot with plan, balance, recent bets and recent transactions
+- quick bankroll actions and quick settlement from the popup
 - HTTP endpoints:
-  - `POST /api/extension/session/exchange`
+  - `POST /api/extension/session/login`
+  - `POST /api/extension/session/signup`
   - `GET /api/extension/me`
+  - `POST /api/extension/bankroll/transaction`
+  - `POST /api/extension/bets/settle`
   - `POST /api/extension/bets/draft`
   - `POST /api/extension/bets/create`
 
 Local flow:
 
 1. run the app on `http://localhost:3000`
-2. open `Settings`
-3. generate a one-time extension connection token
-4. load `extension/` as unpacked in Chrome
-5. paste the token into the popup and connect
-6. capture the active tab or fill the draft manually
-7. save the draft into Ledger
+2. load `extension/` as unpacked in Chrome
+3. open the popup
+4. sign in or sign up directly in the extension
+5. capture the active tab or fill the draft manually
+6. save the draft into Ledger
 
 The extension scaffold is gated by billing. Only `Pro` and `Pro+` can connect and save through the extension endpoints.
+
+## E2E smoke
+
+Playwright smoke coverage is scaffolded in `e2e/extension.smoke.spec.ts`.
+
+```bash
+pnpm test:e2e
+```
+
+Set these env vars if you want the extension login smoke to run:
+
+```bash
+E2E_EXTENSION_APP_URL="https://bet-extraction.netlify.app"
+E2E_EXTENSION_EMAIL=""
+E2E_EXTENSION_PASSWORD=""
+```
+
+Without those credentials, the auth smoke stays skipped and only the public healthcheck runs.
 
 ## Estrutura relevante
 
@@ -193,3 +215,5 @@ Pronto para desenvolvimento local, deploy em Netlify e uso multi-user basico com
 - `docs/strategy/landing-page-wireframe.md`
 - `docs/strategy/pricing-and-billing.md`
 - `docs/strategy/chrome-extension-architecture.md`
+- `docs/deployment/production.md`
+- `docs/deployment/stripe-live.md`

@@ -9,7 +9,7 @@ import {
 } from "#/db/schema";
 import { hashPassword, nowIso, verifyPassword } from "#/lib/auth";
 import type { BankrollTransactionType, BetStatus } from "#/lib/domain";
-import { addManualTransaction } from "./bankroll.server";
+import { addManualTransaction, getBankrollSummary } from "./bankroll.server";
 import { createBet } from "./bets.server";
 import { assertBillingFeatureAccess } from "./billing.server";
 import { getDashboardMetrics } from "./dashboard.server";
@@ -282,7 +282,10 @@ export async function getExtensionMe(token: string) {
 		throw new Error("Invalid extension session.");
 	}
 
-	const dashboard = await getDashboardMetrics(session.user.id);
+	const [dashboard, bankroll] = await Promise.all([
+		getDashboardMetrics(session.user.id),
+		getBankrollSummary(session.user.id),
+	]);
 
 	return {
 		...session,
@@ -292,6 +295,7 @@ export async function getExtensionMe(token: string) {
 			billingStatus: dashboard.billing.status,
 			monthlyBetsRemaining: dashboard.billing.monthlyBetsRemaining,
 			recentBets: dashboard.recentBets.slice(0, 4),
+			recentTransactions: bankroll.recentTransactions.slice(0, 5),
 		},
 	};
 }

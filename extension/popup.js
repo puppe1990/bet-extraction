@@ -23,6 +23,7 @@ const homeBalance = $("home-balance");
 const homePlan = $("home-plan");
 const homeUsage = $("home-usage");
 const recentBetsList = $("recent-bets");
+const recentTransactionsList = $("recent-transactions");
 const bankrollTypeInput = $("bankroll-type");
 const bankrollAmountInput = $("bankroll-amount");
 const bankrollNoteInput = $("bankroll-note");
@@ -110,6 +111,7 @@ function renderHome(home) {
   homePanel.classList.toggle("hidden", !hasHome);
   if (!hasHome) {
     recentBetsList.innerHTML = "";
+    recentTransactionsList.innerHTML = "";
     homeUsage.textContent = "";
     return;
   }
@@ -165,6 +167,37 @@ function renderHome(home) {
       ${actionButtons}
     `;
     recentBetsList.appendChild(item);
+  }
+
+  recentTransactionsList.innerHTML = "";
+  const transactions = Array.isArray(home.recentTransactions) ? home.recentTransactions : [];
+  if (!transactions.length) {
+    const item = document.createElement("li");
+    item.innerHTML = `<span>No transactions yet.</span>`;
+    recentTransactionsList.appendChild(item);
+    return;
+  }
+
+  for (const transaction of transactions) {
+    const item = document.createElement("li");
+    const amountClass =
+      typeof transaction.amount === "number"
+        ? transaction.amount >= 0
+          ? "positive"
+          : "negative"
+        : "";
+    item.innerHTML = `
+      <div class="txn-row">
+        <div>
+          <strong>${transaction.type}</strong>
+          <span>${transaction.note || transaction.eventName || "No note"}</span>
+        </div>
+        <div class="bet-profit ${amountClass}">
+          ${formatMoney(transaction.amount)}
+        </div>
+      </div>
+    `;
+    recentTransactionsList.appendChild(item);
   }
 }
 

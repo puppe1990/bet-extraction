@@ -17,6 +17,10 @@ const config = defineConfig({
 		tanstackStart(),
 		viteReact(),
 	],
+	test: {
+		include: ["src/**/*.test.ts"],
+		exclude: ["e2e/**", "node_modules/**", "dist/**", ".netlify/**"],
+	},
 });
 
 export default config;

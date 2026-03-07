@@ -275,6 +275,22 @@ button:disabled {
   color: #ff7b7b;
 }
 
+.txn-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.txn-row strong {
+  font-size: 13px;
+}
+
+.txn-row span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
 .device-meta strong {
   display: block;
   margin-top: 6px;
