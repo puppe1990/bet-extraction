@@ -4,6 +4,7 @@ import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { Textarea } from "#/components/ui/textarea";
 import { calculateSettlementAmounts } from "#/lib/bets";
+import { useI18n } from "#/lib/i18n";
 import { formatCurrency, formatNumber } from "#/lib/money";
 import { FormField } from "./FormField";
 
@@ -55,6 +56,7 @@ export function BetForm({
 	disableFinancialFields?: boolean;
 	onSubmit: (values: BetFormValues) => Promise<void> | void;
 }) {
+	const { t } = useI18n();
 	const [values, setValues] = useState(defaultValues);
 	const [previewStatus, setPreviewStatus] = useState<BetPreviewStatus>("win");
 
@@ -79,14 +81,18 @@ export function BetForm({
 			<div className="flex flex-wrap items-start justify-between gap-4">
 				<div>
 					<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
-						{mode === "create" ? "Nova entrada" : "Editar entrada"}
+						{mode === "create"
+							? t("bets.createKicker")
+							: t("bets.editKicker")}
 					</p>
 					<h2 className="mt-2 text-3xl font-semibold text-zinc-50">
-						{mode === "create" ? "Registrar bet" : "Atualizar bet"}
+						{mode === "create"
+							? t("bets.createTitle")
+							: t("bets.editTitle")}
 					</h2>
 				</div>
 				<Button asChild variant="outline">
-					<Link to="/bets">Voltar para o book</Link>
+					<Link to="/bets">{t("bets.backToBook")}</Link>
 				</Button>
 			</div>
 
@@ -97,7 +103,7 @@ export function BetForm({
 			) : null}
 
 			<div className="grid gap-4 md:grid-cols-2">
-				<FormField label="Esporte">
+				<FormField label={t("bets.sport")}>
 					<Input
 						required
 						value={values.sport}
@@ -107,10 +113,10 @@ export function BetForm({
 								sport: event.target.value,
 							}))
 						}
-						placeholder="Futebol"
+						placeholder={t("bets.sport")}
 					/>
 				</FormField>
-				<FormField label="Casa">
+				<FormField label={t("bets.bookmaker")}>
 					<Input
 						required
 						value={values.bookmaker}
@@ -123,7 +129,7 @@ export function BetForm({
 						placeholder="Bet365"
 					/>
 				</FormField>
-				<FormField label="Evento">
+				<FormField label={t("bets.event")}>
 					<Input
 						required
 						value={values.eventName}
@@ -136,7 +142,7 @@ export function BetForm({
 						placeholder="Palmeiras x Flamengo"
 					/>
 				</FormField>
-				<FormField label="Mercado">
+				<FormField label={t("bets.market")}>
 					<Input
 						required
 						value={values.market}
@@ -149,7 +155,7 @@ export function BetForm({
 						placeholder="Asian handicap"
 					/>
 				</FormField>
-				<FormField label="Selecao">
+				<FormField label={t("bets.selection")}>
 					<Input
 						required
 						value={values.selection}
@@ -162,7 +168,7 @@ export function BetForm({
 						placeholder="Palmeiras -0.25"
 					/>
 				</FormField>
-				<FormField label="Tags" hint="Separadas por virgula">
+				<FormField label={t("bets.tags")} hint={t("bets.tagsHint")}>
 					<Input
 						value={values.tagsText}
 						onChange={(event) =>
@@ -174,7 +180,7 @@ export function BetForm({
 						placeholder="live, asian, serie-a"
 					/>
 				</FormField>
-				<FormField label="Odd decimal">
+				<FormField label={t("bets.odds")}>
 					<Input
 						type="number"
 						step="0.01"
@@ -206,7 +212,7 @@ export function BetForm({
 						}
 					/>
 				</FormField>
-				<FormField label="Data da entrada">
+				<FormField label={t("bets.placedAt")}>
 					<Input
 						type="datetime-local"
 						required
@@ -222,14 +228,14 @@ export function BetForm({
 				</FormField>
 			</div>
 
-			<FormField label="Leitura da entrada">
+			<FormField label={t("bets.note")}>
 				<Textarea
 					rows={5}
 					value={values.note}
 					onChange={(event) =>
 						setValues((current) => ({ ...current, note: event.target.value }))
 					}
-					placeholder="Contexto, linha, leitura de valor e gestao."
+					placeholder={t("bets.notePlaceholder")}
 				/>
 			</FormField>
 
@@ -255,10 +261,15 @@ export function BetForm({
 									}`}
 								>
 									<div className="text-[11px] uppercase tracking-[0.28em] text-zinc-500">
-										{status.replace("_", " ")}
+										{status === "half_win"
+											? t("locale.status.halfWin")
+											: status === "half_loss"
+												? t("locale.status.halfLoss")
+												: t(`locale.status.${status}`)}
 									</div>
 									<div className="mt-3 text-sm text-zinc-300">
-										Retorno {formatCurrency(preview.grossReturn)}
+										{t("bets.returnLabel")}{" "}
+										{formatCurrency(preview.grossReturn)}
 									</div>
 									<div className="text-lg font-semibold text-zinc-50">
 										{formatCurrency(preview.profit)}
@@ -270,23 +281,31 @@ export function BetForm({
 				</div>
 				<div className="min-w-44 rounded-2xl border border-zinc-800 bg-black/30 p-4">
 					<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
-						Preview
+						{t("bets.previewTitle")}
 					</p>
 					<div className="mt-4 space-y-2">
 						<div>
-							<span className="text-xs text-zinc-500">Status simulado</span>
+							<span className="text-xs text-zinc-500">{t("bets.status")}</span>
 							<div className="text-lg font-semibold capitalize text-zinc-50">
-								{previewStatus.replace("_", " ")}
+								{previewStatus === "half_win"
+									? t("locale.status.halfWin")
+									: previewStatus === "half_loss"
+										? t("locale.status.halfLoss")
+										: t(`locale.status.${previewStatus}`)}
 							</div>
 						</div>
 						<div>
-							<span className="text-xs text-zinc-500">Retorno</span>
+							<span className="text-xs text-zinc-500">
+								{t("bets.returnLabel")}
+							</span>
 							<div className="text-lg text-zinc-100">
 								{formatCurrency(settlementPreview.grossReturn)}
 							</div>
 						</div>
 						<div>
-							<span className="text-xs text-zinc-500">Lucro</span>
+							<span className="text-xs text-zinc-500">
+								{t("bets.profitLabel")}
+							</span>
 							<div className="text-lg text-zinc-100">
 								{formatCurrency(settlementPreview.profit)}
 							</div>
@@ -304,10 +323,8 @@ export function BetForm({
 			<div className="flex justify-end">
 				<Button disabled={busy}>
 					{busy
-						? "Salvando..."
-						: mode === "create"
-							? "Criar bet"
-							: "Salvar alteracoes"}
+						? `${t("common.save")}...`
+						: t("common.save")}
 				</Button>
 			</div>
 		</form>

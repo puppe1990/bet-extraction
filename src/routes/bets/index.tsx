@@ -17,6 +17,7 @@ import { StatusBadge } from "#/components/StatusBadge";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { DateTimeText } from "#/lib/datetime";
+import { useI18n } from "#/lib/i18n";
 import { formatCurrency, formatNumber } from "#/lib/money";
 import {
 	betsListQueryOptions,
@@ -56,6 +57,7 @@ export const Route = createFileRoute("/bets/")({
 });
 
 function BetsPage() {
+	const { t } = useI18n();
 	const search = Route.useSearch();
 	const navigate = useNavigate({ from: Route.fullPath });
 	const queryClient = useQueryClient();
@@ -118,7 +120,7 @@ function BetsPage() {
 		data: betsQuery.data ?? [],
 		columns: [
 			{
-				header: "Evento",
+				header: t("bets.event"),
 				accessorKey: "eventName",
 				cell: ({ row }) => (
 					<div className="space-y-2">
@@ -136,39 +138,39 @@ function BetsPage() {
 				),
 			},
 			{
-				header: "Status",
+				header: t("bets.status"),
 				accessorKey: "status",
 				cell: ({ row }) => <StatusBadge status={row.original.status} />,
 			},
 			{
-				header: "Book",
+				header: t("bets.bookmaker"),
 				accessorKey: "bookmaker",
 			},
 			{
-				header: "Stake",
+				header: t("bets.stake"),
 				accessorKey: "stakeAmount",
 				cell: ({ row }) => formatCurrency(row.original.stakeAmount),
 			},
 			{
-				header: "Odd",
+				header: t("bets.odds"),
 				accessorKey: "oddsDecimal",
 				cell: ({ row }) => formatNumber(row.original.oddsDecimal),
 			},
 			{
-				header: "P/L",
+				header: t("bets.profitLoss"),
 				accessorKey: "profitAmount",
 				cell: ({ row }) =>
 					row.original.profitAmount == null
-						? "Em aberto"
+						? t("bets.open")
 						: formatCurrency(row.original.profitAmount),
 			},
 			{
-				header: "Data",
+				header: t("bets.date"),
 				accessorKey: "placedAt",
 				cell: ({ row }) => <DateTimeText value={row.original.placedAt} />,
 			},
 			{
-				header: "Acoes",
+				header: t("bets.actions"),
 				id: "actions",
 				cell: ({ row }) => (
 					<div className="flex flex-wrap gap-2">
@@ -205,7 +207,7 @@ function BetsPage() {
 						) : (
 							<Button asChild size="sm" variant="outline">
 								<Link to="/bets/$betId" params={{ betId: row.original.id }}>
-									Detalhe
+									{t("bets.detail")}
 								</Link>
 							</Button>
 						)}
@@ -222,10 +224,10 @@ function BetsPage() {
 				<div className="flex flex-wrap items-start justify-between gap-4">
 					<div>
 						<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
-							book
+							{t("bets.book")}
 						</p>
 						<h1 className="mt-2 text-4xl font-semibold tracking-tight text-white">
-							Todas as bets
+							{t("bets.title")}
 						</h1>
 					</div>
 					<div className="flex flex-wrap gap-3">
@@ -243,25 +245,26 @@ function BetsPage() {
 							) : (
 								<LockKeyhole className="size-4" />
 							)}
-							{exportMutation.isPending ? "Exporting..." : "Export CSV"}
+							{exportMutation.isPending
+								? t("bets.exporting")
+								: t("bets.exportCsv")}
 						</Button>
 						<Button asChild>
 							<Link to="/bets/new">
 								<Plus className="size-4" />
-								Nova bet
+								{t("bets.newBet")}
 							</Link>
 						</Button>
 					</div>
 				</div>
 				{!billingQuery.data?.canExportCsv ? (
 					<div className="rounded-2xl border border-amber-300/18 bg-amber-300/8 px-4 py-3 text-sm text-amber-100">
-						CSV export is a Pro feature. Upgrade to export filtered bet history
-						and bookmaker performance outside Ledger.{" "}
+						{t("bets.csvUpgrade")}{" "}
 						<Link
 							to="/settings"
 							className="font-semibold text-white underline underline-offset-4"
 						>
-							See plans
+							{t("bets.seePlans")}
 						</Link>
 						.
 					</div>
@@ -278,7 +281,7 @@ function BetsPage() {
 						value={statusDraft}
 						onChange={(event) => setStatusDraft(event.target.value)}
 					>
-						<option value="all">Todos os status</option>
+						<option value="all">{t("bets.allStatuses")}</option>
 						<option value="open">Open</option>
 						<option value="win">Win</option>
 						<option value="loss">Loss</option>
@@ -296,7 +299,7 @@ function BetsPage() {
 								}),
 							})
 						}
-						placeholder="Filtrar por esporte"
+						placeholder={t("bets.filterSport")}
 					/>
 					<Input
 						value={search.bookmaker}
@@ -308,7 +311,7 @@ function BetsPage() {
 								}),
 							})
 						}
-						placeholder="Filtrar por casa"
+						placeholder={t("bets.filterBookmaker")}
 					/>
 					<Input
 						value={search.tag}
@@ -317,7 +320,7 @@ function BetsPage() {
 								search: (current) => ({ ...current, tag: event.target.value }),
 							})
 						}
-						placeholder="Filtrar por tag"
+						placeholder={t("bets.filterTag")}
 					/>
 					<Button
 						variant="outline"
@@ -328,7 +331,7 @@ function BetsPage() {
 							})
 						}
 					>
-						Aplicar filtro
+						{t("bets.applyFilters")}
 					</Button>
 				</div>
 			</section>
@@ -336,11 +339,11 @@ function BetsPage() {
 			<section className="mt-6 panel-card overflow-hidden">
 				{!betsQuery.data || betsQuery.data.length === 0 ? (
 					<EmptyState
-						title="Nada por aqui ainda"
-						description="Quando voce registrar as entradas, elas aparecem nesta mesa com filtros persistidos na URL."
+						title={t("bets.emptyTitle")}
+						description={t("bets.emptyDescription")}
 						action={
 							<Button asChild>
-								<Link to="/bets/new">Criar primeira bet</Link>
+								<Link to="/bets/new">{t("bets.createFirstBet")}</Link>
 							</Button>
 						}
 					/>

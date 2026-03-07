@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { DateTimeText } from "#/lib/datetime";
+import { useI18n } from "#/lib/i18n";
 import { formatCurrency } from "#/lib/money";
 import { bankrollSummaryQueryOptions } from "#/lib/query-options";
 import { authSession, bankrollAddTransaction } from "#/lib/server-functions";
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/bankroll")({
 });
 
 function BankrollPage() {
+	const { t } = useI18n();
 	const queryClient = useQueryClient();
 	const summaryQuery = useQuery(bankrollSummaryQueryOptions());
 	const [type, setType] = useState<"deposit" | "withdraw" | "adjustment">(
@@ -56,10 +58,10 @@ function BankrollPage() {
 				>
 					<div>
 						<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
-							Caixa
+							{t("bankroll.kicker")}
 						</p>
 						<h1 className="mt-2 text-4xl font-semibold tracking-tight text-white">
-							Movimentar banca
+							{t("bankroll.title")}
 						</h1>
 					</div>
 					<select
@@ -71,9 +73,9 @@ function BankrollPage() {
 							)
 						}
 					>
-						<option value="deposit">Deposito</option>
-						<option value="withdraw">Saque</option>
-						<option value="adjustment">Ajuste manual</option>
+						<option value="deposit">{t("bankroll.deposit")}</option>
+						<option value="withdraw">{t("bankroll.withdraw")}</option>
+						<option value="adjustment">{t("bankroll.adjustment")}</option>
 					</select>
 					<Input
 						type="number"
@@ -81,24 +83,24 @@ function BankrollPage() {
 						step="0.01"
 						value={amount}
 						onChange={(event) => setAmount(event.target.value)}
-						placeholder="Valor em BRL"
+						placeholder={t("bankroll.amountPlaceholder")}
 					/>
 					<Input
 						value={note}
 						onChange={(event) => setNote(event.target.value)}
-						placeholder="Motivo ou observacao"
+						placeholder={t("bankroll.notePlaceholder")}
 					/>
 					<Button disabled={transactionMutation.isPending}>
 						{transactionMutation.isPending
-							? "Lancando..."
-							: "Registrar transacao"}
+							? t("bankroll.submitting")
+							: t("bankroll.submit")}
 					</Button>
 				</form>
 
 				<section className="panel-card space-y-5">
 					<div>
 						<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
-							Saldo atual
+							{t("bankroll.currentBalance")}
 						</p>
 						<h2 className="mt-2 text-4xl font-semibold text-zinc-50">
 							{formatCurrency(summaryQuery.data?.account.currentBalance)}
@@ -119,7 +121,7 @@ function BankrollPage() {
 											<div className="mt-2 text-lg font-semibold text-zinc-100">
 												{transaction.eventName ??
 													transaction.note ??
-													"Movimentacao"}
+													t("bankroll.movementFallback")}
 											</div>
 											<div className="mt-1 text-sm text-zinc-400">
 												<DateTimeText value={transaction.occurredAt} />

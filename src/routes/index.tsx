@@ -9,128 +9,115 @@ import {
 	ShieldCheck,
 	Sparkles,
 } from "lucide-react";
+import { useI18n } from "#/lib/i18n";
 import { sessionQueryOptions } from "#/lib/query-options";
 
 export const Route = createFileRoute("/")({
 	component: LandingPage,
 });
 
-const metricsPreview = [
-	{ label: "ROI review", value: "12.4%", tone: "up" },
-	{ label: "Yield", value: "8.1%", tone: "up" },
-	{ label: "Win rate", value: "56.8%", tone: "neutral" },
-	{ label: "Bets logged", value: "1,284", tone: "neutral" },
-];
-
-const featurePillars = [
-	{
-		title: "Log faster",
-		description:
-			"Capture bets from the bookmaker page or enter them manually when you need full control.",
-		icon: Chrome,
-	},
-	{
-		title: "Review deeper",
-		description:
-			"Understand performance by bookmaker, market, sport, stake size and time period.",
-		icon: BarChart3,
-	},
-	{
-		title: "Operate clearly",
-		description:
-			"Track deposits, withdrawals, stake flow and bankroll movement without spreadsheet cleanup.",
-		icon: ShieldCheck,
-	},
-];
-
-const workflowSteps = [
-	{
-		step: "01",
-		title: "Log the bet",
-		description:
-			"Enter bets manually or use the Chrome extension to capture the draft from the bookmaker page.",
-	},
-	{
-		step: "02",
-		title: "Track bankroll flow",
-		description:
-			"Stake, deposits, withdrawals and settlements keep bankroll movement accurate without direct balance edits.",
-	},
-	{
-		step: "03",
-		title: "Review performance",
-		description:
-			"Break down what works by bookmaker, market, sport and result type to tighten your process over time.",
-	},
-];
-
-const faqs = [
-	{
-		question: "Is Ledger a picks app?",
-		answer:
-			"No. Ledger is a bet tracking and bankroll analytics product. It helps you review performance, not generate predictions.",
-	},
-	{
-		question: "Do I need the Chrome extension?",
-		answer:
-			"No. The app works with manual bet entry. The extension is the speed layer for users who want to remove typing and reduce mistakes.",
-	},
-	{
-		question: "Who is this for?",
-		answer:
-			"Serious sports bettors, traders and small betting operators who already care about record quality, bankroll discipline and review.",
-	},
-	{
-		question: "Will more bookmakers be supported?",
-		answer:
-			"Yes. The rollout should start narrow with a few strong integrations, then expand sportsbook coverage without sacrificing reliability.",
-	},
-];
-
-const pricingTiers = [
-	{
-		name: "Free",
-		price: "$0",
-		kicker: "Build the habit",
-		features: [
-			"1 bankroll",
-			"Up to 50 bets per month",
-			"Manual bet logging",
-			"Basic dashboard",
-		],
-		cta: "Start free",
-	},
-	{
-		name: "Pro",
-		price: "$12",
-		kicker: "Most popular",
-		features: [
-			"Unlimited bets",
-			"Full Chrome extension capture",
-			"Advanced analytics",
-			"CSV export",
-		],
-		cta: "Upgrade to Pro",
-		featured: true,
-	},
-	{
-		name: "Pro+",
-		price: "$29",
-		kicker: "High-volume users",
-		features: [
-			"Everything in Pro",
-			"Multiple bankrolls",
-			"Advanced reports",
-			"Automations",
-		],
-		cta: "Go Pro+",
-	},
-];
-
 function LandingPage() {
+	const { t } = useI18n();
 	const sessionQuery = useQuery(sessionQueryOptions());
 	const authenticated = Boolean(sessionQuery.data?.user);
 	const primaryTo = authenticated ? "/app" : "/login";
+	const metricsPreview = [
+		{ label: t("landing.metrics.roiReview"), value: "12.4%" },
+		{ label: t("landing.metrics.yield"), value: "8.1%" },
+		{ label: t("landing.metrics.winRate"), value: "56.8%" },
+		{ label: t("landing.metrics.betsLogged"), value: "1,284" },
+	];
+	const featurePillars = [
+		{
+			title: t("landing.features.logFasterTitle"),
+			description: t("landing.features.logFasterDescription"),
+			icon: Chrome,
+		},
+		{
+			title: t("landing.features.reviewDeeperTitle"),
+			description: t("landing.features.reviewDeeperDescription"),
+			icon: BarChart3,
+		},
+		{
+			title: t("landing.features.operateClearlyTitle"),
+			description: t("landing.features.operateClearlyDescription"),
+			icon: ShieldCheck,
+		},
+	];
+	const workflowSteps = [
+		{
+			step: "01",
+			title: t("landing.workflow.logBetTitle"),
+			description: t("landing.workflow.logBetDescription"),
+		},
+		{
+			step: "02",
+			title: t("landing.workflow.trackFlowTitle"),
+			description: t("landing.workflow.trackFlowDescription"),
+		},
+		{
+			step: "03",
+			title: t("landing.workflow.reviewTitle"),
+			description: t("landing.workflow.reviewDescription"),
+		},
+	];
+	const faqs = [
+		{
+			question: t("landing.faqs.picksQuestion"),
+			answer: t("landing.faqs.picksAnswer"),
+		},
+		{
+			question: t("landing.faqs.extensionQuestion"),
+			answer: t("landing.faqs.extensionAnswer"),
+		},
+		{
+			question: t("landing.faqs.audienceQuestion"),
+			answer: t("landing.faqs.audienceAnswer"),
+		},
+		{
+			question: t("landing.faqs.bookmakersQuestion"),
+			answer: t("landing.faqs.bookmakersAnswer"),
+		},
+	];
+	const pricingTiers = [
+		{
+			name: t("landing.pricing.freeName"),
+			price: "$0",
+			kicker: t("landing.pricing.freeKicker"),
+			features: [
+				t("landing.pricing.freeFeature1"),
+				t("landing.pricing.freeFeature2"),
+				t("landing.pricing.freeFeature3"),
+				t("landing.pricing.freeFeature4"),
+			],
+			cta: t("landing.pricing.freeCta"),
+		},
+		{
+			name: t("landing.pricing.proName"),
+			price: "$12",
+			kicker: t("landing.pricing.proKicker"),
+			features: [
+				t("landing.pricing.proFeature1"),
+				t("landing.pricing.proFeature2"),
+				t("landing.pricing.proFeature3"),
+				t("landing.pricing.proFeature4"),
+			],
+			cta: t("landing.pricing.proCta"),
+			featured: true,
+		},
+		{
+			name: t("landing.pricing.proPlusName"),
+			price: "$29",
+			kicker: t("landing.pricing.proPlusKicker"),
+			features: [
+				t("landing.pricing.proPlusFeature1"),
+				t("landing.pricing.proPlusFeature2"),
+				t("landing.pricing.proPlusFeature3"),
+				t("landing.pricing.proPlusFeature4"),
+			],
+			cta: t("landing.pricing.proPlusCta"),
+		},
+	];
 
 	return (
 		<main className="landing-shell">
@@ -138,31 +125,26 @@ function LandingPage() {
 				<div className="landing-copy">
 					<div className="landing-kicker">
 						<Sparkles className="size-3.5" />
-						Bet tracking + bankroll analytics
+						{t("landing.heroKicker")}
 					</div>
 					<h1 className="landing-title">
-						Track every bet. Understand your edge.
+						{t("landing.heroTitle")}
 					</h1>
 					<p className="landing-lead">
-						Ledger gives serious sports bettors one place to log bets, manage
-						bankroll and review ROI, yield, streaks and future CLV without the
-						spreadsheet tax.
+						{t("landing.heroDescription")}
 					</p>
 					<div className="landing-actions">
 						<Link to={primaryTo} className="cta-primary no-underline">
-							{authenticated ? "Open app" : "Start free"}
+							{authenticated ? t("landing.openApp") : t("landing.startFree")}
 							<ArrowRight className="size-4" />
 						</Link>
 						<a href="#extension" className="cta-secondary no-underline">
-							Get the Chrome extension
+							{t("landing.getExtension")}
 						</a>
 					</div>
 					<div className="landing-proof">
-						<span>Built for bettors who outgrew spreadsheets.</span>
-						<span>
-							Manual logging when you want it. One-click capture when you
-							don&apos;t.
-						</span>
+						<span>{t("landing.proofPrimary")}</span>
+						<span>{t("landing.proofSecondary")}</span>
 					</div>
 				</div>
 
@@ -170,10 +152,10 @@ function LandingPage() {
 					<article className="dashboard-preview">
 						<div className="preview-header">
 							<div>
-								<p className="preview-label">Live desk</p>
-								<h2>Performance terminal</h2>
+								<p className="preview-label">{t("landing.liveDesk")}</p>
+								<h2>{t("landing.performanceTerminal")}</h2>
 							</div>
-							<div className="preview-chip">Multi-user</div>
+							<div className="preview-chip">{t("landing.multiUser")}</div>
 						</div>
 						<div className="preview-metrics">
 							{metricsPreview.map((metric) => (
@@ -207,35 +189,35 @@ function LandingPage() {
 					<article className="extension-preview" id="extension">
 						<div className="preview-header">
 							<div>
-								<p className="preview-label">Chrome extension</p>
-								<h2>Capture bet draft</h2>
+								<p className="preview-label">{t("landing.chromeExtension")}</p>
+								<h2>{t("landing.captureDraft")}</h2>
 							</div>
 							<Chrome className="size-5 text-amber-100" />
 						</div>
 						<div className="extension-fields">
 							<div className="extension-field">
-								<span>Bookmaker</span>
+								<span>{t("landing.bookmaker")}</span>
 								<strong>bet365</strong>
 							</div>
 							<div className="extension-field">
-								<span>Selection</span>
+								<span>{t("landing.selection")}</span>
 								<strong>Both Teams To Score: Yes</strong>
 							</div>
 							<div className="extension-grid">
 								<div className="extension-field">
-									<span>Odds</span>
+									<span>{t("landing.odds")}</span>
 									<strong>1.83</strong>
 								</div>
 								<div className="extension-field">
-									<span>Stake</span>
+									<span>{t("landing.stake")}</span>
 									<strong>$30</strong>
 								</div>
 							</div>
 						</div>
 						<div className="extension-cta">
-							<span>Review before saving. Sync instantly to Ledger.</span>
+							<span>{t("landing.reviewBeforeSaving")}</span>
 							<a href="#pricing" className="cta-secondary no-underline">
-								View pricing
+								{t("landing.viewPricing")}
 							</a>
 						</div>
 					</article>
@@ -244,12 +226,9 @@ function LandingPage() {
 
 			<section className="landing-section page-wrap">
 				<div className="section-heading">
-					<p className="section-kicker">Why it wins</p>
-					<h2>One operating layer for every bet you place</h2>
-					<p>
-						Bets are scattered, bankroll records drift and review gets skipped.
-						Ledger brings execution and analysis into the same workflow.
-					</p>
+					<p className="section-kicker">{t("landing.whyKicker")}</p>
+					<h2>{t("landing.whyTitle")}</h2>
+					<p>{t("landing.whyDescription")}</p>
 				</div>
 				<div className="pillar-grid">
 					{featurePillars.map(({ title, description, icon: Icon }) => (
@@ -267,27 +246,22 @@ function LandingPage() {
 			<section className="landing-section page-wrap">
 				<div className="analytics-band">
 					<div className="section-heading">
-						<p className="section-kicker">Analytics</p>
-						<h2>See where your edge actually is</h2>
-						<p>
-							Review bankroll curve, ROI, yield, bookmaker performance, market
-							breakdowns and disciplined bet history in one place.
-						</p>
+						<p className="section-kicker">{t("landing.analyticsKicker")}</p>
+						<h2>{t("landing.analyticsTitle")}</h2>
+						<p>{t("landing.analyticsDescription")}</p>
 					</div>
 					<div className="analytics-list">
 						<div className="analytics-item">
-							<span>Bookmaker breakdowns</span>
-							<strong>Know where you perform best.</strong>
+							<span>{t("landing.analyticsItems.bookmakerTitle")}</span>
+							<strong>{t("landing.analyticsItems.bookmakerDescription")}</strong>
 						</div>
 						<div className="analytics-item">
-							<span>Flexible settlement</span>
-							<strong>Win, loss, void, cashout and half results.</strong>
+							<span>{t("landing.analyticsItems.settlementTitle")}</span>
+							<strong>{t("landing.analyticsItems.settlementDescription")}</strong>
 						</div>
 						<div className="analytics-item">
-							<span>Bankroll timeline</span>
-							<strong>
-								Every deposit, withdrawal and settlement accounted for.
-							</strong>
+							<span>{t("landing.analyticsItems.timelineTitle")}</span>
+							<strong>{t("landing.analyticsItems.timelineDescription")}</strong>
 						</div>
 					</div>
 				</div>
@@ -295,12 +269,9 @@ function LandingPage() {
 
 			<section className="landing-section page-wrap">
 				<div className="section-heading">
-					<p className="section-kicker">Real product</p>
-					<h2>Not a concept page. A working interface.</h2>
-					<p>
-						The current product already handles multi-user auth, bankroll
-						movements, settlement states and the full bet journal workflow.
-					</p>
+					<p className="section-kicker">{t("landing.realProductKicker")}</p>
+					<h2>{t("landing.realProductTitle")}</h2>
+					<p>{t("landing.realProductDescription")}</p>
 				</div>
 				<div className="product-proof">
 					<div className="product-shot">
@@ -314,31 +285,22 @@ function LandingPage() {
 						<div className="proof-bullet">
 							<span className="proof-dot" />
 							<div>
-								<strong>Multi-user from the base layer</strong>
-								<p>
-									Each account gets isolated sessions, bets, tags, transactions
-									and dashboard metrics.
-								</p>
+								<strong>{t("landing.productBullets.multiUserTitle")}</strong>
+								<p>{t("landing.productBullets.multiUserDescription")}</p>
 							</div>
 						</div>
 						<div className="proof-bullet">
 							<span className="proof-dot" />
 							<div>
-								<strong>Flexible settlement model</strong>
-								<p>
-									Support for win, loss, void, half win, half loss and cashout
-									without hacking balances.
-								</p>
+								<strong>{t("landing.productBullets.settlementTitle")}</strong>
+								<p>{t("landing.productBullets.settlementDescription")}</p>
 							</div>
 						</div>
 						<div className="proof-bullet">
 							<span className="proof-dot" />
 							<div>
-								<strong>Built for extension sync</strong>
-								<p>
-									The ledger model already treats each bet as an auditable flow,
-									which is the right shape for Chrome capture.
-								</p>
+								<strong>{t("landing.productBullets.extensionTitle")}</strong>
+								<p>{t("landing.productBullets.extensionDescription")}</p>
 							</div>
 						</div>
 					</div>
@@ -347,10 +309,8 @@ function LandingPage() {
 
 			<section className="landing-section page-wrap">
 				<div className="section-heading">
-					<p className="section-kicker">How it works</p>
-					<h2>
-						Three steps to turn noisy betting activity into usable intelligence
-					</h2>
+					<p className="section-kicker">{t("landing.workflowKicker")}</p>
+					<h2>{t("landing.workflowTitle")}</h2>
 				</div>
 				<div className="workflow-grid">
 					{workflowSteps.map((item) => (
@@ -359,7 +319,7 @@ function LandingPage() {
 							<h3>{item.title}</h3>
 							<p>{item.description}</p>
 							<div className="workflow-link">
-								<span>From action to record</span>
+								<span>{t("landing.workflow.fromActionToRecord")}</span>
 								<ChevronRight className="size-4" />
 							</div>
 						</article>
@@ -369,12 +329,9 @@ function LandingPage() {
 
 			<section className="landing-section page-wrap" id="pricing">
 				<div className="section-heading">
-					<p className="section-kicker">Pricing</p>
-					<h2>Start free. Upgrade when speed and analysis matter.</h2>
-					<p>
-						The free plan proves the workflow. Paid plans unlock extension
-						capture, deeper analytics and high-volume tooling.
-					</p>
+					<p className="section-kicker">{t("landing.pricingKicker")}</p>
+					<h2>{t("landing.pricingTitle")}</h2>
+					<p>{t("landing.pricingDescription")}</p>
 				</div>
 				<div className="pricing-grid">
 					{pricingTiers.map((tier) => (
@@ -389,9 +346,9 @@ function LandingPage() {
 							<div className="pricing-price">
 								<strong>{tier.price}</strong>
 								{tier.price === "$0" ? (
-									<span>/forever</span>
+									<span>{t("landing.pricing.forever")}</span>
 								) : (
-									<span>/month</span>
+									<span>{t("landing.pricing.month")}</span>
 								)}
 							</div>
 							<div className="pricing-features">
@@ -412,8 +369,8 @@ function LandingPage() {
 
 			<section className="landing-section page-wrap">
 				<div className="section-heading">
-					<p className="section-kicker">FAQ</p>
-					<h2>Questions a serious bettor will ask before signing up</h2>
+					<p className="section-kicker">{t("landing.faqKicker")}</p>
+					<h2>{t("landing.faqTitle")}</h2>
 				</div>
 				<div className="faq-grid">
 					{faqs.map((item) => (
@@ -428,18 +385,18 @@ function LandingPage() {
 			<section className="landing-section page-wrap">
 				<div className="final-cta">
 					<div>
-						<p className="section-kicker">Ready to launch</p>
-						<h2>
-							Use Ledger as the operating system for your betting workflow.
-						</h2>
+						<p className="section-kicker">{t("landing.finalKicker")}</p>
+						<h2>{t("landing.finalTitle")}</h2>
 					</div>
 					<div className="landing-actions">
 						<Link to={primaryTo} className="cta-primary no-underline">
-							{authenticated ? "Go to dashboard" : "Create account"}
+							{authenticated
+								? t("landing.goToDashboard")
+								: t("landing.createAccount")}
 							<LayoutDashboard className="size-4" />
 						</Link>
 						<Link to="/login" className="cta-secondary no-underline">
-							Sign in
+							{t("landing.signIn")}
 						</Link>
 					</div>
 				</div>

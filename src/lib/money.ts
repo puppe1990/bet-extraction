@@ -1,3 +1,5 @@
+import { getActiveLocale } from "./locale";
+
 export function toCents(value: number) {
 	return Math.round(value * 100);
 }
@@ -13,7 +15,7 @@ export function formatCurrency(
 ) {
 	if (value == null) return "--";
 
-	return new Intl.NumberFormat("pt-BR", {
+	return new Intl.NumberFormat(getActiveLocale(), {
 		style: "currency",
 		currency,
 		minimumFractionDigits: 2,
@@ -21,7 +23,7 @@ export function formatCurrency(
 }
 
 export function formatNumber(value: number, digits = 2) {
-	return new Intl.NumberFormat("pt-BR", {
+	return new Intl.NumberFormat(getActiveLocale(), {
 		minimumFractionDigits: digits,
 		maximumFractionDigits: digits,
 	}).format(value);

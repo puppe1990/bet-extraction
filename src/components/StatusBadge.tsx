@@ -1,8 +1,8 @@
 import {
 	type BetStatus,
 	getOutcomeToneFromProfit,
-	statusLabel,
 } from "#/lib/domain";
+import { useI18n } from "#/lib/i18n";
 import { cn } from "#/lib/utils";
 
 export function StatusBadge({
@@ -12,7 +12,14 @@ export function StatusBadge({
 	status: BetStatus;
 	profitAmount?: number | null;
 }) {
+	const { t } = useI18n();
 	const tone = getOutcomeToneFromProfit(status, profitAmount);
+	const label =
+		status === "half_win"
+			? t("locale.status.halfWin")
+			: status === "half_loss"
+				? t("locale.status.halfLoss")
+				: t(`locale.status.${status}`);
 
 	return (
 		<span
@@ -28,7 +35,7 @@ export function StatusBadge({
 					"bg-amber-500/14 text-amber-200 ring-1 ring-amber-400/25",
 			)}
 		>
-			{statusLabel(status)}
+			{label}
 		</span>
 	);
 }

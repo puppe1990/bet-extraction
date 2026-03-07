@@ -22,6 +22,7 @@ import {
 	betsSettle,
 	betsUpdate,
 } from "#/lib/server-functions";
+import { useI18n } from "#/lib/i18n";
 
 export const Route = createFileRoute("/bets/$betId")({
 	beforeLoad: async () => {
@@ -34,6 +35,7 @@ export const Route = createFileRoute("/bets/$betId")({
 });
 
 function BetDetailsPage() {
+	const { t } = useI18n();
 	const { betId } = Route.useParams();
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
@@ -56,7 +58,7 @@ function BetDetailsPage() {
 			await queryClient.invalidateQueries({ queryKey: ["bets", betId] });
 		},
 		onError: (error) => {
-			setErrorMessage(error.message || "Nao foi possivel atualizar a bet.");
+			setErrorMessage(error.message || t("bets.updateError"));
 		},
 	});
 
@@ -70,7 +72,7 @@ function BetDetailsPage() {
 			await queryClient.invalidateQueries({ queryKey: ["bets", betId] });
 		},
 		onError: (error) => {
-			setErrorMessage(error.message || "Nao foi possivel liquidar a bet.");
+			setErrorMessage(error.message || t("bets.settleError"));
 		},
 	});
 
@@ -84,7 +86,7 @@ function BetDetailsPage() {
 			navigate({ to: "/bets" });
 		},
 		onError: (error) => {
-			setErrorMessage(error.message || "Nao foi possivel apagar a bet.");
+			setErrorMessage(error.message || t("bets.deleteError"));
 		},
 	});
 
@@ -98,7 +100,7 @@ function BetDetailsPage() {
 			await queryClient.invalidateQueries({ queryKey: ["bets", betId] });
 		},
 		onError: (error) => {
-			setErrorMessage(error.message || "Nao foi possivel reabrir a bet.");
+			setErrorMessage(error.message || t("bets.reopenError"));
 		},
 	});
 
@@ -120,7 +122,7 @@ function BetDetailsPage() {
 					<div className="flex flex-wrap items-center justify-between gap-3">
 						<div>
 							<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
-								Bet
+								{t("bets.betLabel")}
 							</p>
 							<h1 className="mt-2 text-4xl font-semibold tracking-tight text-white">
 								{bet.eventName}
@@ -129,12 +131,18 @@ function BetDetailsPage() {
 						<StatusBadge status={bet.status} />
 					</div>
 					<div className="grid gap-3 sm:grid-cols-3">
-						<KeyMetric label="Stake" value={formatCurrency(bet.stakeAmount)} />
 						<KeyMetric
-							label="Retorno"
+							label={t("bets.stakeLabel")}
+							value={formatCurrency(bet.stakeAmount)}
+						/>
+						<KeyMetric
+							label={t("bets.returnLabel")}
 							value={formatCurrency(bet.grossReturnAmount)}
 						/>
-						<KeyMetric label="Lucro" value={formatCurrency(bet.profitAmount)} />
+						<KeyMetric
+							label={t("bets.profitLabel")}
+							value={formatCurrency(bet.profitAmount)}
+						/>
 					</div>
 					<div className="flex flex-wrap gap-2">
 						{bet.tags.map((tag) => (
@@ -150,12 +158,12 @@ function BetDetailsPage() {
 
 				<section className="panel-card space-y-5">
 					<div>
-						<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
-							Liquidacao
-						</p>
-						<h2 className="mt-2 text-2xl font-semibold text-white">
-							Ajuste rapido
-						</h2>
+							<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
+								{t("bets.quickSettlement")}
+							</p>
+							<h2 className="mt-2 text-2xl font-semibold text-white">
+								{t("bets.quickAdjustment")}
+							</h2>
 					</div>
 					<select
 						className="field-input"
@@ -172,12 +180,12 @@ function BetDetailsPage() {
 							)
 						}
 					>
-						<option value="win">Win</option>
-						<option value="loss">Loss</option>
-						<option value="void">Void</option>
-						<option value="cashout">Cashout</option>
-						<option value="half_win">Half win</option>
-						<option value="half_loss">Half loss</option>
+						<option value="win">{t("locale.status.win")}</option>
+						<option value="loss">{t("locale.status.loss")}</option>
+						<option value="void">{t("locale.status.void")}</option>
+						<option value="cashout">{t("bets.cashout")}</option>
+						<option value="half_win">{t("locale.status.halfWin")}</option>
+						<option value="half_loss">{t("locale.status.halfLoss")}</option>
 					</select>
 					{settlementStatus === "cashout" ? (
 						<input
@@ -187,7 +195,7 @@ function BetDetailsPage() {
 							className="field-input"
 							value={customReturnAmount}
 							onChange={(event) => setCustomReturnAmount(event.target.value)}
-							placeholder="Retorno do cashout em BRL"
+							placeholder={t("bets.returnCashoutPlaceholder")}
 						/>
 					) : null}
 					<Button
@@ -206,7 +214,9 @@ function BetDetailsPage() {
 							})
 						}
 					>
-						{bet.status === "open" ? "Liquidar agora" : "Recalcular liquidacao"}
+						{bet.status === "open"
+							? t("bets.settleNow")
+							: t("bets.recalculateSettlement")}
 					</Button>
 					{bet.status !== "open" ? (
 						<Button
@@ -214,7 +224,9 @@ function BetDetailsPage() {
 							disabled={reopenMutation.isPending}
 							onClick={() => reopenMutation.mutate({ data: { betId } })}
 						>
-							{reopenMutation.isPending ? "Reabrindo..." : "Reabrir bet"}
+							{reopenMutation.isPending
+								? t("bets.reopening")
+								: t("bets.reopenBet")}
 						</Button>
 					) : null}
 					<Button
@@ -223,10 +235,10 @@ function BetDetailsPage() {
 						disabled={deleteMutation.isPending}
 						onClick={() => deleteMutation.mutate({ data: { betId } })}
 					>
-						Apagar bet e transacoes vinculadas
+						{t("bets.deleteBetAndTransactions")}
 					</Button>
 					<Button asChild variant="outline">
-						<Link to="/bets">Voltar para o book</Link>
+						<Link to="/bets">{t("bets.backToBook")}</Link>
 					</Button>
 				</section>
 			</section>

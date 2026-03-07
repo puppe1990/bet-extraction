@@ -1,7 +1,8 @@
 import { ClientOnly } from "@tanstack/react-router";
+import { getActiveLocale } from "./locale";
 
 function formatDate(value: string, options?: Intl.DateTimeFormatOptions) {
-	return new Intl.DateTimeFormat("pt-BR", {
+	return new Intl.DateTimeFormat(getActiveLocale(), {
 		dateStyle: "short",
 		timeStyle: "short",
 		...options,

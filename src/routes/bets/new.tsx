@@ -6,6 +6,7 @@ import {
 	fromDatetimeLocal,
 	toDatetimeLocal,
 } from "#/components/BetForm";
+import { useI18n } from "#/lib/i18n";
 import { authSession, betsCreate } from "#/lib/server-functions";
 
 export const Route = createFileRoute("/bets/new")({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/bets/new")({
 });
 
 function NewBetPage() {
+	const { t } = useI18n();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -32,7 +34,7 @@ function NewBetPage() {
 			navigate({ to: "/bets/$betId", params: { betId: bet.id } });
 		},
 		onError: (error) => {
-			setErrorMessage(error.message || "Nao foi possivel criar a bet.");
+			setErrorMessage(error.message || t("bets.createError"));
 		},
 	});
 

@@ -12,6 +12,7 @@ import { EmptyState } from "#/components/EmptyState";
 import { StatCard } from "#/components/StatCard";
 import { StatusBadge } from "#/components/StatusBadge";
 import { DateTimeText } from "#/lib/datetime";
+import { useI18n } from "#/lib/i18n";
 import { formatCurrency, formatNumber } from "#/lib/money";
 import {
 	dashboardQueryOptions,
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/app")({
 });
 
 function DashboardPage() {
+	const { t } = useI18n();
 	const dashboardQuery = useQuery(dashboardQueryOptions());
 	const session = useQuery(sessionQueryOptions());
 
@@ -56,22 +58,21 @@ function DashboardPage() {
 				<div className="space-y-5">
 					<div className="inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-xs uppercase tracking-[0.32em] text-amber-100">
 						<Sparkles className="size-3.5" />
-						Conta ativa
+						{t("app.activeAccount")}
 					</div>
 					<div className="max-w-3xl space-y-4">
 						<h1 className="text-4xl leading-none font-semibold tracking-tight text-white sm:text-6xl">
-							Controle a banca como uma mesa de operacao.
+							{t("app.title")}
 						</h1>
 						<p className="max-w-2xl text-base text-zinc-300 sm:text-lg">
-							Cada usuario opera a propria banca, com sessao isolada, saldo
-							separado e metricas independentes em tempo real.
+							{t("app.description")}
 						</p>
 					</div>
 				</div>
 				<div className="hero-aside">
 					<div>
 						<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
-							Sessao
+							{t("app.session")}
 						</p>
 						<p className="mt-2 text-lg font-semibold text-zinc-100">
 							{session.data?.user.email}
@@ -79,35 +80,38 @@ function DashboardPage() {
 					</div>
 					<div className="space-y-3">
 						<Link to="/bets/new" className="cta-primary no-underline">
-							Nova bet
+							{t("app.newBet")}
 							<ArrowUpRight className="size-4" />
 						</Link>
 						<Link to="/bankroll" className="cta-secondary no-underline">
-							Movimentar banca
+							{t("app.moveBankroll")}
 						</Link>
 					</div>
 				</div>
 			</section>
 
 			<section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-				<StatCard label="Saldo atual" value={formatCurrency(metrics.balance)} />
+				<StatCard label={t("app.currentBalance")} value={formatCurrency(metrics.balance)} />
 				<StatCard
-					label="Lucro liquido"
+					label={t("app.netProfit")}
 					value={formatCurrency(metrics.netProfit)}
 					tone={metrics.netProfit >= 0 ? "green" : "red"}
 				/>
 				<StatCard
 					label="ROI"
 					value={`${formatNumber(metrics.roi * 100)}%`}
-					caption={`${metrics.settledCount} bets liquidadas`}
+					caption={t("app.settledBets", { count: metrics.settledCount })}
 				/>
 				<StatCard
 					label="Win rate"
 					value={`${formatNumber(metrics.winRate * 100)}%`}
 					caption={
 						metrics.currentStreak
-							? `Streak atual: ${metrics.currentStreak.length} ${metrics.currentStreak.tone}`
-							: "Sem streak ativa"
+							? t("app.currentStreak", {
+									count: metrics.currentStreak.length,
+									tone: metrics.currentStreak.tone,
+								})
+							: t("app.noActiveStreak")
 					}
 				/>
 			</section>
@@ -117,19 +121,20 @@ function DashboardPage() {
 					<div className="flex flex-wrap items-center justify-between gap-4">
 						<div>
 							<p className="text-[11px] uppercase tracking-[0.32em] text-amber-100/80">
-								Free usage
+								{t("app.freeUsage")}
 							</p>
 							<h2 className="mt-2 text-2xl font-semibold text-white">
-								{metrics.billing.monthlyBetsUsed}/
-								{metrics.billing.monthlyBetLimit} bets used this month
+								{t("app.betsUsedThisMonth", {
+									used: metrics.billing.monthlyBetsUsed ?? 0,
+									limit: metrics.billing.monthlyBetLimit ?? 0,
+								})}
 							</h2>
 							<p className="mt-2 max-w-2xl text-sm text-zinc-300">
-								Upgrade to Pro to remove the monthly logging cap and unlock the
-								full analytics layer.
+								{t("app.upgradeMessage")}
 							</p>
 						</div>
 						<Link to="/settings" className="cta-primary no-underline">
-							Upgrade plan
+							{t("app.upgradePlan")}
 						</Link>
 					</div>
 				</section>
@@ -145,18 +150,17 @@ function DashboardPage() {
 						</div>
 						<div className="space-y-3">
 							<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
-								Premium analytics
+								{t("app.premiumAnalytics")}
 							</p>
 							<h2 className="text-3xl font-semibold text-white">
-								Unlock the bankroll curve
+								{t("app.unlockCurve")}
 							</h2>
 							<p className="max-w-md text-sm text-zinc-400">
-								Free users keep the core scoreboard. Pro unlocks the full curve,
-								deeper breakdowns and the extension workflow.
+								{t("app.premiumMessage")}
 							</p>
 						</div>
 						<Link to="/settings" className="cta-primary no-underline">
-							See plans
+							{t("app.seePlans")}
 						</Link>
 					</div>
 				)}
@@ -165,10 +169,10 @@ function DashboardPage() {
 					<div className="flex items-center justify-between">
 						<div>
 							<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
-								Efetividade
+								{t("app.efficiency")}
 							</p>
 							<h2 className="mt-2 text-2xl font-semibold text-white">
-								Leitura operacional
+								{t("app.operationalRead")}
 							</h2>
 						</div>
 						<Gauge className="size-5 text-amber-200" />
@@ -177,7 +181,7 @@ function DashboardPage() {
 						<div className="grid gap-4 sm:grid-cols-2">
 							<div className="rounded-3xl border border-white/6 bg-white/4 p-5">
 								<p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-									Yield
+									{t("app.yield")}
 								</p>
 								<div className="mt-2 text-3xl font-semibold text-zinc-50">
 									{formatNumber(metrics.yield * 100)}%
@@ -185,7 +189,7 @@ function DashboardPage() {
 							</div>
 							<div className="rounded-3xl border border-white/6 bg-white/4 p-5">
 								<p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-									Melhor green
+									{t("app.bestGreen")}
 								</p>
 								<div className="mt-2 text-3xl font-semibold text-zinc-50">
 									{metrics.bestStreaks.green}
@@ -193,7 +197,7 @@ function DashboardPage() {
 							</div>
 							<div className="rounded-3xl border border-white/6 bg-white/4 p-5">
 								<p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-									Melhor red
+									{t("app.bestRed")}
 								</p>
 								<div className="mt-2 text-3xl font-semibold text-zinc-50">
 									{metrics.bestStreaks.red}
@@ -201,17 +205,16 @@ function DashboardPage() {
 							</div>
 							<div className="rounded-3xl border border-white/6 bg-white/4 p-5">
 								<p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-									Ultima atualizacao
+									{t("app.lastUpdate")}
 								</p>
 								<div className="mt-2 text-lg font-semibold text-zinc-50">
-									Hoje
+									{t("common.today")}
 								</div>
 							</div>
 						</div>
 					) : (
 						<div className="rounded-3xl border border-white/6 bg-white/[0.03] p-5 text-sm text-zinc-300">
-							Advanced analytics is part of Pro. Upgrade to unlock yield
-							breakdowns, bankroll curve and deeper performance review.
+							{t("app.advancedAnalyticsLocked")}
 						</div>
 					)}
 				</div>
@@ -221,24 +224,24 @@ function DashboardPage() {
 				<div className="mb-5 flex items-center justify-between">
 					<div>
 						<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
-							Ultimas movimentacoes
+							{t("app.recentActivity")}
 						</p>
 						<h2 className="mt-2 text-2xl font-semibold text-white">
-							Bets recentes
+							{t("app.recentBets")}
 						</h2>
 					</div>
 					<Link to="/bets" className="cta-secondary no-underline">
-						Ver todas
+						{t("app.viewAll")}
 					</Link>
 				</div>
 
 				{metrics.recentBets.length === 0 ? (
 					<EmptyState
-						title="Nenhuma bet registrada"
-						description="Comece registrando a primeira entrada para liberar saldo, curva e analiticos."
+						title={t("app.noBetsTitle")}
+						description={t("app.noBetsDescription")}
 						action={
 							<Link to="/bets/new" className="cta-primary no-underline">
-								Criar primeira bet
+								{t("app.createFirstBet")}
 							</Link>
 						}
 					/>
@@ -268,7 +271,7 @@ function DashboardPage() {
 									</div>
 									<div className="text-right">
 										<div className="text-sm uppercase tracking-[0.24em] text-zinc-500">
-											Stake
+											{t("app.stake")}
 										</div>
 										<div className="text-lg font-semibold text-zinc-100">
 											{formatCurrency(bet.stakeAmount)}
@@ -276,7 +279,7 @@ function DashboardPage() {
 										<div className="mt-2 flex items-center justify-end gap-2 text-sm text-zinc-400">
 											<TrendingUp className="size-4" />
 											{bet.profitAmount == null
-												? "Em aberto"
+												? t("app.open")
 												: formatCurrency(bet.profitAmount)}
 										</div>
 									</div>

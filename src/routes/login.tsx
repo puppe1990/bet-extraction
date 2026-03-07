@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { PasswordInput } from "#/components/ui/password-input";
+import { useI18n } from "#/lib/i18n";
 import { authLogin, authSession, authSignup } from "#/lib/server-functions";
 
 export const Route = createFileRoute("/login")({
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
+	const { t } = useI18n();
 	const [mode, setMode] = useState<"login" | "signup">("login");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -58,11 +60,11 @@ function LoginPage() {
 	const submitLabel =
 		mode === "login"
 			? loginMutation.isPending
-				? "Entrando..."
-				: "Entrar"
+				? t("login.loginLoading")
+				: t("login.loginAction")
 			: signupMutation.isPending
-				? "Criando conta..."
-				: "Criar conta";
+				? t("login.signupLoading")
+				: t("login.signupAction");
 
 	return (
 		<main className="page-wrap grid min-h-[calc(100vh-190px)] place-items-center py-10">
@@ -71,39 +73,40 @@ function LoginPage() {
 					<div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(212,162,74,0.18),transparent_38%),radial-gradient(circle_at_bottom_right,rgba(49,208,170,0.18),transparent_34%)]" />
 					<div className="relative space-y-8">
 						<div className="inline-flex items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 py-1 text-xs uppercase tracking-[0.32em] text-amber-100">
-							bankroll control
+							{t("login.kicker")}
 						</div>
 						<div className="space-y-5">
 							<h1 className="max-w-2xl text-5xl leading-none font-semibold tracking-tight text-white">
-								O painel que trata stake, retorno e caixa como um livro-razao.
+								{t("login.title")}
 							</h1>
 							<p className="max-w-xl text-lg text-zinc-300">
-								Entre ou crie sua conta para acompanhar suas apostas com banca,
-								ROI e curva totalmente isolados dos demais usuarios.
+								{t("login.description")}
 							</p>
 						</div>
 						<div className="grid gap-4 md:grid-cols-3">
 							{[
-								["Banca isolada", "Cada conta nasce com uma banca propria."],
-								[
-									"Liquidacao rapida",
-									"Win, loss, void e halfs sem recalculo manual.",
-								],
-								[
-									"Sessao privada",
-									"Cada usuario enxerga apenas as proprias bets e metricas.",
-								],
-							].map(([title, description]) => (
-								<article
-									key={title}
-									className="rounded-[28px] border border-white/8 bg-white/[0.04] p-5"
-								>
-									<h2 className="text-lg font-semibold text-zinc-100">
-										{title}
-									</h2>
-									<p className="mt-3 text-sm text-zinc-400">{description}</p>
-								</article>
-							))}
+								t("login.cards.isolated.0"),
+								t("login.cards.settlement.0"),
+								t("login.cards.private.0"),
+							].map((title, index) => {
+								const description =
+									index === 0
+										? t("login.cards.isolated.1")
+										: index === 1
+											? t("login.cards.settlement.1")
+											: t("login.cards.private.1");
+								return (
+									<article
+										key={title}
+										className="rounded-[28px] border border-white/8 bg-white/[0.04] p-5"
+									>
+										<h2 className="text-lg font-semibold text-zinc-100">
+											{title}
+										</h2>
+										<p className="mt-3 text-sm text-zinc-400">{description}</p>
+									</article>
+								);
+							})}
 						</div>
 					</div>
 				</div>
@@ -123,10 +126,12 @@ function LoginPage() {
 					>
 						<div>
 							<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
-								Acesso
+								{t("login.access")}
 							</p>
 							<h2 className="mt-2 text-3xl font-semibold text-zinc-50">
-								{mode === "login" ? "Entrar na mesa" : "Abrir nova conta"}
+								{mode === "login"
+									? t("login.loginTitle")
+									: t("login.signupTitle")}
 							</h2>
 						</div>
 						<div className="grid grid-cols-2 gap-2 rounded-full border border-white/8 bg-white/[0.03] p-1">
@@ -142,7 +147,7 @@ function LoginPage() {
 									setMode("login");
 								}}
 							>
-								Login
+								{t("login.login")}
 							</button>
 							<button
 								type="button"
@@ -156,24 +161,24 @@ function LoginPage() {
 									setMode("signup");
 								}}
 							>
-								Signup
+								{t("login.signup")}
 							</button>
 						</div>
 						<div className="grid gap-2">
 							<span className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-								Email
+								{t("login.email")}
 							</span>
 							<Input
 								type="email"
 								autoComplete="email"
 								value={email}
 								onChange={(event) => setEmail(event.target.value)}
-								placeholder="voce@dominio.com"
+								placeholder={t("login.emailPlaceholder")}
 							/>
 						</div>
 						<div className="grid gap-2">
 							<span className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-								Senha
+								{t("login.password")}
 							</span>
 							<PasswordInput
 								autoComplete="current-password"
@@ -185,7 +190,7 @@ function LoginPage() {
 						{mode === "signup" ? (
 							<div className="grid gap-2">
 								<span className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-									Confirmar senha
+									{t("login.confirmPassword")}
 								</span>
 								<PasswordInput
 									autoComplete="new-password"
@@ -208,15 +213,9 @@ function LoginPage() {
 
 						<p className="text-sm text-zinc-500">
 							{mode === "login" ? (
-								<>
-									Login para contas existentes. Cada conta acessa apenas a
-									propria banca.
-								</>
+								t("login.loginHelp")
 							) : (
-								<>
-									O signup cria automaticamente um novo usuario com banca
-									principal propria e saldo inicial zero.
-								</>
+								t("login.signupHelp")
 							)}
 						</p>
 					</form>
