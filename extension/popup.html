@@ -87,6 +87,29 @@
         </div>
       </section>
 
+      <section class="panel hidden" id="bankroll-panel">
+        <div class="section-label">Quick bankroll</div>
+        <div class="draft-grid">
+          <label class="field">
+            <span>Type</span>
+            <select id="bankroll-type">
+              <option value="deposit">Deposit</option>
+              <option value="withdraw">Withdraw</option>
+              <option value="adjustment">Adjustment</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Amount (BRL)</span>
+            <input id="bankroll-amount" type="number" step="0.01" min="0.01" />
+          </label>
+          <label class="field field-full">
+            <span>Note</span>
+            <input id="bankroll-note" type="text" placeholder="Deposit, fee, bankroll correction..." />
+          </label>
+        </div>
+        <button id="bankroll-save-button" class="primary">Save bankroll action</button>
+      </section>
+
       <section class="panel hidden" id="capture-panel">
         <div class="section-label">Capture draft</div>
         <div class="actions">

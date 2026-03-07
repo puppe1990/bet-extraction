@@ -23,8 +23,10 @@ import { Route as ApiExtensionMeRouteImport } from './routes/api/extension/me'
 import { Route as ApiExtensionSessionSignupRouteImport } from './routes/api/extension/session/signup'
 import { Route as ApiExtensionSessionLoginRouteImport } from './routes/api/extension/session/login'
 import { Route as ApiExtensionSessionExchangeRouteImport } from './routes/api/extension/session/exchange'
+import { Route as ApiExtensionBetsSettleRouteImport } from './routes/api/extension/bets/settle'
 import { Route as ApiExtensionBetsDraftRouteImport } from './routes/api/extension/bets/draft'
 import { Route as ApiExtensionBetsCreateRouteImport } from './routes/api/extension/bets/create'
+import { Route as ApiExtensionBankrollTransactionRouteImport } from './routes/api/extension/bankroll/transaction'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -99,6 +101,11 @@ const ApiExtensionSessionExchangeRoute =
     path: '/api/extension/session/exchange',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiExtensionBetsSettleRoute = ApiExtensionBetsSettleRouteImport.update({
+  id: '/api/extension/bets/settle',
+  path: '/api/extension/bets/settle',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiExtensionBetsDraftRoute = ApiExtensionBetsDraftRouteImport.update({
   id: '/api/extension/bets/draft',
   path: '/api/extension/bets/draft',
@@ -109,6 +116,12 @@ const ApiExtensionBetsCreateRoute = ApiExtensionBetsCreateRouteImport.update({
   path: '/api/extension/bets/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiExtensionBankrollTransactionRoute =
+  ApiExtensionBankrollTransactionRouteImport.update({
+    id: '/api/extension/bankroll/transaction',
+    path: '/api/extension/bankroll/transaction',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -122,8 +135,10 @@ export interface FileRoutesByFullPath {
   '/bets/': typeof BetsIndexRoute
   '/api/extension/me': typeof ApiExtensionMeRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/extension/bankroll/transaction': typeof ApiExtensionBankrollTransactionRoute
   '/api/extension/bets/create': typeof ApiExtensionBetsCreateRoute
   '/api/extension/bets/draft': typeof ApiExtensionBetsDraftRoute
+  '/api/extension/bets/settle': typeof ApiExtensionBetsSettleRoute
   '/api/extension/session/exchange': typeof ApiExtensionSessionExchangeRoute
   '/api/extension/session/login': typeof ApiExtensionSessionLoginRoute
   '/api/extension/session/signup': typeof ApiExtensionSessionSignupRoute
@@ -140,8 +155,10 @@ export interface FileRoutesByTo {
   '/bets': typeof BetsIndexRoute
   '/api/extension/me': typeof ApiExtensionMeRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/extension/bankroll/transaction': typeof ApiExtensionBankrollTransactionRoute
   '/api/extension/bets/create': typeof ApiExtensionBetsCreateRoute
   '/api/extension/bets/draft': typeof ApiExtensionBetsDraftRoute
+  '/api/extension/bets/settle': typeof ApiExtensionBetsSettleRoute
   '/api/extension/session/exchange': typeof ApiExtensionSessionExchangeRoute
   '/api/extension/session/login': typeof ApiExtensionSessionLoginRoute
   '/api/extension/session/signup': typeof ApiExtensionSessionSignupRoute
@@ -159,8 +176,10 @@ export interface FileRoutesById {
   '/bets/': typeof BetsIndexRoute
   '/api/extension/me': typeof ApiExtensionMeRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/extension/bankroll/transaction': typeof ApiExtensionBankrollTransactionRoute
   '/api/extension/bets/create': typeof ApiExtensionBetsCreateRoute
   '/api/extension/bets/draft': typeof ApiExtensionBetsDraftRoute
+  '/api/extension/bets/settle': typeof ApiExtensionBetsSettleRoute
   '/api/extension/session/exchange': typeof ApiExtensionSessionExchangeRoute
   '/api/extension/session/login': typeof ApiExtensionSessionLoginRoute
   '/api/extension/session/signup': typeof ApiExtensionSessionSignupRoute
@@ -179,8 +198,10 @@ export interface FileRouteTypes {
     | '/bets/'
     | '/api/extension/me'
     | '/api/stripe/webhook'
+    | '/api/extension/bankroll/transaction'
     | '/api/extension/bets/create'
     | '/api/extension/bets/draft'
+    | '/api/extension/bets/settle'
     | '/api/extension/session/exchange'
     | '/api/extension/session/login'
     | '/api/extension/session/signup'
@@ -197,8 +218,10 @@ export interface FileRouteTypes {
     | '/bets'
     | '/api/extension/me'
     | '/api/stripe/webhook'
+    | '/api/extension/bankroll/transaction'
     | '/api/extension/bets/create'
     | '/api/extension/bets/draft'
+    | '/api/extension/bets/settle'
     | '/api/extension/session/exchange'
     | '/api/extension/session/login'
     | '/api/extension/session/signup'
@@ -215,8 +238,10 @@ export interface FileRouteTypes {
     | '/bets/'
     | '/api/extension/me'
     | '/api/stripe/webhook'
+    | '/api/extension/bankroll/transaction'
     | '/api/extension/bets/create'
     | '/api/extension/bets/draft'
+    | '/api/extension/bets/settle'
     | '/api/extension/session/exchange'
     | '/api/extension/session/login'
     | '/api/extension/session/signup'
@@ -234,8 +259,10 @@ export interface RootRouteChildren {
   BetsIndexRoute: typeof BetsIndexRoute
   ApiExtensionMeRoute: typeof ApiExtensionMeRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
+  ApiExtensionBankrollTransactionRoute: typeof ApiExtensionBankrollTransactionRoute
   ApiExtensionBetsCreateRoute: typeof ApiExtensionBetsCreateRoute
   ApiExtensionBetsDraftRoute: typeof ApiExtensionBetsDraftRoute
+  ApiExtensionBetsSettleRoute: typeof ApiExtensionBetsSettleRoute
   ApiExtensionSessionExchangeRoute: typeof ApiExtensionSessionExchangeRoute
   ApiExtensionSessionLoginRoute: typeof ApiExtensionSessionLoginRoute
   ApiExtensionSessionSignupRoute: typeof ApiExtensionSessionSignupRoute
@@ -341,6 +368,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiExtensionSessionExchangeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/extension/bets/settle': {
+      id: '/api/extension/bets/settle'
+      path: '/api/extension/bets/settle'
+      fullPath: '/api/extension/bets/settle'
+      preLoaderRoute: typeof ApiExtensionBetsSettleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/extension/bets/draft': {
       id: '/api/extension/bets/draft'
       path: '/api/extension/bets/draft'
@@ -353,6 +387,13 @@ declare module '@tanstack/react-router' {
       path: '/api/extension/bets/create'
       fullPath: '/api/extension/bets/create'
       preLoaderRoute: typeof ApiExtensionBetsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/extension/bankroll/transaction': {
+      id: '/api/extension/bankroll/transaction'
+      path: '/api/extension/bankroll/transaction'
+      fullPath: '/api/extension/bankroll/transaction'
+      preLoaderRoute: typeof ApiExtensionBankrollTransactionRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -370,8 +411,10 @@ const rootRouteChildren: RootRouteChildren = {
   BetsIndexRoute: BetsIndexRoute,
   ApiExtensionMeRoute: ApiExtensionMeRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
+  ApiExtensionBankrollTransactionRoute: ApiExtensionBankrollTransactionRoute,
   ApiExtensionBetsCreateRoute: ApiExtensionBetsCreateRoute,
   ApiExtensionBetsDraftRoute: ApiExtensionBetsDraftRoute,
+  ApiExtensionBetsSettleRoute: ApiExtensionBetsSettleRoute,
   ApiExtensionSessionExchangeRoute: ApiExtensionSessionExchangeRoute,
   ApiExtensionSessionLoginRoute: ApiExtensionSessionLoginRoute,
   ApiExtensionSessionSignupRoute: ApiExtensionSessionSignupRoute,

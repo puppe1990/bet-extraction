@@ -3,6 +3,7 @@ const $ = (id) => document.getElementById(id);
 const connectPanel = $("connect-panel");
 const devicePanel = $("device-panel");
 const homePanel = $("home-panel");
+const bankrollPanel = $("bankroll-panel");
 const capturePanel = $("capture-panel");
 const messagePanel = $("message-panel");
 const messageBody = $("message-body");
@@ -22,6 +23,9 @@ const homeBalance = $("home-balance");
 const homePlan = $("home-plan");
 const homeUsage = $("home-usage");
 const recentBetsList = $("recent-bets");
+const bankrollTypeInput = $("bankroll-type");
+const bankrollAmountInput = $("bankroll-amount");
+const bankrollNoteInput = $("bankroll-note");
 
 const fields = {
   bookmaker: $("draft-bookmaker"),
@@ -135,6 +139,16 @@ function renderHome(home) {
     const item = document.createElement("li");
     const profit = typeof bet.profitAmount === "number" ? bet.profitAmount : null;
     const profitClass = profit == null ? "" : profit >= 0 ? "positive" : "negative";
+    const actionButtons =
+      bet.status === "open"
+        ? `
+          <div class="bet-actions">
+            <button class="bet-action" data-action="settle" data-bet-id="${bet.id}" data-status="win">Win</button>
+            <button class="bet-action" data-action="settle" data-bet-id="${bet.id}" data-status="loss">Loss</button>
+            <button class="bet-action" data-action="settle" data-bet-id="${bet.id}" data-status="void">Void</button>
+          </div>
+        `
+        : "";
     item.innerHTML = `
       <div class="bet-row">
         <div>
@@ -145,6 +159,7 @@ function renderHome(home) {
           ${profit == null ? formatMoney(bet.stakeAmount) : formatMoney(profit)}
         </div>
       </div>
+      ${actionButtons}
     `;
     recentBetsList.appendChild(item);
   }
@@ -156,6 +171,7 @@ function setConnectedState(state) {
   devicePanel.classList.toggle("hidden", !connected);
   capturePanel.classList.toggle("hidden", !connected);
   homePanel.classList.toggle("hidden", !connected);
+  bankrollPanel.classList.toggle("hidden", !connected);
 
   if (state.user) {
     $("user-email").textContent = state.user.email;
@@ -260,6 +276,57 @@ $("refresh-button").addEventListener("click", async () => {
       home: result.home,
     });
     showMessage("Session refreshed.");
+  } catch (error) {
+    showMessage(error.message, "error");
+  }
+});
+
+$("bankroll-save-button").addEventListener("click", async () => {
+  clearMessage();
+  try {
+    await sendMessage("LEDGER_ADD_BANKROLL_TRANSACTION", {
+      type: bankrollTypeInput.value,
+      amount: Number(bankrollAmountInput.value),
+      note: bankrollNoteInput.value.trim() || undefined,
+    });
+    bankrollAmountInput.value = "";
+    bankrollNoteInput.value = "";
+
+    const refreshed = await sendMessage("LEDGER_REFRESH_ME");
+    setConnectedState({
+      accessToken: true,
+      appUrl: appUrlInput.value.trim(),
+      user: refreshed.user,
+      device: refreshed.device,
+      home: refreshed.home,
+    });
+    showMessage("Bankroll updated.");
+  } catch (error) {
+    showMessage(error.message, "error");
+  }
+});
+
+recentBetsList.addEventListener("click", async (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+  if (target.dataset.action !== "settle") return;
+
+  clearMessage();
+  try {
+    await sendMessage("LEDGER_SETTLE_BET", {
+      betId: target.dataset.betId,
+      status: target.dataset.status,
+    });
+
+    const refreshed = await sendMessage("LEDGER_REFRESH_ME");
+    setConnectedState({
+      accessToken: true,
+      appUrl: appUrlInput.value.trim(),
+      user: refreshed.user,
+      device: refreshed.device,
+      home: refreshed.home,
+    });
+    showMessage("Bet settled.");
   } catch (error) {
     showMessage(error.message, "error");
   }

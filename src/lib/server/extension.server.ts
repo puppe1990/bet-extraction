@@ -8,9 +8,12 @@ import {
 	users,
 } from "#/db/schema";
 import { hashPassword, nowIso, verifyPassword } from "#/lib/auth";
+import type { BankrollTransactionType, BetStatus } from "#/lib/domain";
+import { addManualTransaction } from "./bankroll.server";
 import { createBet } from "./bets.server";
 import { assertBillingFeatureAccess } from "./billing.server";
 import { getDashboardMetrics } from "./dashboard.server";
+import { settleBet } from "./bets.server";
 
 const CONNECTION_TOKEN_AGE_MS = 1000 * 60 * 10;
 const EXTENSION_TOKEN_AGE_MS = 1000 * 60 * 60 * 24 * 90;
@@ -299,6 +302,31 @@ export async function createBetFromExtension(input: {
 }) {
 	await assertBillingFeatureAccess(input.userId, "extension_capture");
 	return createBet(input.userId, normalizeDraft(input.draft));
+}
+
+export async function addBankrollTransactionFromExtension(input: {
+	userId: string;
+	type: Extract<BankrollTransactionType, "deposit" | "withdraw" | "adjustment">;
+	amount: number;
+	note?: string;
+	occurredAt?: string;
+}) {
+	return addManualTransaction(input);
+}
+
+export async function settleBetFromExtension(input: {
+	userId: string;
+	betId: string;
+	status: Exclude<BetStatus, "open">;
+	customReturnAmount?: number;
+}) {
+	return settleBet(
+		input.userId,
+		input.betId,
+		input.status,
+		nowIso(),
+		input.customReturnAmount,
+	);
 }
 
 export async function createDraftPreviewFromExtension(input: {

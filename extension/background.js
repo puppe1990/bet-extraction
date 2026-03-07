@@ -151,6 +151,30 @@ async function saveDraft(draft) {
   return json;
 }
 
+async function addBankrollTransaction(payload) {
+  const state = await getState();
+  const headers = await getAuthHeaders();
+  const json = await fetchJson(`${state.appUrl}/api/extension/bankroll/transaction`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload),
+  });
+
+  return json;
+}
+
+async function settleExtensionBet(payload) {
+  const state = await getState();
+  const headers = await getAuthHeaders();
+  const json = await fetchJson(`${state.appUrl}/api/extension/bets/settle`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload),
+  });
+
+  return json;
+}
+
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   const run = async () => {
     switch (message.type) {
@@ -168,6 +192,10 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         return previewDraft(message.payload);
       case "LEDGER_SAVE_DRAFT":
         return saveDraft(message.payload);
+      case "LEDGER_ADD_BANKROLL_TRANSACTION":
+        return addBankrollTransaction(message.payload);
+      case "LEDGER_SETTLE_BET":
+        return settleExtensionBet(message.payload);
       case "LEDGER_DISCONNECT":
         await chrome.storage.local.clear();
         return { success: true };
