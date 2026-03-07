@@ -1,6 +1,10 @@
 [build]
   command = "vite build"
   dir = "dist/client"
+
+[build.environment]
+  NODE_VERSION = "22"
+
 [dev]
   command = "pnpm dev"
   targetPort = 3000

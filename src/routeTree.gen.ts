@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BetsIndexRouteImport } from './routes/bets/index'
 import { Route as BetsNewRouteImport } from './routes/bets/new'
 import { Route as BetsBetIdRouteImport } from './routes/bets/$betId'
+import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
 import { Route as ApiExtensionMeRouteImport } from './routes/api/extension/me'
 import { Route as ApiExtensionSessionExchangeRouteImport } from './routes/api/extension/session/exchange'
@@ -63,6 +64,11 @@ const BetsBetIdRoute = BetsBetIdRouteImport.update({
   path: '/bets/$betId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiHealthRoute = ApiHealthRouteImport.update({
+  id: '/api/health',
+  path: '/api/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
   id: '/api/stripe/webhook',
   path: '/api/stripe/webhook',
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/bankroll': typeof BankrollRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/api/health': typeof ApiHealthRoute
   '/bets/$betId': typeof BetsBetIdRoute
   '/bets/new': typeof BetsNewRoute
   '/bets/': typeof BetsIndexRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/bankroll': typeof BankrollRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/api/health': typeof ApiHealthRoute
   '/bets/$betId': typeof BetsBetIdRoute
   '/bets/new': typeof BetsNewRoute
   '/bets': typeof BetsIndexRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/bankroll': typeof BankrollRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/api/health': typeof ApiHealthRoute
   '/bets/$betId': typeof BetsBetIdRoute
   '/bets/new': typeof BetsNewRoute
   '/bets/': typeof BetsIndexRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/bankroll'
     | '/login'
     | '/settings'
+    | '/api/health'
     | '/bets/$betId'
     | '/bets/new'
     | '/bets/'
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/bankroll'
     | '/login'
     | '/settings'
+    | '/api/health'
     | '/bets/$betId'
     | '/bets/new'
     | '/bets'
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/bankroll'
     | '/login'
     | '/settings'
+    | '/api/health'
     | '/bets/$betId'
     | '/bets/new'
     | '/bets/'
@@ -190,6 +202,7 @@ export interface RootRouteChildren {
   BankrollRoute: typeof BankrollRoute
   LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRoute
+  ApiHealthRoute: typeof ApiHealthRoute
   BetsBetIdRoute: typeof BetsBetIdRoute
   BetsNewRoute: typeof BetsNewRoute
   BetsIndexRoute: typeof BetsIndexRoute
@@ -258,6 +271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BetsBetIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/health': {
+      id: '/api/health'
+      path: '/api/health'
+      fullPath: '/api/health'
+      preLoaderRoute: typeof ApiHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/stripe/webhook': {
       id: '/api/stripe/webhook'
       path: '/api/stripe/webhook'
@@ -302,6 +322,7 @@ const rootRouteChildren: RootRouteChildren = {
   BankrollRoute: BankrollRoute,
   LoginRoute: LoginRoute,
   SettingsRoute: SettingsRoute,
+  ApiHealthRoute: ApiHealthRoute,
   BetsBetIdRoute: BetsBetIdRoute,
   BetsNewRoute: BetsNewRoute,
   BetsIndexRoute: BetsIndexRoute,

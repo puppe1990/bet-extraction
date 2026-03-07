@@ -19,6 +19,8 @@ const optionalUrlString = z.preprocess((value) => {
 	return value;
 }, z.string().url().optional());
 
+const defaultSessionSecret = "dev-session-secret-1234";
+
 const serverEnvSchema = z
 	.object({
 		TURSO_DATABASE_URL: z.string().min(1).default("file:local.db"),
@@ -26,7 +28,7 @@ const serverEnvSchema = z
 		SESSION_COOKIE_SECRET: z
 			.string()
 			.min(16)
-			.default("dev-session-secret-1234"),
+			.default(defaultSessionSecret),
 		BOOTSTRAP_EMAIL: z.string().email().optional(),
 		BOOTSTRAP_PASSWORD: z.string().min(8).optional(),
 		APP_URL: optionalUrlString.default("http://localhost:3000"),
@@ -44,6 +46,31 @@ const serverEnvSchema = z
 				path: ["TURSO_AUTH_TOKEN"],
 				message: "TURSO_AUTH_TOKEN is required for remote Turso databases.",
 			});
+		}
+
+		if (process.env.NODE_ENV === "production") {
+			if (env.SESSION_COOKIE_SECRET === defaultSessionSecret) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					path: ["SESSION_COOKIE_SECRET"],
+					message:
+						"SESSION_COOKIE_SECRET must be overridden in production.",
+				});
+			}
+
+			const appUrlHost = new URL(env.APP_URL).hostname;
+			if (
+				appUrlHost === "localhost" ||
+				appUrlHost === "127.0.0.1" ||
+				appUrlHost.endsWith(".local")
+			) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					path: ["APP_URL"],
+					message:
+						"APP_URL must be a public production URL when NODE_ENV=production.",
+				});
+			}
 		}
 	});
 

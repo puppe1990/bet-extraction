@@ -102,6 +102,26 @@ pnpm db:push
 pnpm bootstrap:user
 ```
 
+## Production readiness
+
+The repository is now wired for production deploy on Netlify with:
+
+- `netlify.toml` build settings
+- production env validation in `src/env.server.ts`
+- healthcheck endpoint at `/api/health`
+- PWA manifest and install icons in `public/`
+
+Key production rules:
+
+- `SESSION_COOKIE_SECRET` must be replaced in production
+- `APP_URL` must be the final public HTTPS domain
+- remote Turso databases require `TURSO_AUTH_TOKEN`
+- Stripe production requires live keys, live prices and a live webhook
+
+Full deploy runbook:
+
+- `docs/deployment/production.md`
+
 ## Stripe billing
 
 Billing base already exists in the app:

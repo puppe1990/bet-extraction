@@ -11,6 +11,7 @@ dist-ssr
 .wrangler
 .output
 .vinxi
+.tmp-icon-venv
 __unconfig*
 todos.json
 *.db
