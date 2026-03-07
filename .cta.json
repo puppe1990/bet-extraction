@@ -1,0 +1,29 @@
+{
+  "projectName": "bet-extraction",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "pnpm",
+  "git": false,
+  "install": true,
+  "addOnOptions": {
+    "drizzle": {
+      "database": "sqlite"
+    }
+  },
+  "includeExamples": true,
+  "envVarValues": {},
+  "routerOnly": false,
+  "version": 1,
+  "framework": "react",
+  "chosenAddOns": [
+    "drizzle",
+    "tanstack-query",
+    "form",
+    "table",
+    "shadcn",
+    "t3env",
+    "biome",
+    "netlify"
+  ]
+}
