@@ -19,9 +19,44 @@ export const users = sqliteTable(
 		id: text().primaryKey(),
 		email: text().notNull(),
 		passwordHash: text("password_hash").notNull(),
+		stripeCustomerId: text("stripe_customer_id"),
 		...timestampColumns,
 	},
-	(table) => [uniqueIndex("users_email_unique").on(table.email)],
+	(table) => [
+		uniqueIndex("users_email_unique").on(table.email),
+		uniqueIndex("users_stripe_customer_unique").on(table.stripeCustomerId),
+	],
+);
+
+export const billingSubscriptions = sqliteTable(
+	"billing_subscriptions",
+	{
+		id: text().primaryKey(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		stripeCustomerId: text("stripe_customer_id").notNull(),
+		stripeSubscriptionId: text("stripe_subscription_id"),
+		stripePriceId: text("stripe_price_id"),
+		stripeProductId: text("stripe_product_id"),
+		planKey: text("plan_key").notNull().default("free"),
+		status: text().notNull().default("inactive"),
+		interval: text(),
+		currentPeriodEnd: text("current_period_end"),
+		cancelAtPeriodEnd: integer("cancel_at_period_end", { mode: "boolean" })
+			.notNull()
+			.default(false),
+		...timestampColumns,
+	},
+	(table) => [
+		uniqueIndex("billing_subscriptions_user_unique").on(table.userId),
+		uniqueIndex("billing_subscriptions_customer_unique").on(
+			table.stripeCustomerId,
+		),
+		uniqueIndex("billing_subscriptions_subscription_unique").on(
+			table.stripeSubscriptionId,
+		),
+	],
 );
 
 export const sessions = sqliteTable(
@@ -142,6 +177,10 @@ export const usersRelations = relations(users, ({ many, one }) => ({
 		references: [bankrollAccounts.userId],
 	}),
 	tags: many(betTags),
+	billingSubscription: one(billingSubscriptions, {
+		fields: [users.id],
+		references: [billingSubscriptions.userId],
+	}),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -204,3 +243,13 @@ export const betTagLinksRelations = relations(betTagLinks, ({ one }) => ({
 		references: [betTags.id],
 	}),
 }));
+
+export const billingSubscriptionsRelations = relations(
+	billingSubscriptions,
+	({ one }) => ({
+		user: one(users, {
+			fields: [billingSubscriptions.userId],
+			references: [users.id],
+		}),
+	}),
+);

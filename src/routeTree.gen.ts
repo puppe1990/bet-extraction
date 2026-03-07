@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BetsIndexRouteImport } from './routes/bets/index'
 import { Route as BetsNewRouteImport } from './routes/bets/new'
 import { Route as BetsBetIdRouteImport } from './routes/bets/$betId'
+import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -58,6 +59,11 @@ const BetsBetIdRoute = BetsBetIdRouteImport.update({
   path: '/bets/$betId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
+  id: '/api/stripe/webhook',
+  path: '/api/stripe/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/bets/$betId': typeof BetsBetIdRoute
   '/bets/new': typeof BetsNewRoute
   '/bets/': typeof BetsIndexRoute
+  '/api/stripe/webhook': typeof ApiStripeWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/bets/$betId': typeof BetsBetIdRoute
   '/bets/new': typeof BetsNewRoute
   '/bets': typeof BetsIndexRoute
+  '/api/stripe/webhook': typeof ApiStripeWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/bets/$betId': typeof BetsBetIdRoute
   '/bets/new': typeof BetsNewRoute
   '/bets/': typeof BetsIndexRoute
+  '/api/stripe/webhook': typeof ApiStripeWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/bets/$betId'
     | '/bets/new'
     | '/bets/'
+    | '/api/stripe/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/bets/$betId'
     | '/bets/new'
     | '/bets'
+    | '/api/stripe/webhook'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/bets/$betId'
     | '/bets/new'
     | '/bets/'
+    | '/api/stripe/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   BetsBetIdRoute: typeof BetsBetIdRoute
   BetsNewRoute: typeof BetsNewRoute
   BetsIndexRoute: typeof BetsIndexRoute
+  ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BetsBetIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/stripe/webhook': {
+      id: '/api/stripe/webhook'
+      path: '/api/stripe/webhook'
+      fullPath: '/api/stripe/webhook'
+      preLoaderRoute: typeof ApiStripeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   BetsBetIdRoute: BetsBetIdRoute,
   BetsNewRoute: BetsNewRoute,
   BetsIndexRoute: BetsIndexRoute,
+  ApiStripeWebhookRoute: ApiStripeWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

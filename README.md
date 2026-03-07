@@ -102,6 +102,33 @@ pnpm db:push
 pnpm bootstrap:user
 ```
 
+## Stripe billing
+
+Billing base already exists in the app:
+
+- local entitlement mirror in `billing_subscriptions`
+- hosted Stripe Checkout for `Pro` and `Pro+`
+- Stripe Customer Portal launch from `Settings`
+- webhook endpoint at `/api/stripe/webhook`
+
+Required environment variables:
+
+```bash
+APP_URL="http://localhost:3000"
+STRIPE_SECRET_KEY=""
+STRIPE_WEBHOOK_SECRET=""
+STRIPE_PRO_MONTHLY_PRICE_ID=""
+STRIPE_PRO_YEARLY_PRICE_ID=""
+STRIPE_PRO_PLUS_MONTHLY_PRICE_ID=""
+STRIPE_PRO_PLUS_YEARLY_PRICE_ID=""
+```
+
+The fastest local webhook loop is with the Stripe CLI forwarding events to:
+
+```bash
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
+
 ## Estrutura relevante
 
 - `src/lib/server-functions.ts`: server functions do app

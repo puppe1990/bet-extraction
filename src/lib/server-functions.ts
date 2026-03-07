@@ -13,6 +13,11 @@ import {
 	getBankrollSummary,
 } from "#/lib/server/bankroll.server";
 import {
+	createBillingPortalSessionForUser,
+	createCheckoutSessionForUser,
+	getBillingSummary,
+} from "#/lib/server/billing.server";
+import {
 	createBet,
 	createTag,
 	deleteBet,
@@ -25,6 +30,7 @@ import {
 	updateBet,
 } from "#/lib/server/bets.server";
 import { getDashboardMetrics } from "#/lib/server/dashboard.server";
+import { billingIntervals, billingPlanKeys } from "./billing";
 import { betStatuses } from "./domain";
 
 const loginSchema = z.object({
@@ -255,3 +261,44 @@ export const authChangePassword = createServerFn({ method: "POST" })
 		);
 		return { success: true };
 	});
+
+export const billingGetSummary = createServerFn({ method: "GET" }).handler(
+	async () => {
+		const session = await requireCurrentSession();
+		return getBillingSummary(session.user.id);
+	},
+);
+
+export const billingCreateCheckoutSession = createServerFn({ method: "POST" })
+	.inputValidator((input: unknown) =>
+		z
+			.object({
+				planKey: z.enum(
+					billingPlanKeys.filter((planKey) => planKey !== "free") as [
+						"pro",
+						"pro_plus",
+					],
+				),
+				interval: z.enum(billingIntervals),
+			})
+			.parse(input),
+	)
+	.handler(async ({ data }) => {
+		const session = await requireCurrentSession();
+		return createCheckoutSessionForUser({
+			userId: session.user.id,
+			email: session.user.email,
+			planKey: data.planKey,
+			interval: data.interval,
+		});
+	});
+
+export const billingCreatePortalSession = createServerFn({
+	method: "POST",
+}).handler(async () => {
+	const session = await requireCurrentSession();
+	return createBillingPortalSessionForUser({
+		userId: session.user.id,
+		email: session.user.email,
+	});
+});

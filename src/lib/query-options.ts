@@ -1,6 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import {
 	authSession,
+	billingGetSummary,
 	bankrollGetSummary,
 	betsGetById,
 	betsList,
@@ -25,6 +26,12 @@ export const bankrollSummaryQueryOptions = () =>
 	queryOptions({
 		queryKey: ["bankroll", "summary"],
 		queryFn: () => bankrollGetSummary(),
+	});
+
+export const billingSummaryQueryOptions = () =>
+	queryOptions({
+		queryKey: ["billing", "summary"],
+		queryFn: () => billingGetSummary(),
 	});
 
 export const betsListQueryOptions = (filters: Record<string, unknown>) =>
