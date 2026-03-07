@@ -17,7 +17,6 @@ import {
 	authSession,
 	billingCreateCheckoutSession,
 	billingCreatePortalSession,
-	extensionCreateConnectionToken,
 } from "#/lib/server-functions";
 
 export const Route = createFileRoute("/settings")({
@@ -46,10 +45,6 @@ function SettingsPage() {
 	const [currentPassword, setCurrentPassword] = useState("");
 	const [nextPassword, setNextPassword] = useState("");
 	const [message, setMessage] = useState<string | null>(null);
-	const [connectionToken, setConnectionToken] = useState<string | null>(null);
-	const [connectionTokenExpiry, setConnectionTokenExpiry] = useState<
-		string | null
-	>(null);
 	const currentPlanKey = billingQuery.data?.planKey ?? "free";
 	const effectivePlanKey = billingQuery.data?.effectivePlanKey ?? "free";
 	const currentInterval = billingQuery.data?.interval ?? null;
@@ -98,18 +93,6 @@ function SettingsPage() {
 		mutationFn: () => billingCreatePortalSession(),
 		onSuccess: (result) => {
 			window.location.href = result.url;
-		},
-		onError: (error) => {
-			setMessage(error.message);
-		},
-	});
-
-	const connectionTokenMutation = useMutation({
-		mutationFn: () => extensionCreateConnectionToken(),
-		onSuccess: (result) => {
-			setConnectionToken(result.token);
-			setConnectionTokenExpiry(result.expiresAt);
-			setMessage(null);
 		},
 		onError: (error) => {
 			setMessage(error.message);
@@ -379,43 +362,9 @@ function SettingsPage() {
 									<p>
 										{t("settings.extensionDescription")}
 									</p>
-									<div className="flex flex-wrap gap-3">
-										<Button
-											disabled={connectionTokenMutation.isPending}
-											onClick={() => connectionTokenMutation.mutate()}
-											type="button"
-										>
-											{connectionTokenMutation.isPending
-												? t("settings.generating")
-												: t("settings.connectExtension")}
-										</Button>
-										{connectionToken ? (
-											<div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-semibold tracking-[0.18em] text-emerald-100 uppercase">
-												{t("settings.tokenReady")}
-											</div>
-										) : null}
-									</div>
-									{connectionToken ? (
-										<div className="rounded-2xl border border-white/8 bg-[#0a1016] px-4 py-4">
-											<div className="text-[11px] uppercase tracking-[0.24em] text-zinc-500">
-												{t("settings.oneTimeToken")}
-											</div>
-											<div className="mt-3 break-all font-mono text-sm text-zinc-100">
-												{connectionToken}
-											</div>
-											<div className="mt-3 text-xs text-zinc-400">
-												{t("settings.expiresAt")}
-												{connectionTokenExpiry ? (
-													<DateTimeText value={connectionTokenExpiry} />
-												) : (
-													"--"
-												)}
-											</div>
-										</div>
-									) : null}
 									<ol className="grid gap-2 text-sm text-zinc-300">
 										<li>{t("settings.stepsOpenExtension")}</li>
-										<li>{t("settings.stepsPasteToken")}</li>
+										<li>{t("settings.stepsSignInExtension")}</li>
 										<li>{t("settings.stepsExchangeToken")}</li>
 									</ol>
 								</div>

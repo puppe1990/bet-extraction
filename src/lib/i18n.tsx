@@ -333,10 +333,6 @@ const messages = {
 			newPassword: "New password",
 			updatePassword: "Update password",
 			updating: "Updating...",
-			connectExtension: "Connect Chrome extension",
-			generating: "Generating...",
-			tokenReady: "Token ready",
-			oneTimeToken: "One-time connection token",
 			title: "Settings",
 			email: "Email",
 			currentBankroll: "Current bankroll",
@@ -360,7 +356,7 @@ const messages = {
 			currentPeriodEndsAt: "Current period ends at ",
 			extensionTitle: "Capture and export access",
 			extensionDescription:
-				"Your plan includes extension capture. Generate a one-time connection token here, then paste it into the Chrome extension popup to link this account.",
+				"Your plan includes extension capture. Open the Chrome extension, sign in with your Ledger email and password, then start capturing drafts from bookmaker pages.",
 			extensionLocked:
 				"Free accounts can log bets manually. Upgrade to Pro when you want CSV export and the Chrome extension capture workflow.",
 			featureIncluded: "Included in your current access",
@@ -373,11 +369,10 @@ const messages = {
 				"Download filtered bet history for external reporting, tax workflows or deeper analysis outside the app.",
 			csvReady: "Ready to use in Bets",
 			stepsOpenExtension: "1. Open the Chrome extension popup.",
-			stepsPasteToken:
-				"2. Paste this token and confirm the app URL.",
+			stepsSignInExtension:
+				"2. Enter your Ledger app URL, email and password.",
 			stepsExchangeToken:
-				"3. The extension exchanges it for a persistent device token.",
-			expiresAt: "Expires at ",
+				"3. The extension keeps a persistent device session after login.",
 			securityTitle: "Change password",
 			passwordUpdated: "Password updated.",
 			planLifetime: "Lifetime",
@@ -733,10 +728,6 @@ const messages = {
 			newPassword: "Nova senha",
 			updatePassword: "Atualizar senha",
 			updating: "Atualizando...",
-			connectExtension: "Conectar extensão Chrome",
-			generating: "Gerando...",
-			tokenReady: "Token pronto",
-			oneTimeToken: "Token único de conexão",
 			title: "Ajustes",
 			email: "Email",
 			currentBankroll: "Banca atual",
@@ -760,7 +751,7 @@ const messages = {
 			currentPeriodEndsAt: "O período atual termina em ",
 			extensionTitle: "Acesso a captura e exportação",
 			extensionDescription:
-				"Seu plano inclui captura por extensão. Gere aqui um token único de conexão e depois cole no popup da extensão Chrome para vincular esta conta.",
+				"Seu plano inclui captura por extensão. Abra a extensão Chrome, entre com seu email e senha do Ledger e comece a capturar rascunhos das páginas das casas.",
 			extensionLocked:
 				"Contas free podem registrar bets manualmente. Faça upgrade para Pro quando quiser exportação CSV e o fluxo de captura pela extensão Chrome.",
 			featureIncluded: "Incluído no seu acesso atual",
@@ -773,11 +764,10 @@ const messages = {
 				"Baixe histórico filtrado de bets para relatórios externos, rotinas fiscais ou análise mais profunda fora do app.",
 			csvReady: "Pronto para usar em Bets",
 			stepsOpenExtension: "1. Abra o popup da extensão Chrome.",
-			stepsPasteToken:
-				"2. Cole este token e confirme a URL do app.",
+			stepsSignInExtension:
+				"2. Informe a URL do app, seu email e sua senha do Ledger.",
 			stepsExchangeToken:
-				"3. A extensão troca isso por um token persistente de dispositivo.",
-			expiresAt: "Expira em ",
+				"3. A extensão mantém uma sessão persistente do dispositivo após o login.",
 			securityTitle: "Trocar senha",
 			passwordUpdated: "Senha atualizada.",
 			planLifetime: "Lifetime",
