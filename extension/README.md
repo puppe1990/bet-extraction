@@ -26,13 +26,15 @@ The popup will exchange the short-lived token for a persistent extension access 
 ## Current scope
 
 - connect extension to a Ledger account
-- capture a low-confidence draft from the active tab
+- capture a draft from the active tab
+- heuristic parser for `Bet365`
 - preview normalization through the app backend
 - save the draft as an open bet in Ledger
 
 ## Current limitations
 
-- no bookmaker-specific DOM parser yet
+- Bet365 parsing is still best-effort and depends on DOM stability
+- no second bookmaker parser yet
 - no CLV or settlement automation
 - no icon assets
 - popup is plain HTML/CSS/JS, not bundled

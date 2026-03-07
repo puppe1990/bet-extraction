@@ -60,6 +60,12 @@ function fillDraft(draft) {
   fields.note.value = draft.note || "";
 }
 
+function draftSummary(draft) {
+  const confidence = draft.parserConfidence ? ` (${draft.parserConfidence} confidence)` : "";
+  const bookmaker = draft.bookmaker ? ` from ${draft.bookmaker}` : "";
+  return `Draft captured${bookmaker}${confidence}.`;
+}
+
 function setConnectedState(state) {
   const connected = Boolean(state.accessToken);
   connectPanel.classList.toggle("hidden", connected);
@@ -147,7 +153,7 @@ $("capture-button").addEventListener("click", async () => {
   try {
     const draft = await sendMessage("LEDGER_CAPTURE_ACTIVE_TAB");
     fillDraft(draft);
-    showMessage("Draft captured from the active tab.");
+    showMessage(draftSummary(draft));
   } catch (error) {
     showMessage(error.message, "error");
   }
