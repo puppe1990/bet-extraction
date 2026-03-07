@@ -112,3 +112,9 @@ pnpm bootstrap:user
 ## Status
 
 Pronto para desenvolvimento local, deploy em Netlify e uso multi-user basico com Turso.
+
+## Strategy Docs
+
+- `docs/strategy/landing-page-wireframe.md`
+- `docs/strategy/pricing-and-billing.md`
+- `docs/strategy/chrome-extension-architecture.md`

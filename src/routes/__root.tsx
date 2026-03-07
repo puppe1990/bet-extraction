@@ -43,7 +43,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="pt-BR" suppressHydrationWarning>
+		<html lang="en" suppressHydrationWarning>
 			<head>
 				<HeadContent />
 			</head>

@@ -10,7 +10,7 @@ export const Route = createFileRoute("/login")({
 	beforeLoad: async () => {
 		const session = await authSession();
 		if (session) {
-			throw redirect({ to: "/" });
+			throw redirect({ to: "/app" });
 		}
 	},
 	component: LoginPage,
@@ -29,7 +29,7 @@ function LoginPage() {
 		mutationFn: () => authLogin({ data: { email, password } }),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries();
-			navigate({ to: "/" });
+			navigate({ to: "/app" });
 		},
 		onError: (error) => {
 			setErrorMessage(error.message);
@@ -47,7 +47,7 @@ function LoginPage() {
 			}),
 		onSuccess: async () => {
 			await queryClient.invalidateQueries();
-			navigate({ to: "/" });
+			navigate({ to: "/app" });
 		},
 		onError: (error) => {
 			setErrorMessage(error.message);
