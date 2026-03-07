@@ -4,6 +4,7 @@ import {
 	ArrowRight,
 	BarChart3,
 	Chrome,
+	ChevronRight,
 	LayoutDashboard,
 	ShieldCheck,
 	Sparkles,
@@ -39,6 +40,50 @@ const featurePillars = [
 		description:
 			"Track deposits, withdrawals, stake flow and bankroll movement without spreadsheet cleanup.",
 		icon: ShieldCheck,
+	},
+];
+
+const workflowSteps = [
+	{
+		step: "01",
+		title: "Log the bet",
+		description:
+			"Enter bets manually or use the Chrome extension to capture the draft from the bookmaker page.",
+	},
+	{
+		step: "02",
+		title: "Track bankroll flow",
+		description:
+			"Stake, deposits, withdrawals and settlements keep bankroll movement accurate without direct balance edits.",
+	},
+	{
+		step: "03",
+		title: "Review performance",
+		description:
+			"Break down what works by bookmaker, market, sport and result type to tighten your process over time.",
+	},
+];
+
+const faqs = [
+	{
+		question: "Is Ledger a picks app?",
+		answer:
+			"No. Ledger is a bet tracking and bankroll analytics product. It helps you review performance, not generate predictions.",
+	},
+	{
+		question: "Do I need the Chrome extension?",
+		answer:
+			"No. The app works with manual bet entry. The extension is the speed layer for users who want to remove typing and reduce mistakes.",
+	},
+	{
+		question: "Who is this for?",
+		answer:
+			"Serious sports bettors, traders and small betting operators who already care about record quality, bankroll discipline and review.",
+	},
+	{
+		question: "Will more bookmakers be supported?",
+		answer:
+			"Yes. The rollout should start narrow with a few strong integrations, then expand sportsbook coverage without sacrificing reliability.",
 	},
 ];
 
@@ -241,6 +286,78 @@ function LandingPage() {
 				</div>
 			</section>
 
+			<section className="landing-section page-wrap">
+				<div className="section-heading">
+					<p className="section-kicker">Real product</p>
+					<h2>Not a concept page. A working interface.</h2>
+					<p>
+						The current product already handles multi-user auth, bankroll
+						movements, settlement states and the full bet journal workflow.
+					</p>
+				</div>
+				<div className="product-proof">
+					<div className="product-shot">
+						<img
+							src="/ledger-login.png"
+							alt="Ledger login screen with product interface preview"
+							className="product-image"
+						/>
+					</div>
+					<div className="product-proof-copy">
+						<div className="proof-bullet">
+							<span className="proof-dot" />
+							<div>
+								<strong>Multi-user from the base layer</strong>
+								<p>
+									Each account gets isolated sessions, bets, tags, transactions
+									and dashboard metrics.
+								</p>
+							</div>
+						</div>
+						<div className="proof-bullet">
+							<span className="proof-dot" />
+							<div>
+								<strong>Flexible settlement model</strong>
+								<p>
+									Support for win, loss, void, half win, half loss and cashout
+									without hacking balances.
+								</p>
+							</div>
+						</div>
+						<div className="proof-bullet">
+							<span className="proof-dot" />
+							<div>
+								<strong>Built for extension sync</strong>
+								<p>
+									The ledger model already treats each bet as an auditable flow,
+									which is the right shape for Chrome capture.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<section className="landing-section page-wrap">
+				<div className="section-heading">
+					<p className="section-kicker">How it works</p>
+					<h2>Three steps to turn noisy betting activity into usable intelligence</h2>
+				</div>
+				<div className="workflow-grid">
+					{workflowSteps.map((item) => (
+						<article key={item.step} className="workflow-card">
+							<div className="workflow-step">{item.step}</div>
+							<h3>{item.title}</h3>
+							<p>{item.description}</p>
+							<div className="workflow-link">
+								<span>From action to record</span>
+								<ChevronRight className="size-4" />
+							</div>
+						</article>
+					))}
+				</div>
+			</section>
+
 			<section className="landing-section page-wrap" id="pricing">
 				<div className="section-heading">
 					<p className="section-kicker">Pricing</p>
@@ -275,6 +392,21 @@ function LandingPage() {
 							<Link to={primaryTo} className="cta-primary no-underline">
 								{tier.cta}
 							</Link>
+						</article>
+					))}
+				</div>
+			</section>
+
+			<section className="landing-section page-wrap">
+				<div className="section-heading">
+					<p className="section-kicker">FAQ</p>
+					<h2>Questions a serious bettor will ask before signing up</h2>
+				</div>
+				<div className="faq-grid">
+					{faqs.map((item) => (
+						<article key={item.question} className="faq-card">
+							<h3>{item.question}</h3>
+							<p>{item.answer}</p>
 						</article>
 					))}
 				</div>
