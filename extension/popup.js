@@ -146,6 +146,9 @@ function renderHome(home) {
             <button class="bet-action" data-action="settle" data-bet-id="${bet.id}" data-status="win">Win</button>
             <button class="bet-action" data-action="settle" data-bet-id="${bet.id}" data-status="loss">Loss</button>
             <button class="bet-action" data-action="settle" data-bet-id="${bet.id}" data-status="void">Void</button>
+            <button class="bet-action" data-action="settle" data-bet-id="${bet.id}" data-status="half_win">Half win</button>
+            <button class="bet-action" data-action="settle" data-bet-id="${bet.id}" data-status="half_loss">Half loss</button>
+            <button class="bet-action" data-action="settle" data-bet-id="${bet.id}" data-status="cashout">Cashout</button>
           </div>
         `
         : "";
@@ -313,10 +316,22 @@ recentBetsList.addEventListener("click", async (event) => {
 
   clearMessage();
   try {
-    await sendMessage("LEDGER_SETTLE_BET", {
+    const payload = {
       betId: target.dataset.betId,
       status: target.dataset.status,
-    });
+    };
+
+    if (target.dataset.status === "cashout") {
+      const value = window.prompt("Cashout return amount in BRL");
+      if (value == null) return;
+      const customReturnAmount = Number(value.replace(",", "."));
+      if (!Number.isFinite(customReturnAmount) || customReturnAmount < 0) {
+        throw new Error("Enter a valid cashout return.");
+      }
+      payload.customReturnAmount = customReturnAmount;
+    }
+
+    await sendMessage("LEDGER_SETTLE_BET", payload);
 
     const refreshed = await sendMessage("LEDGER_REFRESH_ME");
     setConnectedState({
