@@ -50,6 +50,7 @@ export async function getDashboardMetrics(userId: string) {
 		premiumAnalyticsEnabled: billing.isPremium,
 		billing: {
 			planKey: billing.planKey,
+			effectivePlanKey: billing.effectivePlanKey,
 			status: billing.status,
 			monthlyBetLimit: billing.monthlyBetLimit,
 			monthlyBetsUsed: billing.monthlyBetsUsed,

@@ -22,6 +22,7 @@ export type BillingPriceCatalog = Record<
 
 export const defaultBillingSummary = {
 	planKey: "free" as BillingPlanKey,
+	effectivePlanKey: "free" as BillingPlanKey,
 	status: "inactive" as SubscriptionStatus,
 	interval: null as BillingInterval | null,
 	cancelAtPeriodEnd: false,
@@ -64,4 +65,11 @@ export function hasPaidAccess(
 	}
 
 	return status === "active" || status === "trialing";
+}
+
+export function getEffectivePlanKey(
+	planKey: BillingPlanKey,
+	status: SubscriptionStatus,
+): BillingPlanKey {
+	return hasPaidAccess(planKey, status) ? planKey : "free";
 }

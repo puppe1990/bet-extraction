@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { hasPaidAccess, resolvePlanFromPriceId } from "./billing";
+import {
+	getEffectivePlanKey,
+	hasPaidAccess,
+	resolvePlanFromPriceId,
+} from "./billing";
 
 describe("resolvePlanFromPriceId", () => {
 	it("maps Stripe price ids to local plans", () => {
@@ -45,5 +49,13 @@ describe("hasPaidAccess", () => {
 		expect(hasPaidAccess("pro_plus", "trialing")).toBe(true);
 		expect(hasPaidAccess("pro", "past_due")).toBe(false);
 		expect(hasPaidAccess("free", "active")).toBe(false);
+	});
+});
+
+describe("getEffectivePlanKey", () => {
+	it("downgrades canceled or unpaid subscriptions to free entitlements", () => {
+		expect(getEffectivePlanKey("pro", "canceled")).toBe("free");
+		expect(getEffectivePlanKey("pro_plus", "past_due")).toBe("free");
+		expect(getEffectivePlanKey("pro", "active")).toBe("pro");
 	});
 });

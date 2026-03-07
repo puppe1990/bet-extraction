@@ -13,6 +13,7 @@ import {
 	type BillingInterval,
 	type BillingPlanKey,
 	defaultBillingSummary,
+	getEffectivePlanKey,
 	hasPaidAccess,
 	resolvePlanFromPriceId,
 } from "#/lib/billing";
@@ -96,8 +97,18 @@ export async function getBillingSummary(userId: string) {
 		};
 	}
 
+	const isPremium = hasPaidAccess(
+		subscription.planKey as BillingPlanKey,
+		subscription.status,
+	);
+	const effectivePlanKey = getEffectivePlanKey(
+		subscription.planKey as BillingPlanKey,
+		subscription.status,
+	);
+
 	return {
 		planKey: subscription.planKey as BillingPlanKey,
+		effectivePlanKey,
 		status: subscription.status,
 		interval: subscription.interval as BillingInterval | null,
 		cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
@@ -105,15 +116,12 @@ export async function getBillingSummary(userId: string) {
 		stripeCustomerId: subscription.stripeCustomerId,
 		stripeSubscriptionId: subscription.stripeSubscriptionId,
 		isConfigured: isBillingConfigured(),
-		isPremium: hasPaidAccess(
-			subscription.planKey as BillingPlanKey,
-			subscription.status,
-		),
+		isPremium,
 		monthlyBetLimit:
-			subscription.planKey === "free" ? FREE_PLAN_MONTHLY_BET_LIMIT : null,
+			effectivePlanKey === "free" ? FREE_PLAN_MONTHLY_BET_LIMIT : null,
 		monthlyBetsUsed: usage,
 		monthlyBetsRemaining:
-			subscription.planKey === "free"
+			effectivePlanKey === "free"
 				? Math.max(FREE_PLAN_MONTHLY_BET_LIMIT - usage, 0)
 				: null,
 	};
@@ -161,7 +169,7 @@ export async function assertCanCreateBet(userId: string) {
 	}
 
 	if (
-		billing.planKey === "free" &&
+		billing.effectivePlanKey === "free" &&
 		billing.monthlyBetLimit != null &&
 		billing.monthlyBetsUsed >= billing.monthlyBetLimit
 	) {

@@ -34,6 +34,12 @@ function SettingsPage() {
 	const [currentPassword, setCurrentPassword] = useState("");
 	const [nextPassword, setNextPassword] = useState("");
 	const [message, setMessage] = useState<string | null>(null);
+	const currentPlanKey = billingQuery.data?.planKey ?? "free";
+	const currentInterval = billingQuery.data?.interval ?? null;
+	const isActivePaidPlan =
+		currentPlanKey !== "free" &&
+		(billingQuery.data?.status === "active" ||
+			billingQuery.data?.status === "trialing");
 
 	const passwordMutation = useMutation({
 		mutationFn: authChangePassword,
@@ -100,12 +106,19 @@ function SettingsPage() {
 						<div className="text-xs uppercase tracking-[0.24em] text-zinc-500">
 							Plano
 						</div>
-						<div className="mt-2 text-xl font-semibold text-zinc-100">
-							{billingQuery.data?.planKey === "pro_plus"
-								? "Pro+"
-								: billingQuery.data?.planKey === "pro"
-									? "Pro"
-									: "Free"}
+						<div className="mt-2 flex items-center gap-3">
+							<div className="text-xl font-semibold text-zinc-100">
+								{currentPlanKey === "pro_plus"
+									? "Pro+"
+									: currentPlanKey === "pro"
+										? "Pro"
+										: "Free"}
+							</div>
+							{isActivePaidPlan ? (
+								<div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
+									Active
+								</div>
+							) : null}
 						</div>
 						<div className="mt-2 text-sm text-zinc-400">
 							{billingQuery.data?.status
@@ -158,6 +171,8 @@ function SettingsPage() {
 										data: { planKey: "pro", interval: "year" },
 									})
 								}
+								activePlan={currentPlanKey === "pro"}
+								activeInterval={currentPlanKey === "pro" ? currentInterval : null}
 								disabled={
 									!billingQuery.data?.isConfigured || checkoutMutation.isPending
 								}
@@ -181,6 +196,10 @@ function SettingsPage() {
 										data: { planKey: "pro_plus", interval: "year" },
 									})
 								}
+								activePlan={currentPlanKey === "pro_plus"}
+								activeInterval={
+									currentPlanKey === "pro_plus" ? currentInterval : null
+								}
 								disabled={
 									!billingQuery.data?.isConfigured || checkoutMutation.isPending
 								}
@@ -196,7 +215,9 @@ function SettingsPage() {
 							>
 								{portalMutation.isPending
 									? "Opening portal..."
-									: "Open customer portal"}
+									: isActivePaidPlan
+										? "Manage subscription"
+										: "Open customer portal"}
 							</Button>
 							{billingQuery.data?.currentPeriodEnd ? (
 								<div className="rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 text-sm text-zinc-300">
@@ -258,11 +279,26 @@ function PlanCard(props: {
 	onMonthly: () => void;
 	onYearly: () => void;
 	disabled: boolean;
+	activePlan?: boolean;
+	activeInterval?: "month" | "year" | null;
 }) {
 	return (
-		<article className="rounded-[28px] border border-white/6 bg-white/[0.03] p-5">
-			<div className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-				{props.title}
+		<article
+			className={`rounded-[28px] border bg-white/[0.03] p-5 ${
+				props.activePlan
+					? "border-emerald-400/20 shadow-[0_0_0_1px_rgba(74,222,128,0.06)]"
+					: "border-white/6"
+			}`}
+		>
+			<div className="flex items-center justify-between gap-3">
+				<div className="text-xs uppercase tracking-[0.24em] text-zinc-500">
+					{props.title}
+				</div>
+				{props.activePlan ? (
+					<div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-200">
+						Current plan
+					</div>
+				) : null}
 			</div>
 			<div className="mt-2 text-3xl font-semibold text-zinc-50">
 				{props.price}
@@ -273,16 +309,24 @@ function PlanCard(props: {
 				))}
 			</div>
 			<div className="mt-5 flex flex-wrap gap-3">
-				<Button disabled={props.disabled} onClick={props.onMonthly} type="button">
-					Monthly
+				<Button
+					disabled={props.disabled || (props.activePlan && props.activeInterval === "month")}
+					onClick={props.onMonthly}
+					type="button"
+				>
+					{props.activePlan && props.activeInterval === "month"
+						? "Current monthly"
+						: "Monthly"}
 				</Button>
 				<Button
 					variant="outline"
-					disabled={props.disabled}
+					disabled={props.disabled || (props.activePlan && props.activeInterval === "year")}
 					onClick={props.onYearly}
 					type="button"
 				>
-					Yearly
+					{props.activePlan && props.activeInterval === "year"
+						? "Current yearly"
+						: "Yearly"}
 				</Button>
 			</div>
 		</article>

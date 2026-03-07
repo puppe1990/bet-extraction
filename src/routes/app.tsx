@@ -112,7 +112,7 @@ function DashboardPage() {
 				/>
 			</section>
 
-			{metrics.billing.planKey === "free" ? (
+			{metrics.billing.effectivePlanKey === "free" ? (
 				<section className="mt-8 rounded-[28px] border border-amber-300/16 bg-amber-300/8 p-5">
 					<div className="flex flex-wrap items-center justify-between gap-4">
 						<div>
