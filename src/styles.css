@@ -25,6 +25,28 @@
   --input: rgba(255, 255, 255, 0.06);
   --ring: rgba(243, 195, 106, 0.35);
   --radius: 1rem;
+  --chip-line: rgba(255, 255, 255, 0.1);
+  --chip-bg: rgba(255, 255, 255, 0.04);
+  --sea-ink: #eef1f6;
+  --page-top-glow: rgba(212, 162, 74, 0.11);
+  --page-side-glow: rgba(49, 208, 170, 0.1);
+  --page-start: #111216;
+  --page-mid: #090a0d;
+  --page-end: #050608;
+  --grid-line: rgba(255, 255, 255, 0.025);
+  --grid-line-vertical: rgba(255, 255, 255, 0.02);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-bg-soft: rgba(255, 255, 255, 0.03);
+  --glass-bg-strong: rgba(9, 10, 13, 0.8);
+  --glass-shadow: 0 18px 80px rgba(0, 0, 0, 0.24);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shell-muted: #6f7888;
+  --shell-muted-2: #8f95a3;
+  --shell-title: #eef1f6;
+  --shell-active-bg: rgba(243, 195, 106, 0.11);
+  --shell-active-line: rgba(243, 195, 106, 0.24);
+  --shell-active-text: #fff2cf;
 }
 
 .dark {
@@ -32,6 +54,46 @@
   --foreground: #f5f5f5;
   --card: #111318;
   --card-foreground: #f5f5f5;
+}
+
+.light {
+  --background: #f7f1e5;
+  --foreground: #18212d;
+  --card: #fffaf2;
+  --card-foreground: #18212d;
+  --popover: #fffaf2;
+  --popover-foreground: #18212d;
+  --secondary: #efe5d6;
+  --secondary-foreground: #18212d;
+  --muted: #efe5d6;
+  --muted-foreground: #667085;
+  --accent: #efe5d6;
+  --accent-foreground: #18212d;
+  --border: rgba(24, 33, 45, 0.12);
+  --input: rgba(24, 33, 45, 0.06);
+  --ring: rgba(201, 150, 52, 0.3);
+  --chip-line: rgba(24, 33, 45, 0.12);
+  --chip-bg: rgba(255, 255, 255, 0.76);
+  --sea-ink: #18212d;
+  --page-top-glow: rgba(212, 162, 74, 0.12);
+  --page-side-glow: rgba(49, 208, 170, 0.08);
+  --page-start: #f7f1e5;
+  --page-mid: #f3ecdf;
+  --page-end: #ece4d5;
+  --grid-line: rgba(24, 33, 45, 0.045);
+  --grid-line-vertical: rgba(24, 33, 45, 0.04);
+  --glass-border: rgba(24, 33, 45, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-soft: rgba(255, 255, 255, 0.6);
+  --glass-bg-strong: rgba(255, 251, 245, 0.88);
+  --glass-shadow: 0 18px 60px rgba(76, 62, 33, 0.12);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.68);
+  --shell-muted: #667085;
+  --shell-muted-2: #5d6777;
+  --shell-title: #18212d;
+  --shell-active-bg: rgba(243, 195, 106, 0.26);
+  --shell-active-line: rgba(201, 150, 52, 0.32);
+  --shell-active-text: #3b2b0f;
 }
 
 @theme inline {
@@ -72,12 +134,16 @@ html {
   color-scheme: dark;
 }
 
+html.light {
+  color-scheme: light;
+}
+
 body {
   margin: 0;
   background:
-    radial-gradient(circle at top left, rgba(212, 162, 74, 0.11), transparent 26%),
-    radial-gradient(circle at 80% 20%, rgba(49, 208, 170, 0.1), transparent 24%),
-    linear-gradient(180deg, #111216 0%, #090a0d 60%, #050608 100%);
+    radial-gradient(circle at top left, var(--page-top-glow), transparent 26%),
+    radial-gradient(circle at 80% 20%, var(--page-side-glow), transparent 24%),
+    linear-gradient(180deg, var(--page-start) 0%, var(--page-mid) 60%, var(--page-end) 100%);
   color: var(--foreground);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -90,8 +156,8 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-vertical) 1px, transparent 1px);
   background-size: 38px 38px;
   mask-image: radial-gradient(circle at center, black 10%, transparent 75%);
 }
@@ -143,12 +209,12 @@ code {
   align-items: center;
   gap: 0.65rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(8, 9, 12, 0.9);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg-strong);
   backdrop-filter: blur(18px);
   padding: 0.65rem 0.95rem;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
-  color: #eef1f6;
+  box-shadow: var(--glass-shadow);
+  color: var(--shell-title);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -208,8 +274,8 @@ code {
   min-width: 0;
   gap: 0.9rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
   padding: 0.55rem 0.95rem;
 }
 
@@ -236,8 +302,8 @@ code {
 .header-control-group {
   align-items: center;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
   padding: 0.25rem;
 }
 
@@ -253,8 +319,8 @@ code {
   min-width: 0;
   max-width: 17rem;
   border-radius: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
   padding: 0.55rem 0.85rem;
 }
 
@@ -262,7 +328,7 @@ code {
   font-size: 0.58rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: #6f7888;
+  color: var(--shell-muted);
 }
 
 .header-account-card__value {
@@ -272,7 +338,7 @@ code {
   margin-top: 0.2rem;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #eef1f6;
+  color: var(--shell-title);
 }
 
 .header-signout-button {
@@ -291,8 +357,8 @@ code {
   gap: 0.1rem;
   min-width: 0;
   border-radius: 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
   padding: 0.45rem 0.7rem;
 }
 
@@ -300,7 +366,7 @@ code {
   font-size: 0.55rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #6f7888;
+  color: var(--shell-muted);
 }
 
 .mobile-product-session__value {
@@ -310,7 +376,7 @@ code {
   white-space: nowrap;
   font-size: 0.78rem;
   font-weight: 700;
-  color: #f4f6fa;
+  color: var(--shell-title);
 }
 
 .mobile-locale-switch {
@@ -318,8 +384,8 @@ code {
   align-items: center;
   gap: 0.3rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
   padding: 0.25rem;
 }
 
@@ -331,7 +397,7 @@ code {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #9ca3af;
+  color: var(--shell-muted-2);
 }
 
 .mobile-locale-switch__button--active {
