@@ -1,4 +1,11 @@
 const $ = (id) => document.getElementById(id);
+const DEFAULT_APP_URL = "https://bet-extraction.netlify.app";
+const LEGACY_LOCAL_APP_URLS = new Set([
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:3001",
+  "http://127.0.0.1:3001",
+]);
 
 const connectPanel = $("connect-panel");
 const devicePanel = $("device-panel");
@@ -41,6 +48,16 @@ const fields = {
 
 let authMode = "login";
 
+function normalizeAppUrl(value) {
+  const normalized = typeof value === "string" ? value.trim().replace(/\/$/, "") : "";
+
+  if (!normalized || LEGACY_LOCAL_APP_URLS.has(normalized)) {
+    return DEFAULT_APP_URL;
+  }
+
+  return normalized;
+}
+
 function formatMoney(value) {
   const amount = typeof value === "number" ? value : 0;
   return new Intl.NumberFormat(undefined, {
@@ -72,7 +89,7 @@ function setAuthMode(nextMode) {
   confirmPasswordField.classList.toggle("hidden", !signup);
   authButton.textContent = signup ? "Create account" : "Sign in";
   openAppLink.textContent = signup ? "Open web signup" : "Open web app";
-  openAppLink.href = `${(appUrlInput.value.trim() || "http://localhost:3000").replace(/\/$/, "")}/login`;
+  openAppLink.href = `${normalizeAppUrl(appUrlInput.value)}/login`;
 }
 
 function mapDraftFromForm() {
@@ -218,8 +235,8 @@ function setConnectedState(state) {
   }
 
   if (state.appUrl) {
-    appUrlInput.value = state.appUrl;
-    openAppLink.href = `${state.appUrl.replace(/\/$/, "")}/login`;
+    appUrlInput.value = normalizeAppUrl(state.appUrl);
+    openAppLink.href = `${normalizeAppUrl(state.appUrl)}/login`;
   }
 
   renderHome(state.home);
@@ -260,14 +277,15 @@ modeLoginButton.addEventListener("click", () => setAuthMode("login"));
 modeSignupButton.addEventListener("click", () => setAuthMode("signup"));
 
 appUrlInput.addEventListener("input", () => {
-  const appUrl = appUrlInput.value.trim() || "http://localhost:3000";
-  openAppLink.href = `${appUrl.replace(/\/$/, "")}/login`;
+  const appUrl = normalizeAppUrl(appUrlInput.value);
+  openAppLink.href = `${appUrl}/login`;
 });
 
 authButton.addEventListener("click", async () => {
   clearMessage();
   try {
-    const appUrl = appUrlInput.value.trim() || "http://localhost:3000";
+    const appUrl = normalizeAppUrl(appUrlInput.value);
+    appUrlInput.value = appUrl;
     const payload = {
       appUrl,
       email: emailInput.value.trim(),

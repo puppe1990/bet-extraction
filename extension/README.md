@@ -12,7 +12,7 @@ This folder contains a plain Manifest V3 scaffold for the Ledger capture flow.
 ## Sign-in flow
 
 1. Open the extension popup
-2. Enter the Ledger app URL
+2. Confirm the Ledger app URL (`https://bet-extraction.netlify.app` by default)
 3. Enter your email and password
 4. Optionally rename the device
 5. Click `Sign in`
@@ -22,7 +22,7 @@ The popup will create a persistent extension session token and store it in Chrom
 ## Sign-up flow
 
 1. Switch the popup to `Signup`
-2. Enter the Ledger app URL
+2. Confirm the Ledger app URL (`https://bet-extraction.netlify.app` by default)
 3. Enter your email, password and password confirmation
 4. Click `Create account`
 

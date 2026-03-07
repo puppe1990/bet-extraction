@@ -1,4 +1,20 @@
-const DEFAULT_APP_URL = "http://localhost:3000";
+const DEFAULT_APP_URL = "https://bet-extraction.netlify.app";
+const LEGACY_LOCAL_APP_URLS = new Set([
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:3001",
+  "http://127.0.0.1:3001",
+]);
+
+function normalizeAppUrl(value) {
+  const normalized = typeof value === "string" ? value.trim().replace(/\/$/, "") : "";
+
+  if (!normalized || LEGACY_LOCAL_APP_URLS.has(normalized)) {
+    return DEFAULT_APP_URL;
+  }
+
+  return normalized;
+}
 
 async function getState() {
   const data = await chrome.storage.local.get([
@@ -11,7 +27,7 @@ async function getState() {
   ]);
 
   return {
-    appUrl: data.appUrl || DEFAULT_APP_URL,
+    appUrl: normalizeAppUrl(data.appUrl),
     accessToken: data.accessToken || null,
     user: data.user || null,
     device: data.device || null,
@@ -37,14 +53,15 @@ async function fetchJson(url, options = {}) {
 }
 
 async function loginWithPassword({ appUrl, email, password, name }) {
-  const json = await fetchJson(`${appUrl}/api/extension/session/login`, {
+  const normalizedAppUrl = normalizeAppUrl(appUrl);
+  const json = await fetchJson(`${normalizedAppUrl}/api/extension/session/login`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email, password, name }),
   });
 
   await setState({
-    appUrl,
+    appUrl: normalizedAppUrl,
     accessToken: json.accessToken,
     user: json.user,
     device: {
@@ -58,14 +75,15 @@ async function loginWithPassword({ appUrl, email, password, name }) {
 }
 
 async function signupWithPassword({ appUrl, email, password, confirmPassword, name }) {
-  const json = await fetchJson(`${appUrl}/api/extension/session/signup`, {
+  const normalizedAppUrl = normalizeAppUrl(appUrl);
+  const json = await fetchJson(`${normalizedAppUrl}/api/extension/session/signup`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ email, password, confirmPassword, name }),
   });
 
   await setState({
-    appUrl,
+    appUrl: normalizedAppUrl,
     accessToken: json.accessToken,
     user: json.user,
     device: {
