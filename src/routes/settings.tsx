@@ -51,6 +51,8 @@ function SettingsPage() {
 	const currentPlanKey = billingQuery.data?.planKey ?? "free";
 	const effectivePlanKey = billingQuery.data?.effectivePlanKey ?? "free";
 	const currentInterval = billingQuery.data?.interval ?? null;
+	const isLifetimePlan =
+		currentPlanKey === "lifetime" && effectivePlanKey === "lifetime";
 	const isActivePaidPlan =
 		effectivePlanKey !== "free" &&
 		(billingQuery.data?.status === "active" ||
@@ -153,7 +155,9 @@ function SettingsPage() {
 						</div>
 						<div className="mt-2 flex items-center gap-3">
 							<div className="text-xl font-semibold text-zinc-100">
-								{currentPlanKey === "pro_plus"
+								{currentPlanKey === "lifetime"
+									? "Lifetime"
+									: currentPlanKey === "pro_plus"
 									? "Pro+"
 									: currentPlanKey === "pro"
 										? "Pro"
@@ -174,7 +178,7 @@ function SettingsPage() {
 							</div>
 						) : null}
 						{effectivePlanKey === "free" &&
-						billingQuery.data.monthlyBetLimit != null ? (
+						billingQuery.data?.monthlyBetLimit != null ? (
 							<div className="mt-3 text-sm text-zinc-400">
 								{billingQuery.data.monthlyBetsUsed}/
 								{billingQuery.data.monthlyBetLimit} bets used this month
@@ -218,7 +222,9 @@ function SettingsPage() {
 									Access now
 								</p>
 								<p className="mt-2 text-2xl font-semibold text-zinc-50">
-									{effectivePlanKey === "pro_plus"
+									{effectivePlanKey === "lifetime"
+										? "Lifetime"
+										: effectivePlanKey === "pro_plus"
 										? "Pro+"
 										: effectivePlanKey === "pro"
 											? "Pro"
@@ -301,11 +307,23 @@ function SettingsPage() {
 									!billingQuery.data?.isConfigured || checkoutMutation.isPending
 								}
 							/>
+							<ManualPlanCard
+								title="Lifetime"
+								price="Manual grant"
+								features={[
+									"Unlimited bets",
+									"Extension capture",
+									"Advanced analytics",
+									"CSV export",
+								]}
+								activePlan={currentPlanKey === "lifetime"}
+							/>
 						</div>
 						<div className="flex flex-wrap gap-3">
 							<Button
 								variant="outline"
 								disabled={
+									isLifetimePlan ||
 									!billingQuery.data?.stripeCustomerId ||
 									portalMutation.isPending
 								}
@@ -313,6 +331,8 @@ function SettingsPage() {
 							>
 								{portalMutation.isPending
 									? "Opening portal..."
+									: isLifetimePlan
+										? "Lifetime plan"
 									: hasExpiredPaidPlan
 										? "Review billing history"
 										: isActivePaidPlan
@@ -506,6 +526,49 @@ function FeatureGateCard(props: {
 	);
 }
 
+function ManualPlanCard(props: {
+	title: string;
+	price: string;
+	features: string[];
+	activePlan?: boolean;
+}) {
+	return (
+		<article
+			className={`rounded-[28px] border bg-white/[0.03] p-5 ${
+				props.activePlan
+					? "border-emerald-400/20 shadow-[0_0_0_1px_rgba(74,222,128,0.06)]"
+					: "border-white/6"
+			}`}
+		>
+			<div className="flex items-center justify-between gap-3">
+				<div className="text-xs uppercase tracking-[0.24em] text-zinc-500">
+					{props.title}
+				</div>
+				{props.activePlan ? (
+					<div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-200">
+						Current plan
+					</div>
+				) : (
+					<div className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-300">
+						Internal grant
+					</div>
+				)}
+			</div>
+			<div className="mt-2 text-3xl font-semibold text-zinc-50">
+				{props.price}
+			</div>
+			<div className="mt-4 grid gap-2 text-sm text-zinc-300">
+				{props.features.map((feature) => (
+					<div key={feature}>{feature}</div>
+				))}
+			</div>
+			<div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-zinc-300">
+				Lifetime access is granted manually. It does not use Stripe Checkout or a recurring subscription.
+			</div>
+		</article>
+	);
+}
+
 function getBillingStatusLabel(input: {
 	planKey: string;
 	effectivePlanKey: string;
@@ -514,6 +577,10 @@ function getBillingStatusLabel(input: {
 }) {
 	if (!input.status || input.planKey === "free") {
 		return "No paid subscription on file.";
+	}
+
+	if (input.planKey === "lifetime" && input.effectivePlanKey === "lifetime") {
+		return "Status: active. Lifetime access is unlocked on this account.";
 	}
 
 	if (input.cancelAtPeriodEnd && input.effectivePlanKey !== "free") {

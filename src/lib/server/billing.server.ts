@@ -14,6 +14,7 @@ import {
 	type BillingFeatureKey,
 	type BillingInterval,
 	type BillingPlanKey,
+	type RecurringBillingPlanKey,
 	defaultBillingSummary,
 	getEffectivePlanKey,
 	hasBillingFeatureAccess,
@@ -241,11 +242,10 @@ async function ensureStripeCustomerForUser(userId: string, email: string) {
 	return customer.id;
 }
 
-function getPriceIdForPlan(planKey: BillingPlanKey, interval: BillingInterval) {
-	if (planKey === "free") {
-		throw new Error("Free plan does not require Checkout.");
-	}
-
+function getPriceIdForPlan(
+	planKey: RecurringBillingPlanKey,
+	interval: BillingInterval,
+) {
 	const catalog = getBillingPriceCatalog();
 	const priceId = catalog[planKey][interval];
 
@@ -259,7 +259,7 @@ function getPriceIdForPlan(planKey: BillingPlanKey, interval: BillingInterval) {
 export async function createCheckoutSessionForUser(input: {
 	userId: string;
 	email: string;
-	planKey: Exclude<BillingPlanKey, "free">;
+	planKey: RecurringBillingPlanKey;
 	interval: BillingInterval;
 }) {
 	if (!isBillingConfigured()) {

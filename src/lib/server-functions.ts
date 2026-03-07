@@ -32,7 +32,7 @@ import {
 } from "#/lib/server/billing.server";
 import { getDashboardMetrics } from "#/lib/server/dashboard.server";
 import { createExtensionConnectionToken } from "#/lib/server/extension.server";
-import { billingIntervals, billingPlanKeys } from "./billing";
+import { billingIntervals, recurringBillingPlanKeys } from "./billing";
 import { betStatuses } from "./domain";
 
 const loginSchema = z.object({
@@ -283,10 +283,7 @@ export const billingCreateCheckoutSession = createServerFn({ method: "POST" })
 		z
 			.object({
 				planKey: z.enum(
-					billingPlanKeys.filter((planKey) => planKey !== "free") as [
-						"pro",
-						"pro_plus",
-					],
+					recurringBillingPlanKeys,
 				),
 				interval: z.enum(billingIntervals),
 			})

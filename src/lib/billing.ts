@@ -1,4 +1,5 @@
-export const billingPlanKeys = ["free", "pro", "pro_plus"] as const;
+export const billingPlanKeys = ["free", "pro", "pro_plus", "lifetime"] as const;
+export const recurringBillingPlanKeys = ["pro", "pro_plus"] as const;
 export const billingIntervals = ["month", "year"] as const;
 export const subscriptionStatuses = [
 	"inactive",
@@ -12,11 +13,12 @@ export const subscriptionStatuses = [
 ] as const;
 
 export type BillingPlanKey = (typeof billingPlanKeys)[number];
+export type RecurringBillingPlanKey = (typeof recurringBillingPlanKeys)[number];
 export type BillingInterval = (typeof billingIntervals)[number];
 export type SubscriptionStatus = (typeof subscriptionStatuses)[number];
 
 export type BillingPriceCatalog = Record<
-	Exclude<BillingPlanKey, "free">,
+	RecurringBillingPlanKey,
 	Record<BillingInterval, string | null>
 >;
 
@@ -83,7 +85,9 @@ export function hasBillingFeatureAccess(
 	switch (feature) {
 		case "csv_export":
 		case "extension_capture":
-			return planKey === "pro" || planKey === "pro_plus";
+			return (
+				planKey === "pro" || planKey === "pro_plus" || planKey === "lifetime"
+			);
 		default:
 			return false;
 	}

@@ -48,6 +48,7 @@ describe("hasPaidAccess", () => {
 	it("only grants premium access for active or trialing paid plans", () => {
 		expect(hasPaidAccess("pro", "active")).toBe(true);
 		expect(hasPaidAccess("pro_plus", "trialing")).toBe(true);
+		expect(hasPaidAccess("lifetime", "active")).toBe(true);
 		expect(hasPaidAccess("pro", "past_due")).toBe(false);
 		expect(hasPaidAccess("free", "active")).toBe(false);
 	});
@@ -67,5 +68,6 @@ describe("hasBillingFeatureAccess", () => {
 		expect(hasBillingFeatureAccess("free", "extension_capture")).toBe(false);
 		expect(hasBillingFeatureAccess("pro", "csv_export")).toBe(true);
 		expect(hasBillingFeatureAccess("pro_plus", "extension_capture")).toBe(true);
+		expect(hasBillingFeatureAccess("lifetime", "csv_export")).toBe(true);
 	});
 });
