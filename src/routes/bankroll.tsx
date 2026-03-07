@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pencil } from "lucide-react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { DateTimeText } from "#/lib/datetime";
@@ -32,45 +32,66 @@ function BankrollPage() {
 	const [amount, setAmount] = useState("100");
 	const [note, setNote] = useState("");
 	const [occurredAt, setOccurredAt] = useState(toDatetimeLocal());
-	const [editingTransactionId, setEditingTransactionId] = useState<string | null>(
-		null,
-	);
+	const [editingTransaction, setEditingTransaction] = useState<{
+		id: string;
+		type: "deposit" | "withdraw" | "adjustment";
+		amount: string;
+		note: string;
+		occurredAt: string;
+	} | null>(null);
 
-	const transactionMutation = useMutation({
+	const createTransactionMutation = useMutation({
 		mutationFn: async () => {
-			const values = {
-				type,
-				amount: Number(amount),
-				note,
-				occurredAt: fromDatetimeLocal(occurredAt),
-			};
-
-			if (editingTransactionId) {
-				return bankrollUpdateTransaction({
-					data: {
-						transactionId: editingTransactionId,
-						values,
-					},
-				});
-			}
-
 			return bankrollAddTransaction({
-				data: values,
+				data: {
+					type,
+					amount: Number(amount),
+					note,
+					occurredAt: fromDatetimeLocal(occurredAt),
+				},
 			});
 		},
 		onSuccess: async () => {
-			resetForm();
+			resetCreateForm();
 			await queryClient.invalidateQueries({ queryKey: ["bankroll"] });
 			await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
 		},
 	});
 
-	function resetForm() {
+	const editTransactionMutation = useMutation({
+		mutationFn: async () => {
+			if (!editingTransaction) {
+				throw new Error("No transaction selected.");
+			}
+
+			return bankrollUpdateTransaction({
+				data: {
+					transactionId: editingTransaction.id,
+					values: {
+						type: editingTransaction.type,
+						amount: Number(editingTransaction.amount),
+						note: editingTransaction.note,
+						occurredAt: fromDatetimeLocal(editingTransaction.occurredAt),
+					},
+				},
+			});
+		},
+		onSuccess: async () => {
+			closeEditModal();
+			await queryClient.invalidateQueries({ queryKey: ["bankroll"] });
+			await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+		},
+	});
+
+	function resetCreateForm() {
 		setType("deposit");
 		setAmount("100");
 		setNote("");
 		setOccurredAt(toDatetimeLocal());
-		setEditingTransactionId(null);
+	}
+
+	function closeEditModal() {
+		setEditingTransaction(null);
 	}
 
 	function startEditing(transaction: {
@@ -90,12 +111,31 @@ function BankrollPage() {
 			return;
 		}
 
-		setEditingTransactionId(transaction.id);
-		setType(normalizedType);
-		setAmount(String(Math.abs(transaction.amount)));
-		setNote(transaction.note ?? "");
-		setOccurredAt(toDatetimeLocal(transaction.occurredAt));
+		setEditingTransaction({
+			id: transaction.id,
+			type: normalizedType,
+			amount: String(Math.abs(transaction.amount)),
+			note: transaction.note ?? "",
+			occurredAt: toDatetimeLocal(transaction.occurredAt),
+		});
 	}
+
+	useEffect(() => {
+		if (!editingTransaction) {
+			return;
+		}
+
+		function onKeyDown(event: KeyboardEvent) {
+			if (event.key === "Escape") {
+				closeEditModal();
+			}
+		}
+
+		window.addEventListener("keydown", onKeyDown);
+		return () => {
+			window.removeEventListener("keydown", onKeyDown);
+		};
+	}, [editingTransaction]);
 
 	return (
 		<main className="page-wrap py-10">
@@ -104,7 +144,7 @@ function BankrollPage() {
 					className="panel-card space-y-5"
 					onSubmit={async (event) => {
 						event.preventDefault();
-						await transactionMutation.mutateAsync();
+						await createTransactionMutation.mutateAsync();
 					}}
 				>
 					<div>
@@ -112,9 +152,7 @@ function BankrollPage() {
 							{t("bankroll.kicker")}
 						</p>
 						<h1 className="mt-2 text-4xl font-semibold tracking-tight text-white">
-							{editingTransactionId
-								? t("bankroll.editTransaction")
-								: t("bankroll.title")}
+							{t("bankroll.title")}
 						</h1>
 					</div>
 					<select
@@ -150,22 +188,11 @@ function BankrollPage() {
 						placeholder={t("bankroll.notePlaceholder")}
 					/>
 					<div className="flex flex-wrap gap-3">
-						<Button disabled={transactionMutation.isPending}>
-							{transactionMutation.isPending
+						<Button disabled={createTransactionMutation.isPending}>
+							{createTransactionMutation.isPending
 								? t("bankroll.submitting")
-								: editingTransactionId
-									? t("bankroll.editSubmit")
-									: t("bankroll.submit")}
+								: t("bankroll.submit")}
 						</Button>
-						{editingTransactionId ? (
-							<Button
-								type="button"
-								variant="outline"
-								onClick={resetForm}
-							>
-								{t("bankroll.cancelEdit")}
-							</Button>
-						) : null}
 					</div>
 				</form>
 
@@ -277,7 +304,99 @@ function BankrollPage() {
 					</div>
 				</section>
 			</section>
-
+			{editingTransaction ? (
+				<div
+					className="fixed inset-0 z-80 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
+					onClick={closeEditModal}
+				>
+					<form
+						className="panel-card w-full max-w-xl gap-5"
+						onClick={(event) => event.stopPropagation()}
+						onSubmit={async (event) => {
+							event.preventDefault();
+							await editTransactionMutation.mutateAsync();
+						}}
+					>
+						<div className="flex items-start justify-between gap-4">
+							<div>
+								<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
+									{t("bankroll.kicker")}
+								</p>
+								<h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+									{t("bankroll.editTransaction")}
+								</h2>
+							</div>
+							<Button type="button" variant="outline" onClick={closeEditModal}>
+								{t("bankroll.cancelEdit")}
+							</Button>
+						</div>
+						<select
+							className="field-input"
+							value={editingTransaction.type}
+							onChange={(event) =>
+								setEditingTransaction((current) =>
+									current
+										? {
+												...current,
+												type: event.target.value as
+													| "deposit"
+													| "withdraw"
+													| "adjustment",
+										  }
+										: current,
+								)
+							}
+						>
+							<option value="deposit">{t("bankroll.deposit")}</option>
+							<option value="withdraw">{t("bankroll.withdraw")}</option>
+							<option value="adjustment">{t("bankroll.adjustment")}</option>
+						</select>
+						<Input
+							type="number"
+							min="0.01"
+							step="0.01"
+							value={editingTransaction.amount}
+							onChange={(event) =>
+								setEditingTransaction((current) =>
+									current ? { ...current, amount: event.target.value } : current,
+								)
+							}
+							placeholder={t("bankroll.amountPlaceholder")}
+						/>
+						<Input
+							type="datetime-local"
+							value={editingTransaction.occurredAt}
+							onChange={(event) =>
+								setEditingTransaction((current) =>
+									current
+										? { ...current, occurredAt: event.target.value }
+										: current,
+								)
+							}
+							placeholder={t("bankroll.occurredAt")}
+						/>
+						<Input
+							value={editingTransaction.note}
+							onChange={(event) =>
+								setEditingTransaction((current) =>
+									current ? { ...current, note: event.target.value } : current,
+								)
+							}
+							placeholder={t("bankroll.notePlaceholder")}
+						/>
+						<div className="flex flex-wrap justify-end gap-3">
+							<Button type="button" variant="outline" onClick={closeEditModal}>
+								{t("bankroll.cancelEdit")}
+							</Button>
+							<Button disabled={editTransactionMutation.isPending}>
+								{editTransactionMutation.isPending
+									? t("bankroll.submitting")
+									: t("bankroll.editSubmit")}
+							</Button>
+						</div>
+					</form>
+				</div>
+			) : null}
 		</main>
 	);
 }
