@@ -1,10 +1,16 @@
 import { createHash, randomUUID } from "node:crypto";
 import { and, eq, isNull, or } from "drizzle-orm";
 import { db } from "#/db";
-import { extensionConnectionTokens, extensionTokens, users } from "#/db/schema";
-import { nowIso, verifyPassword } from "#/lib/auth";
+import {
+	bankrollAccounts,
+	extensionConnectionTokens,
+	extensionTokens,
+	users,
+} from "#/db/schema";
+import { hashPassword, nowIso, verifyPassword } from "#/lib/auth";
 import { createBet } from "./bets.server";
 import { assertBillingFeatureAccess } from "./billing.server";
+import { getDashboardMetrics } from "./dashboard.server";
 
 const CONNECTION_TOKEN_AGE_MS = 1000 * 60 * 10;
 const EXTENSION_TOKEN_AGE_MS = 1000 * 60 * 60 * 24 * 90;
@@ -170,6 +176,46 @@ export async function loginExtensionWithPassword(input: {
 	});
 }
 
+export async function signupExtensionWithPassword(input: {
+	email: string;
+	password: string;
+	name: string;
+}) {
+	const email = input.email.toLowerCase().trim();
+	const existing = await db.query.users.findFirst({
+		where: eq(users.email, email),
+	});
+
+	if (existing) {
+		throw new Error("An account with this email already exists.");
+	}
+
+	const userId = randomUUID();
+
+	await db.transaction(async (tx) => {
+		await tx.insert(users).values({
+			id: userId,
+			email,
+			passwordHash: hashPassword(input.password),
+			createdAt: nowIso(),
+		});
+
+		await tx.insert(bankrollAccounts).values({
+			id: randomUUID(),
+			userId,
+			name: "Banca Principal",
+			currency: "BRL",
+			initialBalance: 0,
+			createdAt: nowIso(),
+		});
+	});
+
+	return createExtensionAccessSession({
+		userId,
+		name: input.name,
+	});
+}
+
 export async function getExtensionSessionByAccessToken(token: string) {
 	const tokenHash = hashToken(token);
 	const session = await db.query.extensionTokens.findFirst({
@@ -233,7 +279,18 @@ export async function getExtensionMe(token: string) {
 		throw new Error("Invalid extension session.");
 	}
 
-	return session;
+	const dashboard = await getDashboardMetrics(session.user.id);
+
+	return {
+		...session,
+		home: {
+			balance: dashboard.balance,
+			planKey: dashboard.billing.effectivePlanKey,
+			billingStatus: dashboard.billing.status,
+			monthlyBetsRemaining: dashboard.billing.monthlyBetsRemaining,
+			recentBets: dashboard.recentBets.slice(0, 4),
+		},
+	};
 }
 
 export async function createBetFromExtension(input: {

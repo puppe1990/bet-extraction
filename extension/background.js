@@ -7,6 +7,7 @@ async function getState() {
     "user",
     "device",
     "draft",
+    "home",
   ]);
 
   return {
@@ -15,6 +16,7 @@ async function getState() {
     user: data.user || null,
     device: data.device || null,
     draft: data.draft || null,
+    home: data.home || null,
   };
 }
 
@@ -49,6 +51,28 @@ async function loginWithPassword({ appUrl, email, password, name }) {
       name,
       expiresAt: json.expiresAt,
     },
+    home: null,
+  });
+
+  return json;
+}
+
+async function signupWithPassword({ appUrl, email, password, confirmPassword, name }) {
+  const json = await fetchJson(`${appUrl}/api/extension/session/signup`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ email, password, confirmPassword, name }),
+  });
+
+  await setState({
+    appUrl,
+    accessToken: json.accessToken,
+    user: json.user,
+    device: {
+      name,
+      expiresAt: json.expiresAt,
+    },
+    home: null,
   });
 
   return json;
@@ -77,6 +101,7 @@ async function refreshMe() {
   await setState({
     user: json.user,
     device: json.device,
+    home: json.home,
   });
 
   return json;
@@ -133,6 +158,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         return getState();
       case "LEDGER_LOGIN":
         return loginWithPassword(message.payload);
+      case "LEDGER_SIGNUP":
+        return signupWithPassword(message.payload);
       case "LEDGER_REFRESH_ME":
         return refreshMe();
       case "LEDGER_CAPTURE_ACTIVE_TAB":

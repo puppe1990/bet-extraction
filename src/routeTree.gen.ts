@@ -20,6 +20,7 @@ import { Route as BetsBetIdRouteImport } from './routes/bets/$betId'
 import { Route as ApiHealthRouteImport } from './routes/api/health'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
 import { Route as ApiExtensionMeRouteImport } from './routes/api/extension/me'
+import { Route as ApiExtensionSessionSignupRouteImport } from './routes/api/extension/session/signup'
 import { Route as ApiExtensionSessionLoginRouteImport } from './routes/api/extension/session/login'
 import { Route as ApiExtensionSessionExchangeRouteImport } from './routes/api/extension/session/exchange'
 import { Route as ApiExtensionBetsDraftRouteImport } from './routes/api/extension/bets/draft'
@@ -80,6 +81,12 @@ const ApiExtensionMeRoute = ApiExtensionMeRouteImport.update({
   path: '/api/extension/me',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiExtensionSessionSignupRoute =
+  ApiExtensionSessionSignupRouteImport.update({
+    id: '/api/extension/session/signup',
+    path: '/api/extension/session/signup',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiExtensionSessionLoginRoute =
   ApiExtensionSessionLoginRouteImport.update({
     id: '/api/extension/session/login',
@@ -119,6 +126,7 @@ export interface FileRoutesByFullPath {
   '/api/extension/bets/draft': typeof ApiExtensionBetsDraftRoute
   '/api/extension/session/exchange': typeof ApiExtensionSessionExchangeRoute
   '/api/extension/session/login': typeof ApiExtensionSessionLoginRoute
+  '/api/extension/session/signup': typeof ApiExtensionSessionSignupRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -136,6 +144,7 @@ export interface FileRoutesByTo {
   '/api/extension/bets/draft': typeof ApiExtensionBetsDraftRoute
   '/api/extension/session/exchange': typeof ApiExtensionSessionExchangeRoute
   '/api/extension/session/login': typeof ApiExtensionSessionLoginRoute
+  '/api/extension/session/signup': typeof ApiExtensionSessionSignupRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -154,6 +163,7 @@ export interface FileRoutesById {
   '/api/extension/bets/draft': typeof ApiExtensionBetsDraftRoute
   '/api/extension/session/exchange': typeof ApiExtensionSessionExchangeRoute
   '/api/extension/session/login': typeof ApiExtensionSessionLoginRoute
+  '/api/extension/session/signup': typeof ApiExtensionSessionSignupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/api/extension/bets/draft'
     | '/api/extension/session/exchange'
     | '/api/extension/session/login'
+    | '/api/extension/session/signup'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/api/extension/bets/draft'
     | '/api/extension/session/exchange'
     | '/api/extension/session/login'
+    | '/api/extension/session/signup'
   id:
     | '__root__'
     | '/'
@@ -207,6 +219,7 @@ export interface FileRouteTypes {
     | '/api/extension/bets/draft'
     | '/api/extension/session/exchange'
     | '/api/extension/session/login'
+    | '/api/extension/session/signup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -225,6 +238,7 @@ export interface RootRouteChildren {
   ApiExtensionBetsDraftRoute: typeof ApiExtensionBetsDraftRoute
   ApiExtensionSessionExchangeRoute: typeof ApiExtensionSessionExchangeRoute
   ApiExtensionSessionLoginRoute: typeof ApiExtensionSessionLoginRoute
+  ApiExtensionSessionSignupRoute: typeof ApiExtensionSessionSignupRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -306,6 +320,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiExtensionMeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/extension/session/signup': {
+      id: '/api/extension/session/signup'
+      path: '/api/extension/session/signup'
+      fullPath: '/api/extension/session/signup'
+      preLoaderRoute: typeof ApiExtensionSessionSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/extension/session/login': {
       id: '/api/extension/session/login'
       path: '/api/extension/session/login'
@@ -353,6 +374,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiExtensionBetsDraftRoute: ApiExtensionBetsDraftRoute,
   ApiExtensionSessionExchangeRoute: ApiExtensionSessionExchangeRoute,
   ApiExtensionSessionLoginRoute: ApiExtensionSessionLoginRoute,
+  ApiExtensionSessionSignupRoute: ApiExtensionSessionSignupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

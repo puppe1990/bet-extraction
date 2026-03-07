@@ -30,6 +30,7 @@ export const Route = createFileRoute("/api/extension/me")({
 							name: session.name,
 							expiresAt: session.expiresAt,
 						},
+						home: me.home,
 					});
 				} catch (error) {
 					const message =

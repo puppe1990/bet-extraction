@@ -42,6 +42,10 @@ body {
   display: none;
 }
 
+.compact {
+  margin: 10px 0 0;
+}
+
 .eyebrow,
 .section-label,
 .meta-label {
@@ -85,6 +89,25 @@ h1 {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
+}
+
+.mode-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.toggle {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.toggle.active {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: #081019;
+  font-weight: 700;
 }
 
 input,
@@ -161,6 +184,69 @@ button:disabled {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   margin-top: 12px;
+}
+
+.snapshot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.snapshot-card {
+  border: 1px solid var(--border);
+  background: rgba(10, 14, 22, 0.7);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.snapshot-card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 16px;
+}
+
+.recent-bets {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0;
+  display: grid;
+  gap: 8px;
+}
+
+.recent-bets li {
+  border: 1px solid var(--border);
+  background: rgba(10, 14, 22, 0.7);
+  border-radius: 16px;
+  padding: 10px 12px;
+}
+
+.bet-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.bet-row strong {
+  font-size: 13px;
+}
+
+.bet-row span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.bet-profit {
+  font-weight: 700;
+}
+
+.bet-profit.positive {
+  color: var(--success);
+}
+
+.bet-profit.negative {
+  color: #ff7b7b;
 }
 
 .device-meta strong {

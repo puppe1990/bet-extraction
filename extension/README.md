@@ -19,10 +19,21 @@ This folder contains a plain Manifest V3 scaffold for the Ledger capture flow.
 
 The popup will create a persistent extension session token and store it in Chrome local storage. No copy-paste token is required.
 
+## Sign-up flow
+
+1. Switch the popup to `Signup`
+2. Enter the Ledger app URL
+3. Enter your email, password and password confirmation
+4. Click `Create account`
+
+The extension creates the account, signs in immediately and shows a compact account snapshot.
+
 ## Current scope
 
 - connect extension to a Ledger account
 - sign in with email and password directly from the popup
+- create an account directly from the popup
+- show plan, balance and recent bets after auth
 - capture a draft from the active tab
 - heuristic parser for `Bet365`
 - preview normalization through the app backend
