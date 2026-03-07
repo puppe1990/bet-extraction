@@ -112,6 +112,13 @@ function SettingsPage() {
 								? `Status: ${billingQuery.data.status}`
 								: "Sem assinatura ativa."}
 						</div>
+						{billingQuery.data?.planKey === "free" &&
+						billingQuery.data.monthlyBetLimit != null ? (
+							<div className="mt-3 text-sm text-zinc-400">
+								{billingQuery.data.monthlyBetsUsed}/
+								{billingQuery.data.monthlyBetLimit} bets used this month
+							</div>
+						) : null}
 					</div>
 				</article>
 

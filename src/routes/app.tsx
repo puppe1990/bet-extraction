@@ -1,6 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { ArrowUpRight, Gauge, Sparkles, TrendingUp } from "lucide-react";
+import {
+	ArrowUpRight,
+	Gauge,
+	LockKeyhole,
+	Sparkles,
+	TrendingUp,
+} from "lucide-react";
 import { BankrollChart } from "#/components/BankrollChart";
 import { EmptyState } from "#/components/EmptyState";
 import { StatCard } from "#/components/StatCard";
@@ -106,8 +112,54 @@ function DashboardPage() {
 				/>
 			</section>
 
+			{metrics.billing.planKey === "free" ? (
+				<section className="mt-8 rounded-[28px] border border-amber-300/16 bg-amber-300/8 p-5">
+					<div className="flex flex-wrap items-center justify-between gap-4">
+						<div>
+							<p className="text-[11px] uppercase tracking-[0.32em] text-amber-100/80">
+								Free usage
+							</p>
+							<h2 className="mt-2 text-2xl font-semibold text-white">
+								{metrics.billing.monthlyBetsUsed}/
+								{metrics.billing.monthlyBetLimit} bets used this month
+							</h2>
+							<p className="mt-2 max-w-2xl text-sm text-zinc-300">
+								Upgrade to Pro to remove the monthly logging cap and unlock the
+								full analytics layer.
+							</p>
+						</div>
+						<Link to="/settings" className="cta-primary no-underline">
+							Upgrade plan
+						</Link>
+					</div>
+				</section>
+			) : null}
+
 			<section className="mt-8 grid gap-4 xl:grid-cols-[1.5fr_0.95fr]">
-				<BankrollChart points={metrics.curve} />
+				{metrics.premiumAnalyticsEnabled ? (
+					<BankrollChart points={metrics.curve} />
+				) : (
+					<div className="panel-card place-items-center text-center">
+						<div className="rounded-full border border-amber-300/18 bg-amber-300/8 p-4 text-amber-100">
+							<LockKeyhole className="size-7" />
+						</div>
+						<div className="space-y-3">
+							<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
+								Premium analytics
+							</p>
+							<h2 className="text-3xl font-semibold text-white">
+								Unlock the bankroll curve
+							</h2>
+							<p className="max-w-md text-sm text-zinc-400">
+								Free users keep the core scoreboard. Pro unlocks the full
+								curve, deeper breakdowns and the extension workflow.
+							</p>
+						</div>
+						<Link to="/settings" className="cta-primary no-underline">
+							See plans
+						</Link>
+					</div>
+				)}
 
 				<div className="panel-card space-y-5">
 					<div className="flex items-center justify-between">
@@ -121,40 +173,47 @@ function DashboardPage() {
 						</div>
 						<Gauge className="size-5 text-amber-200" />
 					</div>
-					<div className="grid gap-4 sm:grid-cols-2">
-						<div className="rounded-3xl border border-white/6 bg-white/4 p-5">
-							<p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-								Yield
-							</p>
-							<div className="mt-2 text-3xl font-semibold text-zinc-50">
-								{formatNumber(metrics.yield * 100)}%
+					{metrics.premiumAnalyticsEnabled ? (
+						<div className="grid gap-4 sm:grid-cols-2">
+							<div className="rounded-3xl border border-white/6 bg-white/4 p-5">
+								<p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
+									Yield
+								</p>
+								<div className="mt-2 text-3xl font-semibold text-zinc-50">
+									{formatNumber(metrics.yield * 100)}%
+								</div>
+							</div>
+							<div className="rounded-3xl border border-white/6 bg-white/4 p-5">
+								<p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
+									Melhor green
+								</p>
+								<div className="mt-2 text-3xl font-semibold text-zinc-50">
+									{metrics.bestStreaks.green}
+								</div>
+							</div>
+							<div className="rounded-3xl border border-white/6 bg-white/4 p-5">
+								<p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
+									Melhor red
+								</p>
+								<div className="mt-2 text-3xl font-semibold text-zinc-50">
+									{metrics.bestStreaks.red}
+								</div>
+							</div>
+							<div className="rounded-3xl border border-white/6 bg-white/4 p-5">
+								<p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
+									Ultima atualizacao
+								</p>
+								<div className="mt-2 text-lg font-semibold text-zinc-50">
+									Hoje
+								</div>
 							</div>
 						</div>
-						<div className="rounded-3xl border border-white/6 bg-white/4 p-5">
-							<p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-								Melhor green
-							</p>
-							<div className="mt-2 text-3xl font-semibold text-zinc-50">
-								{metrics.bestStreaks.green}
-							</div>
+					) : (
+						<div className="rounded-3xl border border-white/6 bg-white/[0.03] p-5 text-sm text-zinc-300">
+							Advanced analytics is part of Pro. Upgrade to unlock yield
+							breakdowns, bankroll curve and deeper performance review.
 						</div>
-						<div className="rounded-3xl border border-white/6 bg-white/4 p-5">
-							<p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-								Melhor red
-							</p>
-							<div className="mt-2 text-3xl font-semibold text-zinc-50">
-								{metrics.bestStreaks.red}
-							</div>
-						</div>
-						<div className="rounded-3xl border border-white/6 bg-white/4 p-5">
-							<p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-								Ultima atualizacao
-							</p>
-							<div className="mt-2 text-lg font-semibold text-zinc-50">
-								Hoje
-							</div>
-						</div>
-					</div>
+					)}
 				</div>
 			</section>
 

@@ -1,13 +1,15 @@
+import { getBillingSummary } from "./billing.server";
 import { buildBetMetrics } from "#/lib/bets";
 import { getOutcomeToneFromProfit } from "#/lib/domain";
 import { getBankrollCurve, getBankrollSummary } from "./bankroll.server";
 import { listRecentBets } from "./bets.server";
 
 export async function getDashboardMetrics(userId: string) {
-	const [summary, bets, curve] = await Promise.all([
+	const [summary, bets, curve, billing] = await Promise.all([
 		getBankrollSummary(userId),
 		listRecentBets(userId),
 		getBankrollCurve(userId),
+		getBillingSummary(userId),
 	]);
 
 	const settled = bets
@@ -34,7 +36,7 @@ export async function getDashboardMetrics(userId: string) {
 		settledCount: metrics.settledCount,
 		currentStreak: metrics.currentStreak,
 		bestStreaks: metrics.bestStreaks,
-		curve,
+		curve: billing.isPremium ? curve : [],
 		recentBets: recentBets.map((bet) => ({
 			id: bet.id,
 			eventName: bet.eventName,
@@ -45,5 +47,13 @@ export async function getDashboardMetrics(userId: string) {
 			profitAmount: bet.profitAmount,
 			tone: getOutcomeToneFromProfit(bet.status, bet.profitAmount),
 		})),
+		premiumAnalyticsEnabled: billing.isPremium,
+		billing: {
+			planKey: billing.planKey,
+			status: billing.status,
+			monthlyBetLimit: billing.monthlyBetLimit,
+			monthlyBetsUsed: billing.monthlyBetsUsed,
+			monthlyBetsRemaining: billing.monthlyBetsRemaining,
+		},
 	};
 }

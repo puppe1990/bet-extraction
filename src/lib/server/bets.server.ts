@@ -6,6 +6,7 @@ import { nowIso } from "#/lib/auth";
 import { calculateSettlementAmounts, parseTagInput } from "#/lib/bets";
 import type { BetStatus } from "#/lib/domain";
 import { fromCents, toCents } from "#/lib/money";
+import { assertCanCreateBet } from "./billing.server";
 import { getPrimaryAccount } from "./bankroll.server";
 
 type BetInput = {
@@ -112,6 +113,7 @@ export async function createTag(userId: string, name: string) {
 }
 
 export async function createBet(userId: string, input: BetInput) {
+	await assertCanCreateBet(userId);
 	const account = await getPrimaryAccount(userId);
 	const betId = randomUUID();
 	const stakeAmountCents = toCents(input.stakeAmount);

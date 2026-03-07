@@ -1,8 +1,13 @@
 import { randomUUID } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq, gte, lt } from "drizzle-orm";
 import Stripe from "stripe";
 import { db } from "#/db";
-import { billingSubscriptions, users } from "#/db/schema";
+import {
+	bankrollAccounts,
+	bets,
+	billingSubscriptions,
+	users,
+} from "#/db/schema";
 import { serverEnv } from "#/env.server";
 import {
 	type BillingInterval,
@@ -14,6 +19,7 @@ import {
 import { nowIso } from "#/lib/auth";
 
 let stripeClient: Stripe | null = null;
+export const FREE_PLAN_MONTHLY_BET_LIMIT = 50;
 
 function getStripeClient() {
 	if (!serverEnv.STRIPE_SECRET_KEY) {
@@ -76,12 +82,17 @@ export async function getBillingSummary(userId: string) {
 		throw new Error("User not found.");
 	}
 
+	const usage = await getMonthlyBetUsage(userId);
+
 	const subscription = user.billingSubscription;
 	if (!subscription) {
 		return {
 			...defaultBillingSummary,
 			stripeCustomerId: user.stripeCustomerId,
 			isConfigured: isBillingConfigured(),
+			monthlyBetLimit: FREE_PLAN_MONTHLY_BET_LIMIT,
+			monthlyBetsUsed: usage,
+			monthlyBetsRemaining: Math.max(FREE_PLAN_MONTHLY_BET_LIMIT - usage, 0),
 		};
 	}
 
@@ -98,7 +109,68 @@ export async function getBillingSummary(userId: string) {
 			subscription.planKey as BillingPlanKey,
 			subscription.status,
 		),
+		monthlyBetLimit:
+			subscription.planKey === "free" ? FREE_PLAN_MONTHLY_BET_LIMIT : null,
+		monthlyBetsUsed: usage,
+		monthlyBetsRemaining:
+			subscription.planKey === "free"
+				? Math.max(FREE_PLAN_MONTHLY_BET_LIMIT - usage, 0)
+				: null,
 	};
+}
+
+function getCurrentMonthWindowUtc() {
+	const now = new Date();
+	const start = new Date(
+		Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0),
+	);
+	const nextStart = new Date(
+		Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1, 0, 0, 0, 0),
+	);
+
+	return {
+		startIso: start.toISOString(),
+		nextStartIso: nextStart.toISOString(),
+	};
+}
+
+export async function getMonthlyBetUsage(userId: string) {
+	const { startIso, nextStartIso } = getCurrentMonthWindowUtc();
+	const [row] = await db
+		.select({ value: count() })
+		.from(bets)
+		.innerJoin(
+			bankrollAccounts,
+			eq(bets.accountId, bankrollAccounts.id),
+		)
+		.where(
+			and(
+				eq(bankrollAccounts.userId, userId),
+				gte(bets.placedAt, startIso),
+				lt(bets.placedAt, nextStartIso),
+			),
+		);
+
+	return row?.value ?? 0;
+}
+
+export async function assertCanCreateBet(userId: string) {
+	const billing = await getBillingSummary(userId);
+	if (billing.isPremium) {
+		return billing;
+	}
+
+	if (
+		billing.planKey === "free" &&
+		billing.monthlyBetLimit != null &&
+		billing.monthlyBetsUsed >= billing.monthlyBetLimit
+	) {
+		throw new Error(
+			"Free plan limit reached. Upgrade to Pro to log unlimited bets this month.",
+		);
+	}
+
+	return billing;
 }
 
 async function ensureStripeCustomerForUser(userId: string, email: string) {
