@@ -20,6 +20,8 @@ export type BillingPriceCatalog = Record<
 	Record<BillingInterval, string | null>
 >;
 
+export type BillingFeatureKey = "csv_export" | "extension_capture";
+
 export const defaultBillingSummary = {
 	planKey: "free" as BillingPlanKey,
 	effectivePlanKey: "free" as BillingPlanKey,
@@ -72,4 +74,17 @@ export function getEffectivePlanKey(
 	status: SubscriptionStatus,
 ): BillingPlanKey {
 	return hasPaidAccess(planKey, status) ? planKey : "free";
+}
+
+export function hasBillingFeatureAccess(
+	planKey: BillingPlanKey,
+	feature: BillingFeatureKey,
+): boolean {
+	switch (feature) {
+		case "csv_export":
+		case "extension_capture":
+			return planKey === "pro" || planKey === "pro_plus";
+		default:
+			return false;
+	}
 }

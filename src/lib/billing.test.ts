@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
 	getEffectivePlanKey,
+	hasBillingFeatureAccess,
 	hasPaidAccess,
 	resolvePlanFromPriceId,
 } from "./billing";
@@ -57,5 +58,14 @@ describe("getEffectivePlanKey", () => {
 		expect(getEffectivePlanKey("pro", "canceled")).toBe("free");
 		expect(getEffectivePlanKey("pro_plus", "past_due")).toBe("free");
 		expect(getEffectivePlanKey("pro", "active")).toBe("pro");
+	});
+});
+
+describe("hasBillingFeatureAccess", () => {
+	it("gates premium features behind paid plans", () => {
+		expect(hasBillingFeatureAccess("free", "csv_export")).toBe(false);
+		expect(hasBillingFeatureAccess("free", "extension_capture")).toBe(false);
+		expect(hasBillingFeatureAccess("pro", "csv_export")).toBe(true);
+		expect(hasBillingFeatureAccess("pro_plus", "extension_capture")).toBe(true);
 	});
 });

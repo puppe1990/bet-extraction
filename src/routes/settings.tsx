@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useState } from "react";
+import { Chrome, Download, LockKeyhole } from "lucide-react";
+import { type ReactNode, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { DateTimeText } from "#/lib/datetime";
 import { PasswordInput } from "#/components/ui/password-input";
@@ -307,6 +308,49 @@ function SettingsPage() {
 						</div>
 					</section>
 
+					<section className="panel-card space-y-5" id="extension">
+						<div>
+							<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
+								Extension
+							</p>
+							<h2 className="mt-2 text-3xl font-semibold text-zinc-50">
+								Capture and export access
+							</h2>
+						</div>
+						<div className="grid gap-4 md:grid-cols-2">
+							<FeatureGateCard
+								icon={<Chrome className="size-5" />}
+								title="Chrome extension capture"
+								description="Connect the extension, capture bets from bookmaker pages and push drafts into Ledger with less typing."
+								enabled={Boolean(billingQuery.data?.canUseExtensionCapture)}
+								enabledLabel="Included in your current access"
+								lockedLabel="Pro required"
+							/>
+							<FeatureGateCard
+								icon={<Download className="size-5" />}
+								title="CSV export"
+								description="Download filtered bet history for external reporting, tax workflows or deeper analysis outside the app."
+								enabled={Boolean(billingQuery.data?.canExportCsv)}
+								enabledLabel="Ready to use in Bets"
+								lockedLabel="Pro required"
+							/>
+						</div>
+						<div className="rounded-[28px] border border-white/6 bg-white/[0.03] p-5 text-sm text-zinc-300">
+							{billingQuery.data?.canUseExtensionCapture ? (
+								<p>
+									Your plan includes extension capture. The product-side gate is
+									ready, and the extension integration can attach to this account
+									as soon as the client ships.
+								</p>
+							) : (
+								<p>
+									Free accounts can log bets manually. Upgrade to Pro when you
+									want CSV export and the Chrome extension capture workflow.
+								</p>
+							)}
+						</div>
+					</section>
+
 					<form
 						className="panel-card space-y-5"
 						onSubmit={async (event) => {
@@ -349,6 +393,48 @@ function SettingsPage() {
 				</div>
 			</section>
 		</main>
+	);
+}
+
+function FeatureGateCard(props: {
+	icon: ReactNode;
+	title: string;
+	description: string;
+	enabled: boolean;
+	enabledLabel: string;
+	lockedLabel: string;
+}) {
+	return (
+		<article
+			className={`rounded-[28px] border p-5 ${
+				props.enabled
+					? "border-emerald-400/20 bg-emerald-400/10"
+					: "border-white/6 bg-white/[0.03]"
+			}`}
+		>
+			<div className="flex items-center justify-between gap-3">
+				<div
+					className={`rounded-full border p-3 ${
+						props.enabled
+							? "border-emerald-400/20 bg-emerald-400/10 text-emerald-100"
+							: "border-white/8 bg-white/[0.04] text-zinc-200"
+					}`}
+				>
+					{props.enabled ? props.icon : <LockKeyhole className="size-5" />}
+				</div>
+				<div
+					className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${
+						props.enabled
+							? "border border-emerald-400/20 bg-emerald-400/10 text-emerald-100"
+							: "border border-amber-300/18 bg-amber-300/10 text-amber-100"
+					}`}
+				>
+					{props.enabled ? props.enabledLabel : props.lockedLabel}
+				</div>
+			</div>
+			<h3 className="mt-4 text-xl font-semibold text-zinc-50">{props.title}</h3>
+			<p className="mt-2 text-sm text-zinc-300">{props.description}</p>
+		</article>
 	);
 }
 

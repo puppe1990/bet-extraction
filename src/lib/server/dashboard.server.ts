@@ -52,6 +52,8 @@ export async function getDashboardMetrics(userId: string) {
 			planKey: billing.planKey,
 			effectivePlanKey: billing.effectivePlanKey,
 			status: billing.status,
+			canExportCsv: billing.canExportCsv,
+			canUseExtensionCapture: billing.canUseExtensionCapture,
 			monthlyBetLimit: billing.monthlyBetLimit,
 			monthlyBetsUsed: billing.monthlyBetsUsed,
 			monthlyBetsRemaining: billing.monthlyBetsRemaining,

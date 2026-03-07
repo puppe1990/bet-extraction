@@ -10,10 +10,12 @@ import {
 } from "#/db/schema";
 import { serverEnv } from "#/env.server";
 import {
+	type BillingFeatureKey,
 	type BillingInterval,
 	type BillingPlanKey,
 	defaultBillingSummary,
 	getEffectivePlanKey,
+	hasBillingFeatureAccess,
 	hasPaidAccess,
 	resolvePlanFromPriceId,
 } from "#/lib/billing";
@@ -91,6 +93,8 @@ export async function getBillingSummary(userId: string) {
 			...defaultBillingSummary,
 			stripeCustomerId: user.stripeCustomerId,
 			isConfigured: isBillingConfigured(),
+			canExportCsv: false,
+			canUseExtensionCapture: false,
 			monthlyBetLimit: FREE_PLAN_MONTHLY_BET_LIMIT,
 			monthlyBetsUsed: usage,
 			monthlyBetsRemaining: Math.max(FREE_PLAN_MONTHLY_BET_LIMIT - usage, 0),
@@ -117,6 +121,11 @@ export async function getBillingSummary(userId: string) {
 		stripeSubscriptionId: subscription.stripeSubscriptionId,
 		isConfigured: isBillingConfigured(),
 		isPremium,
+		canExportCsv: hasBillingFeatureAccess(effectivePlanKey, "csv_export"),
+		canUseExtensionCapture: hasBillingFeatureAccess(
+			effectivePlanKey,
+			"extension_capture",
+		),
 		monthlyBetLimit:
 			effectivePlanKey === "free" ? FREE_PLAN_MONTHLY_BET_LIMIT : null,
 		monthlyBetsUsed: usage,
@@ -176,6 +185,26 @@ export async function assertCanCreateBet(userId: string) {
 		throw new Error(
 			"Free plan limit reached. Upgrade to Pro to log unlimited bets this month.",
 		);
+	}
+
+	return billing;
+}
+
+export async function assertBillingFeatureAccess(
+	userId: string,
+	feature: BillingFeatureKey,
+) {
+	const billing = await getBillingSummary(userId);
+	const allowed = hasBillingFeatureAccess(billing.effectivePlanKey, feature);
+
+	if (!allowed) {
+		if (feature === "csv_export") {
+			throw new Error("CSV export is available on Pro and Pro+ only.");
+		}
+
+		if (feature === "extension_capture") {
+			throw new Error("Chrome extension capture is available on Pro and Pro+ only.");
+		}
 	}
 
 	return billing;

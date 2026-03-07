@@ -21,6 +21,7 @@ import {
 	createBet,
 	createTag,
 	deleteBet,
+	exportBetsCsv,
 	getBetById,
 	listBets,
 	listTags,
@@ -130,6 +131,13 @@ export const betsList = createServerFn({ method: "GET" })
 	.handler(async ({ data }) => {
 		const session = await requireCurrentSession();
 		return listBets({ ...data, userId: session.user.id });
+	});
+
+export const betsExportCsv = createServerFn({ method: "GET" })
+	.inputValidator((input: unknown) => betFiltersSchema.parse(input ?? {}))
+	.handler(async ({ data }) => {
+		const session = await requireCurrentSession();
+		return exportBetsCsv({ ...data, userId: session.user.id });
 	});
 
 export const betsCreate = createServerFn({ method: "POST" })

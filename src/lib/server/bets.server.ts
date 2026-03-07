@@ -6,7 +6,10 @@ import { nowIso } from "#/lib/auth";
 import { calculateSettlementAmounts, parseTagInput } from "#/lib/bets";
 import type { BetStatus } from "#/lib/domain";
 import { fromCents, toCents } from "#/lib/money";
-import { assertCanCreateBet } from "./billing.server";
+import {
+	assertBillingFeatureAccess,
+	assertCanCreateBet,
+} from "./billing.server";
 import { getPrimaryAccount } from "./bankroll.server";
 
 type BetInput = {
@@ -442,6 +445,59 @@ export async function listBets(filters: BetListFilters) {
 
 export async function listRecentBets(userId: string) {
 	return listBets({ userId });
+}
+
+function escapeCsvCell(value: string | number | null | undefined) {
+	if (value == null) {
+		return "";
+	}
+
+	const normalized = String(value).replaceAll('"', '""');
+	return `"${normalized}"`;
+}
+
+export async function exportBetsCsv(filters: BetListFilters) {
+	await assertBillingFeatureAccess(filters.userId, "csv_export");
+	const items = await listBets(filters);
+	const header = [
+		"event_name",
+		"status",
+		"sport",
+		"market",
+		"selection",
+		"bookmaker",
+		"odds_decimal",
+		"stake_brl",
+		"gross_return_brl",
+		"profit_brl",
+		"placed_at",
+		"settled_at",
+		"tags",
+		"note",
+	];
+
+	const rows = items.map((bet) =>
+		[
+			bet.eventName,
+			bet.status,
+			bet.sport,
+			bet.market,
+			bet.selection,
+			bet.bookmaker,
+			bet.oddsDecimal,
+			bet.stakeAmount,
+			bet.grossReturnAmount,
+			bet.profitAmount,
+			bet.placedAt,
+			bet.settledAt,
+			bet.tags.map((tag) => tag.name).join(", "),
+			bet.note,
+		]
+			.map((value) => escapeCsvCell(value))
+			.join(","),
+	);
+
+	return [header.join(","), ...rows].join("\n");
 }
 
 export function normalizeBetInput(input: BetInput & { tagsText?: string }) {
