@@ -11,6 +11,7 @@ import Header from "../components/Header";
 
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import TanStackQueryProvider from "../integrations/tanstack-query/root-provider";
+import { I18nProvider } from "../lib/i18n";
 import appCss from "../styles.css?url";
 
 interface MyRouterContext {
@@ -28,6 +29,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
+				name: "theme-color",
+				content: "#0a1632",
+			},
+			{
 				title: "Ledger",
 			},
 		],
@@ -35,6 +40,19 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 			{
 				rel: "stylesheet",
 				href: appCss,
+			},
+			{
+				rel: "icon",
+				href: "/favicon.ico",
+				sizes: "any",
+			},
+			{
+				rel: "apple-touch-icon",
+				href: "/apple-touch-icon.png",
+			},
+			{
+				rel: "manifest",
+				href: "/manifest.json",
 			},
 		],
 	}),
@@ -49,21 +67,23 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-emerald-400/20">
 				<TanStackQueryProvider>
-					<Header />
-					<div className="min-h-[calc(100vh-132px)]">{children}</div>
-					<Footer />
-					<TanStackDevtools
-						config={{
-							position: "bottom-right",
-						}}
-						plugins={[
-							{
-								name: "Tanstack Router",
-								render: <TanStackRouterDevtoolsPanel />,
-							},
-							TanStackQueryDevtools,
-						]}
-					/>
+					<I18nProvider>
+						<Header />
+						<div className="min-h-[calc(100vh-132px)]">{children}</div>
+						<Footer />
+						<TanStackDevtools
+							config={{
+								position: "bottom-right",
+							}}
+							plugins={[
+								{
+									name: "Tanstack Router",
+									render: <TanStackRouterDevtoolsPanel />,
+								},
+								TanStackQueryDevtools,
+							]}
+						/>
+					</I18nProvider>
 				</TanStackQueryProvider>
 				<Scripts />
 			</body>
