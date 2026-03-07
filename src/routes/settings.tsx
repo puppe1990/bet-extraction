@@ -287,7 +287,7 @@ function SettingsPage() {
 							/>
 							<ManualPlanCard
 								title={t("settings.planLifetime")}
-								price="Manual grant"
+								price={t("settings.lifetimePrice")}
 								t={t}
 								features={[
 									t("landing.pricing.proFeature1"),
@@ -486,11 +486,11 @@ function ManualPlanCard(props: {
 				</div>
 				{props.activePlan ? (
 					<div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-200">
-						{props.t("settings.manageSubscription")}
+						{props.t("settings.active")}
 					</div>
 				) : (
 					<div className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-300">
-						Internal grant
+						{props.t("settings.planLifetime")}
 					</div>
 				)}
 			</div>
@@ -503,7 +503,7 @@ function ManualPlanCard(props: {
 				))}
 			</div>
 			<div className="mt-5 rounded-2xl border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-zinc-300">
-				Lifetime access is granted manually. It does not use Stripe Checkout or a recurring subscription.
+				{props.t("settings.lifetimeDescription")}
 			</div>
 		</article>
 	);
@@ -521,7 +521,7 @@ function getBillingStatusLabel(input: {
 	}
 
 	if (input.planKey === "lifetime" && input.effectivePlanKey === "lifetime") {
-		return "Status: active. Lifetime access is unlocked on this account.";
+		return input.t("settings.lifetimeStatus");
 	}
 
 	if (input.cancelAtPeriodEnd && input.effectivePlanKey !== "free") {

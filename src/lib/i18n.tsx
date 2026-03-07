@@ -349,6 +349,10 @@ const messages = {
 			notScheduled: "Not scheduled",
 			openingPortal: "Opening portal...",
 			lifetimePlan: "Lifetime plan",
+			lifetimePrice: "No renewal",
+			lifetimeDescription:
+				"All premium features are unlocked on this account with no recurring renewal.",
+			lifetimeStatus: "Status: active. Lifetime access is active on this account.",
 			reviewBillingHistory: "Review billing history",
 			manageSubscription: "Manage subscription",
 			openCustomerPortal: "Open customer portal",
@@ -744,6 +748,11 @@ const messages = {
 			notScheduled: "Não agendado",
 			openingPortal: "Abrindo portal...",
 			lifetimePlan: "Plano vitalício",
+			lifetimePrice: "Sem renovação",
+			lifetimeDescription:
+				"Todos os recursos premium estão liberados nesta conta sem renovação recorrente.",
+			lifetimeStatus:
+				"Status: ativo. O acesso vitalício está liberado nesta conta.",
 			reviewBillingHistory: "Revisar histórico de cobrança",
 			manageSubscription: "Gerenciar assinatura",
 			openCustomerPortal: "Abrir customer portal",
