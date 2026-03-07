@@ -4,6 +4,7 @@ import {
 	createRootRouteWithContext,
 	HeadContent,
 	Scripts,
+	useLocation,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import Footer from "../components/Footer";
@@ -68,9 +69,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			<body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-emerald-400/20">
 				<TanStackQueryProvider>
 					<I18nProvider>
-						<Header />
-						<div className="min-h-[calc(100vh-132px)]">{children}</div>
-						<Footer />
+						<AppChrome>{children}</AppChrome>
 						<TanStackDevtools
 							config={{
 								position: "bottom-right",
@@ -88,5 +87,24 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<Scripts />
 			</body>
 		</html>
+	);
+}
+
+function AppChrome({ children }: { children: React.ReactNode }) {
+	const location = useLocation();
+	const inProduct =
+		location.pathname === "/app" ||
+		location.pathname.startsWith("/bets") ||
+		location.pathname.startsWith("/bankroll") ||
+		location.pathname.startsWith("/settings");
+
+	return (
+		<div className={inProduct ? "app-shell-frame" : "marketing-shell-frame"}>
+			<Header />
+			<div className={inProduct ? "app-shell-content" : "marketing-shell-content"}>
+				{children}
+			</div>
+			<Footer />
+		</div>
 	);
 }

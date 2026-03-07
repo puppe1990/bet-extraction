@@ -112,6 +112,19 @@ code {
   width: min(1200px, calc(100vw - 2rem));
 }
 
+.marketing-shell-frame,
+.app-shell-frame {
+  min-height: 100vh;
+}
+
+.marketing-shell-content {
+  min-height: calc(100vh - 132px);
+}
+
+.app-shell-content {
+  min-height: calc(100vh - 132px);
+}
+
 .brand-lockup {
   display: inline-flex;
   align-items: center;
@@ -120,6 +133,33 @@ code {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
   padding: 0.55rem 0.95rem;
+}
+
+.mobile-product-session {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 0.45rem 0.7rem;
+}
+
+.mobile-product-session__label {
+  font-size: 0.55rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #6f7888;
+}
+
+.mobile-product-session__value {
+  max-width: 7.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f4f6fa;
 }
 
 .brand-dot {
@@ -171,6 +211,59 @@ code {
   backdrop-filter: blur(18px);
 }
 
+.mobile-product-nav {
+  position: fixed;
+  z-index: 60;
+  left: 0.8rem;
+  right: 0.8rem;
+  bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025)),
+    rgba(9, 10, 13, 0.92);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 24px 60px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(20px);
+  border-radius: 1.6rem;
+  padding: 0.45rem;
+}
+
+.mobile-product-nav__item {
+  display: grid;
+  place-items: center;
+  gap: 0.28rem;
+  min-height: 4rem;
+  border-radius: 1.2rem;
+  color: #828a99;
+  text-decoration: none;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+.mobile-product-nav__item span {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mobile-product-nav__item--active {
+  background:
+    radial-gradient(circle at top center, rgba(243, 195, 106, 0.18), transparent 80%),
+    rgba(255, 255, 255, 0.06);
+  color: #fff2cf;
+}
+
+.mobile-product-nav__item:active {
+  transform: translateY(1px);
+}
+
 .panel-card-green {
   border-color: rgba(64, 201, 140, 0.16);
   background:
@@ -203,6 +296,94 @@ code {
     grid-template-columns: 1.15fr 0.85fr;
     align-items: end;
     padding: 2.4rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .page-wrap {
+    width: min(100vw - 0.9rem, 1200px);
+  }
+
+  .app-shell-frame {
+    background:
+      radial-gradient(circle at top center, rgba(243, 195, 106, 0.1), transparent 26%),
+      linear-gradient(180deg, #0c0e12 0%, #07080b 100%);
+  }
+
+  .app-shell-content {
+    min-height: calc(100vh - 112px);
+    padding-bottom: calc(6.8rem + env(safe-area-inset-bottom));
+  }
+
+  .app-shell-content > main.page-wrap {
+    padding-top: 0.9rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  .brand-lockup {
+    gap: 0.7rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 1.2rem;
+  }
+
+  .brand-lockup .text-sm {
+    font-size: 0.88rem;
+  }
+
+  .nav-pill {
+    padding: 0.62rem 0.78rem;
+  }
+
+  .panel-card,
+  .hero-panel,
+  .hero-aside {
+    border-radius: 1.55rem;
+  }
+
+  .panel-card {
+    padding: 1rem;
+    gap: 0.8rem;
+  }
+
+  .hero-panel {
+    gap: 1rem;
+    padding: 1.05rem;
+  }
+
+  .hero-aside {
+    padding: 1rem;
+  }
+
+  .cta-primary,
+  .cta-secondary {
+    min-height: 3.15rem;
+    width: 100%;
+    letter-spacing: 0.18em;
+  }
+
+  .hero-panel h1 {
+    font-size: clamp(2.5rem, 10vw, 3.5rem) !important;
+  }
+
+  .hero-panel p {
+    font-size: 0.94rem;
+    line-height: 1.65;
+  }
+
+  .mobile-product-nav + * {
+    scroll-margin-bottom: 7rem;
+  }
+
+  .app-shell-content table {
+    font-size: 0.85rem;
+  }
+
+  .app-shell-content .rounded-\[28px\] {
+    border-radius: 1.35rem;
+  }
+
+  .app-shell-content .rounded-3xl {
+    border-radius: 1.25rem;
   }
 }
 
