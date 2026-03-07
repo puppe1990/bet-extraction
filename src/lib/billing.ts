@@ -46,9 +46,9 @@ export function resolvePlanFromPriceId(
 	for (const [planKey, intervals] of Object.entries(priceCatalog) as Array<
 		[keyof BillingPriceCatalog, BillingPriceCatalog[keyof BillingPriceCatalog]]
 	>) {
-		for (const [interval, configuredPriceId] of Object.entries(intervals) as Array<
-			[BillingInterval, string | null]
-		>) {
+		for (const [interval, configuredPriceId] of Object.entries(
+			intervals,
+		) as Array<[BillingInterval, string | null]>) {
 			if (configuredPriceId === priceId) {
 				return { planKey, interval };
 			}

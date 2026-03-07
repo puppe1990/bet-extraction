@@ -76,6 +76,44 @@ export const sessions = sqliteTable(
 	],
 );
 
+export const extensionConnectionTokens = sqliteTable(
+	"extension_connection_tokens",
+	{
+		id: text().primaryKey(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		tokenHash: text("token_hash").notNull(),
+		expiresAt: text("expires_at").notNull(),
+		usedAt: text("used_at"),
+		...timestampColumns,
+	},
+	(table) => [
+		uniqueIndex("extension_connection_tokens_hash_unique").on(table.tokenHash),
+		index("extension_connection_tokens_user_idx").on(table.userId),
+	],
+);
+
+export const extensionTokens = sqliteTable(
+	"extension_tokens",
+	{
+		id: text().primaryKey(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		name: text().notNull(),
+		tokenHash: text("token_hash").notNull(),
+		lastUsedAt: text("last_used_at"),
+		expiresAt: text("expires_at"),
+		revokedAt: text("revoked_at"),
+		...timestampColumns,
+	},
+	(table) => [
+		uniqueIndex("extension_tokens_hash_unique").on(table.tokenHash),
+		index("extension_tokens_user_idx").on(table.userId),
+	],
+);
+
 export const bankrollAccounts = sqliteTable(
 	"bankroll_accounts",
 	{
@@ -172,6 +210,8 @@ export const betTagLinks = sqliteTable(
 
 export const usersRelations = relations(users, ({ many, one }) => ({
 	sessions: many(sessions),
+	extensionConnectionTokens: many(extensionConnectionTokens),
+	extensionTokens: many(extensionTokens),
 	account: one(bankrollAccounts, {
 		fields: [users.id],
 		references: [bankrollAccounts.userId],
@@ -199,6 +239,26 @@ export const accountRelations = relations(
 		}),
 		transactions: many(bankrollTransactions),
 		bets: many(bets),
+	}),
+);
+
+export const extensionConnectionTokensRelations = relations(
+	extensionConnectionTokens,
+	({ one }) => ({
+		user: one(users, {
+			fields: [extensionConnectionTokens.userId],
+			references: [users.id],
+		}),
+	}),
+);
+
+export const extensionTokensRelations = relations(
+	extensionTokens,
+	({ one }) => ({
+		user: one(users, {
+			fields: [extensionTokens.userId],
+			references: [users.id],
+		}),
 	}),
 );
 

@@ -18,6 +18,10 @@ import { Route as BetsIndexRouteImport } from './routes/bets/index'
 import { Route as BetsNewRouteImport } from './routes/bets/new'
 import { Route as BetsBetIdRouteImport } from './routes/bets/$betId'
 import { Route as ApiStripeWebhookRouteImport } from './routes/api/stripe/webhook'
+import { Route as ApiExtensionMeRouteImport } from './routes/api/extension/me'
+import { Route as ApiExtensionSessionExchangeRouteImport } from './routes/api/extension/session/exchange'
+import { Route as ApiExtensionBetsDraftRouteImport } from './routes/api/extension/bets/draft'
+import { Route as ApiExtensionBetsCreateRouteImport } from './routes/api/extension/bets/create'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -64,6 +68,27 @@ const ApiStripeWebhookRoute = ApiStripeWebhookRouteImport.update({
   path: '/api/stripe/webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiExtensionMeRoute = ApiExtensionMeRouteImport.update({
+  id: '/api/extension/me',
+  path: '/api/extension/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiExtensionSessionExchangeRoute =
+  ApiExtensionSessionExchangeRouteImport.update({
+    id: '/api/extension/session/exchange',
+    path: '/api/extension/session/exchange',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiExtensionBetsDraftRoute = ApiExtensionBetsDraftRouteImport.update({
+  id: '/api/extension/bets/draft',
+  path: '/api/extension/bets/draft',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiExtensionBetsCreateRoute = ApiExtensionBetsCreateRouteImport.update({
+  id: '/api/extension/bets/create',
+  path: '/api/extension/bets/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -74,7 +99,11 @@ export interface FileRoutesByFullPath {
   '/bets/$betId': typeof BetsBetIdRoute
   '/bets/new': typeof BetsNewRoute
   '/bets/': typeof BetsIndexRoute
+  '/api/extension/me': typeof ApiExtensionMeRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/extension/bets/create': typeof ApiExtensionBetsCreateRoute
+  '/api/extension/bets/draft': typeof ApiExtensionBetsDraftRoute
+  '/api/extension/session/exchange': typeof ApiExtensionSessionExchangeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -85,7 +114,11 @@ export interface FileRoutesByTo {
   '/bets/$betId': typeof BetsBetIdRoute
   '/bets/new': typeof BetsNewRoute
   '/bets': typeof BetsIndexRoute
+  '/api/extension/me': typeof ApiExtensionMeRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/extension/bets/create': typeof ApiExtensionBetsCreateRoute
+  '/api/extension/bets/draft': typeof ApiExtensionBetsDraftRoute
+  '/api/extension/session/exchange': typeof ApiExtensionSessionExchangeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -97,7 +130,11 @@ export interface FileRoutesById {
   '/bets/$betId': typeof BetsBetIdRoute
   '/bets/new': typeof BetsNewRoute
   '/bets/': typeof BetsIndexRoute
+  '/api/extension/me': typeof ApiExtensionMeRoute
   '/api/stripe/webhook': typeof ApiStripeWebhookRoute
+  '/api/extension/bets/create': typeof ApiExtensionBetsCreateRoute
+  '/api/extension/bets/draft': typeof ApiExtensionBetsDraftRoute
+  '/api/extension/session/exchange': typeof ApiExtensionSessionExchangeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -110,7 +147,11 @@ export interface FileRouteTypes {
     | '/bets/$betId'
     | '/bets/new'
     | '/bets/'
+    | '/api/extension/me'
     | '/api/stripe/webhook'
+    | '/api/extension/bets/create'
+    | '/api/extension/bets/draft'
+    | '/api/extension/session/exchange'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -121,7 +162,11 @@ export interface FileRouteTypes {
     | '/bets/$betId'
     | '/bets/new'
     | '/bets'
+    | '/api/extension/me'
     | '/api/stripe/webhook'
+    | '/api/extension/bets/create'
+    | '/api/extension/bets/draft'
+    | '/api/extension/session/exchange'
   id:
     | '__root__'
     | '/'
@@ -132,7 +177,11 @@ export interface FileRouteTypes {
     | '/bets/$betId'
     | '/bets/new'
     | '/bets/'
+    | '/api/extension/me'
     | '/api/stripe/webhook'
+    | '/api/extension/bets/create'
+    | '/api/extension/bets/draft'
+    | '/api/extension/session/exchange'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -144,7 +193,11 @@ export interface RootRouteChildren {
   BetsBetIdRoute: typeof BetsBetIdRoute
   BetsNewRoute: typeof BetsNewRoute
   BetsIndexRoute: typeof BetsIndexRoute
+  ApiExtensionMeRoute: typeof ApiExtensionMeRoute
   ApiStripeWebhookRoute: typeof ApiStripeWebhookRoute
+  ApiExtensionBetsCreateRoute: typeof ApiExtensionBetsCreateRoute
+  ApiExtensionBetsDraftRoute: typeof ApiExtensionBetsDraftRoute
+  ApiExtensionSessionExchangeRoute: typeof ApiExtensionSessionExchangeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +265,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiStripeWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/extension/me': {
+      id: '/api/extension/me'
+      path: '/api/extension/me'
+      fullPath: '/api/extension/me'
+      preLoaderRoute: typeof ApiExtensionMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/extension/session/exchange': {
+      id: '/api/extension/session/exchange'
+      path: '/api/extension/session/exchange'
+      fullPath: '/api/extension/session/exchange'
+      preLoaderRoute: typeof ApiExtensionSessionExchangeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/extension/bets/draft': {
+      id: '/api/extension/bets/draft'
+      path: '/api/extension/bets/draft'
+      fullPath: '/api/extension/bets/draft'
+      preLoaderRoute: typeof ApiExtensionBetsDraftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/extension/bets/create': {
+      id: '/api/extension/bets/create'
+      path: '/api/extension/bets/create'
+      fullPath: '/api/extension/bets/create'
+      preLoaderRoute: typeof ApiExtensionBetsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -224,7 +305,11 @@ const rootRouteChildren: RootRouteChildren = {
   BetsBetIdRoute: BetsBetIdRoute,
   BetsNewRoute: BetsNewRoute,
   BetsIndexRoute: BetsIndexRoute,
+  ApiExtensionMeRoute: ApiExtensionMeRoute,
   ApiStripeWebhookRoute: ApiStripeWebhookRoute,
+  ApiExtensionBetsCreateRoute: ApiExtensionBetsCreateRoute,
+  ApiExtensionBetsDraftRoute: ApiExtensionBetsDraftRoute,
+  ApiExtensionSessionExchangeRoute: ApiExtensionSessionExchangeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

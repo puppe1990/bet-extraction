@@ -13,11 +13,6 @@ import {
 	getBankrollSummary,
 } from "#/lib/server/bankroll.server";
 import {
-	createBillingPortalSessionForUser,
-	createCheckoutSessionForUser,
-	getBillingSummary,
-} from "#/lib/server/billing.server";
-import {
 	createBet,
 	createTag,
 	deleteBet,
@@ -30,7 +25,13 @@ import {
 	settleBet,
 	updateBet,
 } from "#/lib/server/bets.server";
+import {
+	createBillingPortalSessionForUser,
+	createCheckoutSessionForUser,
+	getBillingSummary,
+} from "#/lib/server/billing.server";
 import { getDashboardMetrics } from "#/lib/server/dashboard.server";
+import { createExtensionConnectionToken } from "#/lib/server/extension.server";
 import { billingIntervals, billingPlanKeys } from "./billing";
 import { betStatuses } from "./domain";
 
@@ -309,4 +310,11 @@ export const billingCreatePortalSession = createServerFn({
 		userId: session.user.id,
 		email: session.user.email,
 	});
+});
+
+export const extensionCreateConnectionToken = createServerFn({
+	method: "POST",
+}).handler(async () => {
+	const session = await requireCurrentSession();
+	return createExtensionConnectionToken(session.user.id);
 });

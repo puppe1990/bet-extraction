@@ -110,6 +110,7 @@ Billing base already exists in the app:
 - hosted Stripe Checkout for `Pro` and `Pro+`
 - Stripe Customer Portal launch from `Settings`
 - webhook endpoint at `/api/stripe/webhook`
+- premium gates for `CSV export` and `Chrome extension capture`
 
 Required environment variables:
 
@@ -129,12 +130,39 @@ The fastest local webhook loop is with the Stripe CLI forwarding events to:
 stripe listen --forward-to localhost:3000/api/stripe/webhook
 ```
 
+## Chrome extension scaffold
+
+The repository now includes a Manifest V3 scaffold in `extension/` with:
+
+- popup UI
+- background service worker
+- content script draft capture
+- extension auth handshake against the app
+- HTTP endpoints:
+  - `POST /api/extension/session/exchange`
+  - `GET /api/extension/me`
+  - `POST /api/extension/bets/draft`
+  - `POST /api/extension/bets/create`
+
+Local flow:
+
+1. run the app on `http://localhost:3000`
+2. open `Settings`
+3. generate a one-time extension connection token
+4. load `extension/` as unpacked in Chrome
+5. paste the token into the popup and connect
+6. capture the active tab or fill the draft manually
+7. save the draft into Ledger
+
+The extension scaffold is gated by billing. Only `Pro` and `Pro+` can connect and save through the extension endpoints.
+
 ## Estrutura relevante
 
 - `src/lib/server-functions.ts`: server functions do app
 - `src/lib/server/`: regras de auth, banca, bets e dashboard
 - `src/db/schema.ts`: schema Drizzle
 - `src/routes/`: rotas do produto
+- `extension/`: scaffold da extensao Chrome
 
 ## Status
 

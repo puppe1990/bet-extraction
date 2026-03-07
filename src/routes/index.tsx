@@ -3,8 +3,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	ArrowRight,
 	BarChart3,
-	Chrome,
 	ChevronRight,
+	Chrome,
 	LayoutDashboard,
 	ShieldCheck,
 	Sparkles,
@@ -140,7 +140,9 @@ function LandingPage() {
 						<Sparkles className="size-3.5" />
 						Bet tracking + bankroll analytics
 					</div>
-					<h1 className="landing-title">Track every bet. Understand your edge.</h1>
+					<h1 className="landing-title">
+						Track every bet. Understand your edge.
+					</h1>
 					<p className="landing-lead">
 						Ledger gives serious sports bettors one place to log bets, manage
 						bankroll and review ROI, yield, streaks and future CLV without the
@@ -157,7 +159,10 @@ function LandingPage() {
 					</div>
 					<div className="landing-proof">
 						<span>Built for bettors who outgrew spreadsheets.</span>
-						<span>Manual logging when you want it. One-click capture when you don&apos;t.</span>
+						<span>
+							Manual logging when you want it. One-click capture when you
+							don&apos;t.
+						</span>
 					</div>
 				</div>
 
@@ -280,7 +285,9 @@ function LandingPage() {
 						</div>
 						<div className="analytics-item">
 							<span>Bankroll timeline</span>
-							<strong>Every deposit, withdrawal and settlement accounted for.</strong>
+							<strong>
+								Every deposit, withdrawal and settlement accounted for.
+							</strong>
 						</div>
 					</div>
 				</div>
@@ -341,7 +348,9 @@ function LandingPage() {
 			<section className="landing-section page-wrap">
 				<div className="section-heading">
 					<p className="section-kicker">How it works</p>
-					<h2>Three steps to turn noisy betting activity into usable intelligence</h2>
+					<h2>
+						Three steps to turn noisy betting activity into usable intelligence
+					</h2>
 				</div>
 				<div className="workflow-grid">
 					{workflowSteps.map((item) => (
@@ -379,7 +388,11 @@ function LandingPage() {
 							</div>
 							<div className="pricing-price">
 								<strong>{tier.price}</strong>
-								{tier.price === "$0" ? <span>/forever</span> : <span>/month</span>}
+								{tier.price === "$0" ? (
+									<span>/forever</span>
+								) : (
+									<span>/month</span>
+								)}
 							</div>
 							<div className="pricing-features">
 								{tier.features.map((feature) => (
@@ -416,7 +429,9 @@ function LandingPage() {
 				<div className="final-cta">
 					<div>
 						<p className="section-kicker">Ready to launch</p>
-						<h2>Use Ledger as the operating system for your betting workflow.</h2>
+						<h2>
+							Use Ledger as the operating system for your betting workflow.
+						</h2>
 					</div>
 					<div className="landing-actions">
 						<Link to={primaryTo} className="cta-primary no-underline">

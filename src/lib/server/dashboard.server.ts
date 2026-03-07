@@ -1,8 +1,8 @@
-import { getBillingSummary } from "./billing.server";
 import { buildBetMetrics } from "#/lib/bets";
 import { getOutcomeToneFromProfit } from "#/lib/domain";
 import { getBankrollCurve, getBankrollSummary } from "./bankroll.server";
 import { listRecentBets } from "./bets.server";
+import { getBillingSummary } from "./billing.server";
 
 export async function getDashboardMetrics(userId: string) {
 	const [summary, bets, curve, billing] = await Promise.all([

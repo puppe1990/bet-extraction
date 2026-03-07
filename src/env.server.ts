@@ -3,35 +3,30 @@ import { z } from "zod";
 
 config({ path: [".env.local", ".env"] });
 
-const optionalNonEmptyString = z.preprocess(
-	(value) => {
-		if (typeof value === "string" && value.trim() === "") {
-			return undefined;
-		}
+const optionalNonEmptyString = z.preprocess((value) => {
+	if (typeof value === "string" && value.trim() === "") {
+		return undefined;
+	}
 
 	return value;
-	},
-	z.string().min(1).optional(),
-);
+}, z.string().min(1).optional());
 
-const optionalUrlString = z.preprocess(
-	(value) => {
-		if (typeof value === "string" && value.trim() === "") {
-			return undefined;
-		}
+const optionalUrlString = z.preprocess((value) => {
+	if (typeof value === "string" && value.trim() === "") {
+		return undefined;
+	}
 
-		return value;
-	},
-	z.string().url().optional(),
-);
+	return value;
+}, z.string().url().optional());
 
 const serverEnvSchema = z
 	.object({
 		TURSO_DATABASE_URL: z.string().min(1).default("file:local.db"),
 		TURSO_AUTH_TOKEN: optionalNonEmptyString,
-		SESSION_COOKIE_SECRET: z.string().min(16).default(
-			"dev-session-secret-1234",
-		),
+		SESSION_COOKIE_SECRET: z
+			.string()
+			.min(16)
+			.default("dev-session-secret-1234"),
 		BOOTSTRAP_EMAIL: z.string().email().optional(),
 		BOOTSTRAP_PASSWORD: z.string().min(8).optional(),
 		APP_URL: optionalUrlString.default("http://localhost:3000"),
@@ -43,10 +38,7 @@ const serverEnvSchema = z
 		STRIPE_PRO_PLUS_YEARLY_PRICE_ID: optionalNonEmptyString,
 	})
 	.superRefine((env, ctx) => {
-		if (
-			!env.TURSO_DATABASE_URL.startsWith("file:") &&
-			!env.TURSO_AUTH_TOKEN
-		) {
+		if (!env.TURSO_DATABASE_URL.startsWith("file:") && !env.TURSO_AUTH_TOKEN) {
 			ctx.addIssue({
 				code: z.ZodIssueCode.custom,
 				path: ["TURSO_AUTH_TOKEN"],

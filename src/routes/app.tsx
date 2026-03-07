@@ -151,8 +151,8 @@ function DashboardPage() {
 								Unlock the bankroll curve
 							</h2>
 							<p className="max-w-md text-sm text-zinc-400">
-								Free users keep the core scoreboard. Pro unlocks the full
-								curve, deeper breakdowns and the extension workflow.
+								Free users keep the core scoreboard. Pro unlocks the full curve,
+								deeper breakdowns and the extension workflow.
 							</p>
 						</div>
 						<Link to="/settings" className="cta-primary no-underline">

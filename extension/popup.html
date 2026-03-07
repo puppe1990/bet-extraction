@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ledger Capture</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel">
+        <div class="eyebrow">Ledger Capture</div>
+        <h1>Chrome extension</h1>
+        <p class="subcopy">
+          Connect this device, capture the current page and push the draft into Ledger.
+        </p>
+      </section>
+
+      <section class="panel" id="connect-panel">
+        <div class="section-label">Connection</div>
+        <label class="field">
+          <span>Ledger app URL</span>
+          <input id="app-url" type="url" placeholder="http://localhost:3000" />
+        </label>
+        <label class="field">
+          <span>One-time token</span>
+          <textarea id="connection-token" rows="3" placeholder="Paste the token from Settings"></textarea>
+        </label>
+        <label class="field">
+          <span>Device name</span>
+          <input id="device-name" type="text" value="Ledger Chrome Extension" />
+        </label>
+        <button id="connect-button" class="primary">Connect extension</button>
+      </section>
+
+      <section class="panel hidden" id="device-panel">
+        <div class="section-label">Connected device</div>
+        <div class="device-meta">
+          <div>
+            <span class="meta-label">User</span>
+            <strong id="user-email">-</strong>
+          </div>
+          <div>
+            <span class="meta-label">Device</span>
+            <strong id="device-name-readonly">-</strong>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="refresh-button" class="secondary">Refresh session</button>
+          <button id="disconnect-button" class="ghost">Disconnect</button>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="capture-panel">
+        <div class="section-label">Capture draft</div>
+        <div class="actions">
+          <button id="capture-button" class="primary">Capture active tab</button>
+          <button id="preview-button" class="secondary">Preview in Ledger</button>
+        </div>
+        <div class="draft-grid">
+          <label class="field">
+            <span>Bookmaker</span>
+            <input id="draft-bookmaker" type="text" />
+          </label>
+          <label class="field">
+            <span>Sport</span>
+            <input id="draft-sport" type="text" />
+          </label>
+          <label class="field field-full">
+            <span>Event</span>
+            <input id="draft-event" type="text" />
+          </label>
+          <label class="field field-full">
+            <span>Market</span>
+            <input id="draft-market" type="text" />
+          </label>
+          <label class="field field-full">
+            <span>Selection</span>
+            <input id="draft-selection" type="text" />
+          </label>
+          <label class="field">
+            <span>Odds</span>
+            <input id="draft-odds" type="number" step="0.01" min="1" />
+          </label>
+          <label class="field">
+            <span>Stake (BRL)</span>
+            <input id="draft-stake" type="number" step="0.01" min="0" />
+          </label>
+          <label class="field field-full">
+            <span>Note</span>
+            <textarea id="draft-note" rows="3"></textarea>
+          </label>
+        </div>
+        <button id="save-button" class="primary">Save to Ledger</button>
+      </section>
+
+      <section class="panel hidden" id="message-panel">
+        <div class="section-label">Status</div>
+        <p id="message-body" class="message"></p>
+      </section>
+    </main>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

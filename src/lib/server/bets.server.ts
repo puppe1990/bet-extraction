@@ -6,11 +6,11 @@ import { nowIso } from "#/lib/auth";
 import { calculateSettlementAmounts, parseTagInput } from "#/lib/bets";
 import type { BetStatus } from "#/lib/domain";
 import { fromCents, toCents } from "#/lib/money";
+import { getPrimaryAccount } from "./bankroll.server";
 import {
 	assertBillingFeatureAccess,
 	assertCanCreateBet,
 } from "./billing.server";
-import { getPrimaryAccount } from "./bankroll.server";
 
 type BetInput = {
 	sport: string;

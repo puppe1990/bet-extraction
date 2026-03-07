@@ -22,11 +22,7 @@ import {
 	betsListQueryOptions,
 	billingSummaryQueryOptions,
 } from "#/lib/query-options";
-import {
-	authSession,
-	betsExportCsv,
-	betsSettle,
-} from "#/lib/server-functions";
+import { authSession, betsExportCsv, betsSettle } from "#/lib/server-functions";
 
 const searchSchema = {
 	status: "all",
@@ -259,9 +255,12 @@ function BetsPage() {
 				</div>
 				{!billingQuery.data?.canExportCsv ? (
 					<div className="rounded-2xl border border-amber-300/18 bg-amber-300/8 px-4 py-3 text-sm text-amber-100">
-						CSV export is a Pro feature. Upgrade to export filtered bet history and bookmaker performance outside Ledger.
-						{" "}
-						<Link to="/settings" className="font-semibold text-white underline underline-offset-4">
+						CSV export is a Pro feature. Upgrade to export filtered bet history
+						and bookmaker performance outside Ledger.{" "}
+						<Link
+							to="/settings"
+							className="font-semibold text-white underline underline-offset-4"
+						>
 							See plans
 						</Link>
 						.

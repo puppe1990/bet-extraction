@@ -3,8 +3,8 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Chrome, Download, LockKeyhole } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Button } from "#/components/ui/button";
-import { DateTimeText } from "#/lib/datetime";
 import { PasswordInput } from "#/components/ui/password-input";
+import { DateTimeText } from "#/lib/datetime";
 import { formatCurrency } from "#/lib/money";
 import {
 	bankrollSummaryQueryOptions,
@@ -16,6 +16,7 @@ import {
 	authSession,
 	billingCreateCheckoutSession,
 	billingCreatePortalSession,
+	extensionCreateConnectionToken,
 } from "#/lib/server-functions";
 
 export const Route = createFileRoute("/settings")({
@@ -43,6 +44,10 @@ function SettingsPage() {
 	const [currentPassword, setCurrentPassword] = useState("");
 	const [nextPassword, setNextPassword] = useState("");
 	const [message, setMessage] = useState<string | null>(null);
+	const [connectionToken, setConnectionToken] = useState<string | null>(null);
+	const [connectionTokenExpiry, setConnectionTokenExpiry] = useState<
+		string | null
+	>(null);
 	const currentPlanKey = billingQuery.data?.planKey ?? "free";
 	const effectivePlanKey = billingQuery.data?.effectivePlanKey ?? "free";
 	const currentInterval = billingQuery.data?.interval ?? null;
@@ -88,6 +93,18 @@ function SettingsPage() {
 		mutationFn: () => billingCreatePortalSession(),
 		onSuccess: (result) => {
 			window.location.href = result.url;
+		},
+		onError: (error) => {
+			setMessage(error.message);
+		},
+	});
+
+	const connectionTokenMutation = useMutation({
+		mutationFn: () => extensionCreateConnectionToken(),
+		onSuccess: (result) => {
+			setConnectionToken(result.token);
+			setConnectionTokenExpiry(result.expiresAt);
+			setMessage(null);
 		},
 		onError: (error) => {
 			setMessage(error.message);
@@ -250,7 +267,9 @@ function SettingsPage() {
 									})
 								}
 								activePlan={currentPlanKey === "pro"}
-								activeInterval={currentPlanKey === "pro" ? currentInterval : null}
+								activeInterval={
+									currentPlanKey === "pro" ? currentInterval : null
+								}
 								disabled={
 									!billingQuery.data?.isConfigured || checkoutMutation.isPending
 								}
@@ -287,7 +306,8 @@ function SettingsPage() {
 							<Button
 								variant="outline"
 								disabled={
-									!billingQuery.data?.stripeCustomerId || portalMutation.isPending
+									!billingQuery.data?.stripeCustomerId ||
+									portalMutation.isPending
 								}
 								onClick={() => portalMutation.mutate()}
 							>
@@ -301,7 +321,9 @@ function SettingsPage() {
 							</Button>
 							{billingQuery.data?.currentPeriodEnd ? (
 								<div className="rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 text-sm text-zinc-300">
-									{isCancelScheduled ? "Access ends at " : "Current period ends at "}
+									{isCancelScheduled
+										? "Access ends at "
+										: "Current period ends at "}
 									<DateTimeText value={billingQuery.data.currentPeriodEnd} />
 								</div>
 							) : null}
@@ -337,11 +359,55 @@ function SettingsPage() {
 						</div>
 						<div className="rounded-[28px] border border-white/6 bg-white/[0.03] p-5 text-sm text-zinc-300">
 							{billingQuery.data?.canUseExtensionCapture ? (
-								<p>
-									Your plan includes extension capture. The product-side gate is
-									ready, and the extension integration can attach to this account
-									as soon as the client ships.
-								</p>
+								<div className="space-y-4">
+									<p>
+										Your plan includes extension capture. Generate a one-time
+										connection token here, then paste it into the Chrome
+										extension popup to link this account.
+									</p>
+									<div className="flex flex-wrap gap-3">
+										<Button
+											disabled={connectionTokenMutation.isPending}
+											onClick={() => connectionTokenMutation.mutate()}
+											type="button"
+										>
+											{connectionTokenMutation.isPending
+												? "Generating..."
+												: "Connect Chrome extension"}
+										</Button>
+										{connectionToken ? (
+											<div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-semibold tracking-[0.18em] text-emerald-100 uppercase">
+												Token ready
+											</div>
+										) : null}
+									</div>
+									{connectionToken ? (
+										<div className="rounded-2xl border border-white/8 bg-[#0a1016] px-4 py-4">
+											<div className="text-[11px] uppercase tracking-[0.24em] text-zinc-500">
+												One-time connection token
+											</div>
+											<div className="mt-3 break-all font-mono text-sm text-zinc-100">
+												{connectionToken}
+											</div>
+											<div className="mt-3 text-xs text-zinc-400">
+												Expires at{" "}
+												{connectionTokenExpiry ? (
+													<DateTimeText value={connectionTokenExpiry} />
+												) : (
+													"--"
+												)}
+											</div>
+										</div>
+									) : null}
+									<ol className="grid gap-2 text-sm text-zinc-300">
+										<li>1. Open the Chrome extension popup.</li>
+										<li>2. Paste this token and confirm the app URL.</li>
+										<li>
+											3. The extension exchanges it for a persistent device
+											token.
+										</li>
+									</ol>
+								</div>
 							) : (
 								<p>
 									Free accounts can log bets manually. Upgrade to Pro when you
@@ -387,7 +453,9 @@ function SettingsPage() {
 							</div>
 						) : null}
 						<Button disabled={passwordMutation.isPending}>
-							{passwordMutation.isPending ? "Atualizando..." : "Atualizar senha"}
+							{passwordMutation.isPending
+								? "Atualizando..."
+								: "Atualizar senha"}
 						</Button>
 					</form>
 				</div>
@@ -542,7 +610,10 @@ function PlanCard(props: {
 			</div>
 			<div className="mt-5 flex flex-wrap gap-3">
 				<Button
-					disabled={props.disabled || (props.activePlan && props.activeInterval === "month")}
+					disabled={
+						props.disabled ||
+						(props.activePlan && props.activeInterval === "month")
+					}
 					onClick={props.onMonthly}
 					type="button"
 				>
@@ -552,7 +623,10 @@ function PlanCard(props: {
 				</Button>
 				<Button
 					variant="outline"
-					disabled={props.disabled || (props.activePlan && props.activeInterval === "year")}
+					disabled={
+						props.disabled ||
+						(props.activePlan && props.activeInterval === "year")
+					}
 					onClick={props.onYearly}
 					type="button"
 				>

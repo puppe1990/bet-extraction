@@ -9,6 +9,7 @@ import {
 	users,
 } from "#/db/schema";
 import { serverEnv } from "#/env.server";
+import { nowIso } from "#/lib/auth";
 import {
 	type BillingFeatureKey,
 	type BillingInterval,
@@ -19,7 +20,6 @@ import {
 	hasPaidAccess,
 	resolvePlanFromPriceId,
 } from "#/lib/billing";
-import { nowIso } from "#/lib/auth";
 
 let stripeClient: Stripe | null = null;
 export const FREE_PLAN_MONTHLY_BET_LIMIT = 50;
@@ -36,7 +36,10 @@ function getStripeClient() {
 	return stripeClient;
 }
 
-export function constructStripeWebhookEvent(payload: string, signature: string) {
+export function constructStripeWebhookEvent(
+	payload: string,
+	signature: string,
+) {
 	if (!serverEnv.STRIPE_SECRET_KEY || !serverEnv.STRIPE_WEBHOOK_SECRET) {
 		throw new Error("Stripe webhook is not configured.");
 	}
@@ -156,10 +159,7 @@ export async function getMonthlyBetUsage(userId: string) {
 	const [row] = await db
 		.select({ value: count() })
 		.from(bets)
-		.innerJoin(
-			bankrollAccounts,
-			eq(bets.accountId, bankrollAccounts.id),
-		)
+		.innerJoin(bankrollAccounts, eq(bets.accountId, bankrollAccounts.id))
 		.where(
 			and(
 				eq(bankrollAccounts.userId, userId),
@@ -203,7 +203,9 @@ export async function assertBillingFeatureAccess(
 		}
 
 		if (feature === "extension_capture") {
-			throw new Error("Chrome extension capture is available on Pro and Pro+ only.");
+			throw new Error(
+				"Chrome extension capture is available on Pro and Pro+ only.",
+			);
 		}
 	}
 
@@ -266,7 +268,10 @@ export async function createCheckoutSessionForUser(input: {
 
 	const stripe = getStripeClient();
 	const priceId = getPriceIdForPlan(input.planKey, input.interval);
-	const customerId = await ensureStripeCustomerForUser(input.userId, input.email);
+	const customerId = await ensureStripeCustomerForUser(
+		input.userId,
+		input.email,
+	);
 	const appUrl = serverEnv.APP_URL ?? "http://localhost:3000";
 
 	const session = await stripe.checkout.sessions.create({
@@ -305,7 +310,10 @@ export async function createBillingPortalSessionForUser(input: {
 	}
 
 	const stripe = getStripeClient();
-	const customerId = await ensureStripeCustomerForUser(input.userId, input.email);
+	const customerId = await ensureStripeCustomerForUser(
+		input.userId,
+		input.email,
+	);
 	const appUrl = serverEnv.APP_URL ?? "http://localhost:3000";
 	const session = await stripe.billingPortal.sessions.create({
 		customer: customerId,
@@ -317,7 +325,12 @@ export async function createBillingPortalSessionForUser(input: {
 
 type StripeSubscriptionLike = Pick<
 	Stripe.Subscription,
-	"id" | "status" | "cancel_at_period_end" | "current_period_end" | "customer" | "items"
+	| "id"
+	| "status"
+	| "cancel_at_period_end"
+	| "current_period_end"
+	| "customer"
+	| "items"
 >;
 
 export async function syncStripeSubscriptionToDatabase(input: {
@@ -330,7 +343,7 @@ export async function syncStripeSubscriptionToDatabase(input: {
 	const product =
 		typeof firstItem?.price?.product === "string"
 			? firstItem.price.product
-			: firstItem?.price?.product?.id ?? null;
+			: (firstItem?.price?.product?.id ?? null);
 	const resolved = resolvePlanFromPriceId(priceId, getBillingPriceCatalog());
 	const existing = await db.query.billingSubscriptions.findFirst({
 		where: eq(billingSubscriptions.userId, input.userId),
@@ -396,13 +409,17 @@ export async function markBillingSubscriptionCanceled(
 		.where(eq(billingSubscriptions.id, existing.id));
 }
 
-export async function syncCheckoutSessionCompletion(session: Stripe.Checkout.Session) {
+export async function syncCheckoutSessionCompletion(
+	session: Stripe.Checkout.Session,
+) {
 	const userId =
 		typeof session.client_reference_id === "string"
 			? session.client_reference_id
 			: session.metadata?.userId;
 	const customerId =
-		typeof session.customer === "string" ? session.customer : session.customer?.id;
+		typeof session.customer === "string"
+			? session.customer
+			: session.customer?.id;
 	const subscriptionId =
 		typeof session.subscription === "string"
 			? session.subscription
@@ -444,7 +461,9 @@ export async function findUserIdByStripeCustomerId(customerId: string) {
 export async function processStripeWebhookEvent(event: Stripe.Event) {
 	switch (event.type) {
 		case "checkout.session.completed": {
-			await syncCheckoutSessionCompletion(event.data.object as Stripe.Checkout.Session);
+			await syncCheckoutSessionCompletion(
+				event.data.object as Stripe.Checkout.Session,
+			);
 			return;
 		}
 		case "customer.subscription.created":

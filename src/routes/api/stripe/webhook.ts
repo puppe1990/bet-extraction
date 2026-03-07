@@ -21,7 +21,9 @@ export const Route = createFileRoute("/api/stripe/webhook")({
 					return Response.json({ received: true });
 				} catch (error) {
 					const message =
-						error instanceof Error ? error.message : "Webhook processing failed.";
+						error instanceof Error
+							? error.message
+							: "Webhook processing failed.";
 					return new Response(message, { status: 400 });
 				}
 			},
