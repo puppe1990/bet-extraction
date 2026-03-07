@@ -34,11 +34,11 @@ async function fetchJson(url, options = {}) {
   return json;
 }
 
-async function exchangeConnectionToken({ appUrl, token, name }) {
-  const json = await fetchJson(`${appUrl}/api/extension/session/exchange`, {
+async function loginWithPassword({ appUrl, email, password, name }) {
+  const json = await fetchJson(`${appUrl}/api/extension/session/login`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ token, name }),
+    body: JSON.stringify({ email, password, name }),
   });
 
   await setState({
@@ -131,8 +131,8 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     switch (message.type) {
       case "LEDGER_GET_STATE":
         return getState();
-      case "LEDGER_CONNECT":
-        return exchangeConnectionToken(message.payload);
+      case "LEDGER_LOGIN":
+        return loginWithPassword(message.payload);
       case "LEDGER_REFRESH_ME":
         return refreshMe();
       case "LEDGER_CAPTURE_ACTIVE_TAB":

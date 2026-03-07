@@ -12,25 +12,34 @@
         <div class="eyebrow">Ledger Capture</div>
         <h1>Chrome extension</h1>
         <p class="subcopy">
-          Connect this device, capture the current page and push the draft into Ledger.
+          Sign in to Ledger, capture the current page and push the draft into your account.
         </p>
       </section>
 
       <section class="panel" id="connect-panel">
-        <div class="section-label">Connection</div>
+        <div class="section-label">Sign in</div>
         <label class="field">
           <span>Ledger app URL</span>
           <input id="app-url" type="url" placeholder="http://localhost:3000" />
         </label>
         <label class="field">
-          <span>One-time token</span>
-          <textarea id="connection-token" rows="3" placeholder="Paste the token from Settings"></textarea>
+          <span>Email</span>
+          <input id="email" type="email" placeholder="name@example.com" />
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input id="password" type="password" placeholder="Your Ledger password" />
         </label>
         <label class="field">
           <span>Device name</span>
           <input id="device-name" type="text" value="Ledger Chrome Extension" />
         </label>
-        <button id="connect-button" class="primary">Connect extension</button>
+        <div class="actions">
+          <button id="login-button" class="primary">Sign in</button>
+          <a id="open-app-link" class="ghost link-button" href="http://localhost:3000/login" target="_blank" rel="noreferrer">
+            Open web app
+          </a>
+        </div>
       </section>
 
       <section class="panel hidden" id="device-panel">

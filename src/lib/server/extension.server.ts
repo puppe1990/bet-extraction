@@ -2,7 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { and, eq, isNull, or } from "drizzle-orm";
 import { db } from "#/db";
 import { extensionConnectionTokens, extensionTokens, users } from "#/db/schema";
-import { nowIso } from "#/lib/auth";
+import { nowIso, verifyPassword } from "#/lib/auth";
 import { createBet } from "./bets.server";
 import { assertBillingFeatureAccess } from "./billing.server";
 
@@ -63,6 +63,40 @@ function normalizeDraft(input: CapturedBetDraftInput) {
 	};
 }
 
+async function createExtensionAccessSession(input: {
+	userId: string;
+	name: string;
+}) {
+	const accessToken = randomUUID();
+	const expiresAt = buildExtensionExpiry();
+
+	await db.insert(extensionTokens).values({
+		id: randomUUID(),
+		userId: input.userId,
+		name: input.name.trim() || "Ledger Chrome Extension",
+		tokenHash: hashToken(accessToken),
+		expiresAt,
+		createdAt: nowIso(),
+	});
+
+	const user = await db.query.users.findFirst({
+		where: eq(users.id, input.userId),
+	});
+
+	if (!user) {
+		throw new Error("User not found.");
+	}
+
+	return {
+		accessToken,
+		expiresAt,
+		user: {
+			id: user.id,
+			email: user.email,
+		},
+	};
+}
+
 export async function createExtensionConnectionToken(userId: string) {
 	await assertBillingFeatureAccess(userId, "extension_capture");
 
@@ -103,41 +137,37 @@ export async function exchangeExtensionConnectionToken(input: {
 
 	await assertBillingFeatureAccess(connection.userId, "extension_capture");
 
-	const accessToken = randomUUID();
-	const expiresAt = buildExtensionExpiry();
-
 	await db.transaction(async (tx) => {
 		await tx
 			.update(extensionConnectionTokens)
 			.set({ usedAt: nowIso() })
 			.where(eq(extensionConnectionTokens.id, connection.id));
-
-		await tx.insert(extensionTokens).values({
-			id: randomUUID(),
-			userId: connection.userId,
-			name: input.name.trim() || "Ledger Chrome Extension",
-			tokenHash: hashToken(accessToken),
-			expiresAt,
-			createdAt: nowIso(),
-		});
 	});
 
+	return createExtensionAccessSession({
+		userId: connection.userId,
+		name: input.name,
+	});
+}
+
+export async function loginExtensionWithPassword(input: {
+	email: string;
+	password: string;
+	name: string;
+}) {
+	const email = input.email.toLowerCase().trim();
 	const user = await db.query.users.findFirst({
-		where: eq(users.id, connection.userId),
+		where: eq(users.email, email),
 	});
 
-	if (!user) {
-		throw new Error("User not found.");
+	if (!user || !verifyPassword(input.password, user.passwordHash)) {
+		throw new Error("Invalid email or password.");
 	}
 
-	return {
-		accessToken,
-		expiresAt,
-		user: {
-			id: user.id,
-			email: user.email,
-		},
-	};
+	return createExtensionAccessSession({
+		userId: user.id,
+		name: input.name,
+	});
 }
 
 export async function getExtensionSessionByAccessToken(token: string) {

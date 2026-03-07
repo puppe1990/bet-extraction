@@ -9,23 +9,20 @@ This folder contains a plain Manifest V3 scaffold for the Ledger capture flow.
 3. Click `Load unpacked`
 4. Select the `extension/` folder
 
-## Connect flow
+## Sign-in flow
 
-1. Open Ledger at `http://localhost:3000/settings`
-2. Make sure the account is on `Pro` or `Pro+`
-3. In the `Capture and export access` section, click `Connect Chrome extension`
-4. Copy the one-time connection token
-5. Open the extension popup and paste:
-   - the app URL
-   - the one-time token
-   - the device name
-6. Click `Connect extension`
+1. Open the extension popup
+2. Enter the Ledger app URL
+3. Enter your email and password
+4. Optionally rename the device
+5. Click `Sign in`
 
-The popup will exchange the short-lived token for a persistent extension access token stored in Chrome local storage.
+The popup will create a persistent extension session token and store it in Chrome local storage. No copy-paste token is required.
 
 ## Current scope
 
 - connect extension to a Ledger account
+- sign in with email and password directly from the popup
 - capture a draft from the active tab
 - heuristic parser for `Bet365`
 - preview normalization through the app backend

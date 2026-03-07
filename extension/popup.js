@@ -7,8 +7,10 @@ const messagePanel = $("message-panel");
 const messageBody = $("message-body");
 
 const appUrlInput = $("app-url");
-const tokenInput = $("connection-token");
+const emailInput = $("email");
+const passwordInput = $("password");
 const deviceNameInput = $("device-name");
+const openAppLink = $("open-app-link");
 
 const fields = {
   bookmaker: $("draft-bookmaker"),
@@ -82,12 +84,18 @@ function setConnectedState(state) {
 
   if (state.appUrl) {
     appUrlInput.value = state.appUrl;
+    openAppLink.href = `${state.appUrl.replace(/\/$/, "")}/login`;
   }
 
   if (state.draft) {
     fillDraft(state.draft);
   }
 }
+
+appUrlInput.addEventListener("input", () => {
+  const appUrl = appUrlInput.value.trim() || "http://localhost:3000";
+  openAppLink.href = `${appUrl.replace(/\/$/, "")}/login`;
+});
 
 async function sendMessage(type, payload) {
   const response = await chrome.runtime.sendMessage({ type, payload });
@@ -106,22 +114,24 @@ async function boot() {
   }
 }
 
-$("connect-button").addEventListener("click", async () => {
+$("login-button").addEventListener("click", async () => {
   clearMessage();
   try {
-    const result = await sendMessage("LEDGER_CONNECT", {
-      appUrl: appUrlInput.value.trim() || "http://localhost:3000",
-      token: tokenInput.value.trim(),
+    const appUrl = appUrlInput.value.trim() || "http://localhost:3000";
+    const result = await sendMessage("LEDGER_LOGIN", {
+      appUrl,
+      email: emailInput.value.trim(),
+      password: passwordInput.value,
       name: deviceNameInput.value.trim() || "Ledger Chrome Extension",
     });
-    tokenInput.value = "";
+    passwordInput.value = "";
     setConnectedState({
       accessToken: result.accessToken,
-      appUrl: appUrlInput.value.trim(),
+      appUrl,
       user: result.user,
       device: { name: deviceNameInput.value.trim(), expiresAt: result.expiresAt },
     });
-    showMessage("Extension connected. You can now capture and save bets.");
+    showMessage("Signed in. You can now capture and save bets.");
   } catch (error) {
     showMessage(error.message, "error");
   }

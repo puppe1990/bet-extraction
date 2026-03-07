@@ -89,7 +89,8 @@ h1 {
 
 input,
 textarea,
-button {
+button,
+.link-button {
   font: inherit;
 }
 
@@ -114,15 +115,21 @@ textarea {
   margin-top: 12px;
 }
 
-button {
+button,
+.link-button {
   border: 0;
   border-radius: 999px;
   padding: 10px 14px;
   cursor: pointer;
   transition: transform 160ms ease, opacity 160ms ease, background 160ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
-button:hover {
+button:hover,
+.link-button:hover {
   transform: translateY(-1px);
 }
 
