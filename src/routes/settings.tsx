@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "#/components/ui/button";
+import { DateTimeText } from "#/lib/datetime";
 import { PasswordInput } from "#/components/ui/password-input";
 import { formatCurrency } from "#/lib/money";
 import {
@@ -17,6 +18,12 @@ import {
 } from "#/lib/server-functions";
 
 export const Route = createFileRoute("/settings")({
+	validateSearch: (search) => ({
+		billing:
+			search.billing === "success" || search.billing === "canceled"
+				? search.billing
+				: undefined,
+	}),
 	beforeLoad: async () => {
 		const session = await authSession();
 		if (!session) {
@@ -27,6 +34,7 @@ export const Route = createFileRoute("/settings")({
 });
 
 function SettingsPage() {
+	const search = Route.useSearch();
 	const sessionQuery = useQuery(sessionQueryOptions());
 	const summaryQuery = useQuery(bankrollSummaryQueryOptions());
 	const billingQuery = useQuery(billingSummaryQueryOptions());
@@ -35,11 +43,22 @@ function SettingsPage() {
 	const [nextPassword, setNextPassword] = useState("");
 	const [message, setMessage] = useState<string | null>(null);
 	const currentPlanKey = billingQuery.data?.planKey ?? "free";
+	const effectivePlanKey = billingQuery.data?.effectivePlanKey ?? "free";
 	const currentInterval = billingQuery.data?.interval ?? null;
 	const isActivePaidPlan =
-		currentPlanKey !== "free" &&
+		effectivePlanKey !== "free" &&
 		(billingQuery.data?.status === "active" ||
 			billingQuery.data?.status === "trialing");
+	const isCancelScheduled =
+		isActivePaidPlan && Boolean(billingQuery.data?.cancelAtPeriodEnd);
+	const hasExpiredPaidPlan =
+		currentPlanKey !== "free" && effectivePlanKey === "free";
+	const billingStatusLabel = getBillingStatusLabel({
+		planKey: currentPlanKey,
+		effectivePlanKey,
+		status: billingQuery.data?.status,
+		cancelAtPeriodEnd: billingQuery.data?.cancelAtPeriodEnd,
+	});
 
 	const passwordMutation = useMutation({
 		mutationFn: authChangePassword,
@@ -74,6 +93,14 @@ function SettingsPage() {
 		},
 	});
 
+	const billingNotice = getBillingNotice({
+		checkoutState: search.billing,
+		isActivePaidPlan,
+		isCancelScheduled,
+		hasExpiredPaidPlan,
+		currentPeriodEnd: billingQuery.data?.currentPeriodEnd ?? null,
+	});
+
 	return (
 		<main className="page-wrap py-10">
 			<section className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
@@ -104,7 +131,7 @@ function SettingsPage() {
 					</div>
 					<div className="rounded-[28px] border border-white/6 bg-white/[0.03] p-5">
 						<div className="text-xs uppercase tracking-[0.24em] text-zinc-500">
-							Plano
+							Subscription
 						</div>
 						<div className="mt-2 flex items-center gap-3">
 							<div className="text-xl font-semibold text-zinc-100">
@@ -121,11 +148,14 @@ function SettingsPage() {
 							) : null}
 						</div>
 						<div className="mt-2 text-sm text-zinc-400">
-							{billingQuery.data?.status
-								? `Status: ${billingQuery.data.status}`
-								: "Sem assinatura ativa."}
+							{billingStatusLabel}
 						</div>
-						{billingQuery.data?.planKey === "free" &&
+						{hasExpiredPaidPlan ? (
+							<div className="mt-3 rounded-2xl border border-amber-300/14 bg-amber-300/8 px-4 py-3 text-sm text-amber-100">
+								Paid access ended. The account is back on Free entitlements.
+							</div>
+						) : null}
+						{effectivePlanKey === "free" &&
 						billingQuery.data.monthlyBetLimit != null ? (
 							<div className="mt-3 text-sm text-zinc-400">
 								{billingQuery.data.monthlyBetsUsed}/
@@ -142,7 +172,7 @@ function SettingsPage() {
 								Billing
 							</p>
 							<h2 className="mt-2 text-3xl font-semibold text-zinc-50">
-								Upgrade and subscription control
+								Plan, upgrades and cancellation
 							</h2>
 						</div>
 						{billingQuery.data && !billingQuery.data.isConfigured ? (
@@ -151,6 +181,53 @@ function SettingsPage() {
 								chaves e price IDs para liberar Checkout e Customer Portal.
 							</div>
 						) : null}
+						{billingNotice ? (
+							<div
+								className={`rounded-2xl border px-4 py-3 text-sm ${
+									billingNotice.tone === "success"
+										? "border-emerald-400/20 bg-emerald-400/10 text-emerald-100"
+										: billingNotice.tone === "warning"
+											? "border-amber-300/18 bg-amber-300/8 text-amber-100"
+											: "border-white/8 bg-white/[0.04] text-zinc-200"
+								}`}
+							>
+								{billingNotice.body}
+							</div>
+						) : null}
+						<div className="grid gap-3 rounded-[28px] border border-white/6 bg-white/[0.03] p-5 md:grid-cols-3">
+							<div>
+								<p className="text-[11px] uppercase tracking-[0.24em] text-zinc-500">
+									Access now
+								</p>
+								<p className="mt-2 text-2xl font-semibold text-zinc-50">
+									{effectivePlanKey === "pro_plus"
+										? "Pro+"
+										: effectivePlanKey === "pro"
+											? "Pro"
+											: "Free"}
+								</p>
+							</div>
+							<div>
+								<p className="text-[11px] uppercase tracking-[0.24em] text-zinc-500">
+									Billing status
+								</p>
+								<p className="mt-2 text-base font-medium text-zinc-200">
+									{billingQuery.data?.status ?? "inactive"}
+								</p>
+							</div>
+							<div>
+								<p className="text-[11px] uppercase tracking-[0.24em] text-zinc-500">
+									Renewal
+								</p>
+								<div className="mt-2 text-base font-medium text-zinc-200">
+									{billingQuery.data?.currentPeriodEnd ? (
+										<DateTimeText value={billingQuery.data.currentPeriodEnd} />
+									) : (
+										"Not scheduled"
+									)}
+								</div>
+							</div>
+						</div>
 						<div className="grid gap-4 md:grid-cols-2">
 							<PlanCard
 								title="Pro"
@@ -215,13 +292,16 @@ function SettingsPage() {
 							>
 								{portalMutation.isPending
 									? "Opening portal..."
-									: isActivePaidPlan
-										? "Manage subscription"
-										: "Open customer portal"}
+									: hasExpiredPaidPlan
+										? "Review billing history"
+										: isActivePaidPlan
+											? "Manage subscription"
+											: "Open customer portal"}
 							</Button>
 							{billingQuery.data?.currentPeriodEnd ? (
 								<div className="rounded-full border border-white/8 bg-white/[0.04] px-4 py-2 text-sm text-zinc-300">
-									Current period ends at {billingQuery.data.currentPeriodEnd}
+									{isCancelScheduled ? "Access ends at " : "Current period ends at "}
+									<DateTimeText value={billingQuery.data.currentPeriodEnd} />
 								</div>
 							) : null}
 						</div>
@@ -270,6 +350,72 @@ function SettingsPage() {
 			</section>
 		</main>
 	);
+}
+
+function getBillingStatusLabel(input: {
+	planKey: string;
+	effectivePlanKey: string;
+	status?: string;
+	cancelAtPeriodEnd?: boolean;
+}) {
+	if (!input.status || input.planKey === "free") {
+		return "No paid subscription on file.";
+	}
+
+	if (input.cancelAtPeriodEnd && input.effectivePlanKey !== "free") {
+		return `Status: ${input.status}. Cancellation scheduled at period end.`;
+	}
+
+	if (input.effectivePlanKey === "free") {
+		return `Status: ${input.status}. Paid access is no longer active.`;
+	}
+
+	return `Status: ${input.status}.`;
+}
+
+function getBillingNotice(input: {
+	checkoutState?: "success" | "canceled";
+	isActivePaidPlan: boolean;
+	isCancelScheduled: boolean;
+	hasExpiredPaidPlan: boolean;
+	currentPeriodEnd: string | null;
+}) {
+	if (input.checkoutState === "success") {
+		return {
+			tone: "success" as const,
+			body: "Checkout completed. If Stripe takes a few seconds to sync, refresh this page and the plan status will catch up.",
+		};
+	}
+
+	if (input.isCancelScheduled && input.currentPeriodEnd) {
+		return {
+			tone: "warning" as const,
+			body: "Cancellation is scheduled. Premium access stays active until the end of the current billing period.",
+		};
+	}
+
+	if (input.hasExpiredPaidPlan) {
+		return {
+			tone: "neutral" as const,
+			body: "This subscription already ended. Reactivate below to restore premium analytics and unlimited bet logging.",
+		};
+	}
+
+	if (input.checkoutState === "canceled") {
+		return {
+			tone: "neutral" as const,
+			body: "Checkout was canceled. No billing change was applied.",
+		};
+	}
+
+	if (input.isActivePaidPlan) {
+		return {
+			tone: "success" as const,
+			body: "Your paid plan is active. You can use the customer portal to switch plans, update payment details or cancel renewal.",
+		};
+	}
+
+	return null;
 }
 
 function PlanCard(props: {
