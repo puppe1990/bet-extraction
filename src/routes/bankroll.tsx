@@ -35,6 +35,7 @@ function BankrollPage() {
 	const [editingTransactionId, setEditingTransactionId] = useState<string | null>(
 		null,
 	);
+	const [isComposerOpen, setIsComposerOpen] = useState(false);
 
 	const transactionMutation = useMutation({
 		mutationFn: async () => {
@@ -60,6 +61,7 @@ function BankrollPage() {
 		},
 		onSuccess: async () => {
 			resetForm();
+			setIsComposerOpen(false);
 			await queryClient.invalidateQueries({ queryKey: ["bankroll"] });
 			await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
 		},
@@ -95,6 +97,7 @@ function BankrollPage() {
 		setAmount(String(Math.abs(transaction.amount)));
 		setNote(transaction.note ?? "");
 		setOccurredAt(toDatetimeLocal(transaction.occurredAt));
+		setIsComposerOpen(true);
 	}
 
 	return (
@@ -276,84 +279,116 @@ function BankrollPage() {
 				</section>
 			</section>
 
-			<form
-				className="mobile-bankroll-composer md:hidden"
-				onSubmit={async (event) => {
-					event.preventDefault();
-					await transactionMutation.mutateAsync();
-				}}
-			>
-				<div className="mobile-bankroll-composer__handle" />
-				<div className="mobile-bankroll-composer__header">
-					<div>
-						<div className="mobile-bankroll-composer__label">{t("bankroll.kicker")}</div>
-						<div className="mobile-bankroll-composer__title">
-							{editingTransactionId
-								? t("bankroll.editTransaction")
-								: t("bankroll.title")}
+			<div className="mobile-bankroll-dock md:hidden">
+				{!isComposerOpen ? (
+					<button
+						type="button"
+						className="mobile-bankroll-dock__trigger"
+						onClick={() => setIsComposerOpen(true)}
+					>
+						<div>
+							<div className="mobile-bankroll-composer__label">{t("bankroll.kicker")}</div>
+							<div className="mobile-bankroll-composer__title">{t("bankroll.title")}</div>
+						</div>
+						<div className="rounded-full border border-emerald-400/18 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+							{formatCurrency(summaryQuery.data?.account.currentBalance)}
+						</div>
+					</button>
+				) : null}
+				<form
+					className={`mobile-bankroll-composer ${isComposerOpen ? "mobile-bankroll-composer--open" : "mobile-bankroll-composer--closed"}`}
+					onSubmit={async (event) => {
+						event.preventDefault();
+						await transactionMutation.mutateAsync();
+					}}
+				>
+					<div className="mobile-bankroll-composer__handle" />
+					<div className="mobile-bankroll-composer__header">
+						<div>
+							<div className="mobile-bankroll-composer__label">{t("bankroll.kicker")}</div>
+							<div className="mobile-bankroll-composer__title">
+								{editingTransactionId
+									? t("bankroll.editTransaction")
+									: t("bankroll.title")}
+							</div>
+						</div>
+						<div className="flex items-center gap-2">
+							<div className="rounded-full border border-emerald-400/18 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+								{formatCurrency(summaryQuery.data?.account.currentBalance)}
+							</div>
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={() => {
+									setIsComposerOpen(false);
+									if (editingTransactionId) {
+										resetForm();
+									}
+								}}
+							>
+								{t("common.cancel")}
+							</Button>
 						</div>
 					</div>
-					<div className="rounded-full border border-emerald-400/18 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-100">
-						{formatCurrency(summaryQuery.data?.account.currentBalance)}
+					<div className="grid grid-cols-3 gap-2">
+						{([
+							["deposit", t("bankroll.deposit")],
+							["withdraw", t("bankroll.withdraw")],
+							["adjustment", t("bankroll.adjustment")],
+						] as const).map(([option, label]) => (
+							<button
+								key={option}
+								type="button"
+								className={`mobile-bankroll-composer__chip ${type === option ? "mobile-bankroll-composer__chip--active" : ""}`}
+								onClick={() => setType(option)}
+							>
+								{label}
+							</button>
+						))}
 					</div>
-				</div>
-				<div className="grid grid-cols-3 gap-2">
-					{([
-						["deposit", t("bankroll.deposit")],
-						["withdraw", t("bankroll.withdraw")],
-						["adjustment", t("bankroll.adjustment")],
-					] as const).map(([option, label]) => (
-						<button
-							key={option}
-							type="button"
-							className={`mobile-bankroll-composer__chip ${type === option ? "mobile-bankroll-composer__chip--active" : ""}`}
-							onClick={() => setType(option)}
-						>
-							{label}
-						</button>
-					))}
-				</div>
-				<div className="grid gap-2">
-					<Input
-						type="number"
-						min="0.01"
-						step="0.01"
-						value={amount}
-						onChange={(event) => setAmount(event.target.value)}
-						placeholder={t("bankroll.amountPlaceholder")}
-					/>
-					<Input
-						type="datetime-local"
-						value={occurredAt}
-						onChange={(event) => setOccurredAt(event.target.value)}
-						placeholder={t("bankroll.occurredAt")}
-					/>
-					<Input
-						value={note}
-						onChange={(event) => setNote(event.target.value)}
-						placeholder={t("bankroll.notePlaceholder")}
-					/>
-				</div>
-				<div className="grid gap-2">
-					<Button className="w-full" disabled={transactionMutation.isPending}>
-						{transactionMutation.isPending
-							? t("bankroll.submitting")
-							: editingTransactionId
-								? t("bankroll.editSubmit")
-								: t("bankroll.submit")}
-					</Button>
-					{editingTransactionId ? (
-						<Button
-							type="button"
-							variant="outline"
-							className="w-full"
-							onClick={resetForm}
-						>
-							{t("bankroll.cancelEdit")}
+					<div className="grid gap-2">
+						<Input
+							type="number"
+							min="0.01"
+							step="0.01"
+							value={amount}
+							onChange={(event) => setAmount(event.target.value)}
+							placeholder={t("bankroll.amountPlaceholder")}
+						/>
+						<Input
+							type="datetime-local"
+							value={occurredAt}
+							onChange={(event) => setOccurredAt(event.target.value)}
+							placeholder={t("bankroll.occurredAt")}
+						/>
+						<Input
+							value={note}
+							onChange={(event) => setNote(event.target.value)}
+							placeholder={t("bankroll.notePlaceholder")}
+						/>
+					</div>
+					<div className="grid gap-2">
+						<Button className="w-full" disabled={transactionMutation.isPending}>
+							{transactionMutation.isPending
+								? t("bankroll.submitting")
+								: editingTransactionId
+									? t("bankroll.editSubmit")
+									: t("bankroll.submit")}
 						</Button>
-					) : null}
-				</div>
-			</form>
+						{editingTransactionId ? (
+							<Button
+								type="button"
+								variant="outline"
+								className="w-full"
+								onClick={resetForm}
+							>
+								{t("bankroll.cancelEdit")}
+							</Button>
+						) : null}
+					</div>
+				</form>
+			</div>
 		</main>
 	);
 }
