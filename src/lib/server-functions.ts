@@ -11,6 +11,7 @@ import {
 import {
 	addManualTransaction,
 	getBankrollSummary,
+	updateManualTransaction,
 } from "#/lib/server/bankroll.server";
 import {
 	createBet,
@@ -125,6 +126,24 @@ export const bankrollAddTransaction = createServerFn({ method: "POST" })
 	.handler(async ({ data }) => {
 		const session = await requireCurrentSession();
 		return addManualTransaction({ ...data, userId: session.user.id });
+	});
+
+export const bankrollUpdateTransaction = createServerFn({ method: "POST" })
+	.inputValidator((input: unknown) =>
+		z
+			.object({
+				transactionId: z.string().uuid(),
+				values: manualTransactionSchema,
+			})
+			.parse(input),
+	)
+	.handler(async ({ data }) => {
+		const session = await requireCurrentSession();
+		return updateManualTransaction({
+			userId: session.user.id,
+			transactionId: data.transactionId,
+			...data.values,
+		});
 	});
 
 export const betsList = createServerFn({ method: "GET" })

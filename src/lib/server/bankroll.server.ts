@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { asc, desc, eq, sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { db } from "#/db/index";
 import { bankrollAccounts, bankrollTransactions, bets } from "#/db/schema";
 import { nowIso } from "#/lib/auth";
@@ -40,6 +40,52 @@ export async function addManualTransaction(input: {
 		note: input.note?.trim() || null,
 		createdAt: nowIso(),
 	});
+
+	return getBankrollSummary(input.userId);
+}
+
+export async function updateManualTransaction(input: {
+	userId: string;
+	transactionId: string;
+	type: Extract<BankrollTransactionType, "deposit" | "withdraw" | "adjustment">;
+	amount: number;
+	note?: string;
+	occurredAt?: string;
+}) {
+	const account = await getPrimaryAccount(input.userId);
+	const transaction = await db.query.bankrollTransactions.findFirst({
+		where: and(
+			eq(bankrollTransactions.id, input.transactionId),
+			eq(bankrollTransactions.accountId, account.id),
+		),
+	});
+
+	if (!transaction) {
+		throw new Error("Transaction not found.");
+	}
+
+	if (
+		transaction.type !== "deposit" &&
+		transaction.type !== "withdraw" &&
+		transaction.type !== "adjustment"
+	) {
+		throw new Error("Only manual transactions can be edited.");
+	}
+
+	const amountCents =
+		input.type === "withdraw"
+			? -Math.abs(toCents(input.amount))
+			: toCents(input.amount);
+
+	await db
+		.update(bankrollTransactions)
+		.set({
+			type: input.type,
+			amount: amountCents,
+			occurredAt: input.occurredAt ?? transaction.occurredAt,
+			note: input.note?.trim() || null,
+		})
+		.where(eq(bankrollTransactions.id, transaction.id));
 
 	return getBankrollSummary(input.userId);
 }

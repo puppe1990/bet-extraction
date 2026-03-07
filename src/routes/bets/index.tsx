@@ -348,7 +348,110 @@ function BetsPage() {
 						}
 					/>
 				) : (
-					<div className="overflow-x-auto">
+					<>
+						<div className="grid gap-3 md:hidden">
+							{betsQuery.data.map((bet) => (
+								<article
+									key={bet.id}
+									className="mobile-bet-card rounded-[28px] border border-white/6 bg-white/[0.03] p-4"
+								>
+									<div className="flex items-start justify-between gap-3">
+										<div className="min-w-0">
+											<Link
+												to="/bets/$betId"
+												params={{ betId: bet.id }}
+												className="block truncate text-base font-semibold text-zinc-100"
+											>
+												{bet.eventName}
+											</Link>
+											<div className="mt-1 text-sm text-zinc-400">
+												{bet.selection} · {bet.market}
+											</div>
+										</div>
+										<StatusBadge status={bet.status} />
+									</div>
+
+									<div className="mt-4 grid grid-cols-2 gap-3 rounded-[22px] border border-white/6 bg-black/20 p-3">
+										<MobileMetric
+											label={t("bets.stake")}
+											value={formatCurrency(bet.stakeAmount)}
+										/>
+										<MobileMetric
+											label={t("bets.odds")}
+											value={formatNumber(bet.oddsDecimal)}
+										/>
+										<MobileMetric
+											label={t("bets.bookmaker")}
+											value={bet.bookmaker}
+										/>
+										<MobileMetric
+											label={t("bets.profitLoss")}
+											value={
+												bet.profitAmount == null
+													? t("bets.open")
+													: formatCurrency(bet.profitAmount)
+											}
+											valueClassName={getProfitTone(bet.profitAmount)}
+										/>
+									</div>
+
+									<div className="mt-3 flex items-center justify-between gap-3 text-sm text-zinc-400">
+										<DateTimeText value={bet.placedAt} />
+										<div className="rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-[11px] uppercase tracking-[0.16em] text-zinc-300">
+											{bet.sport}
+										</div>
+									</div>
+
+									<div className="mt-4 flex flex-wrap gap-2">
+										{bet.status === "open" ? (
+											<>
+												<QuickSettleButton
+													label="Win"
+													onClick={() =>
+														settleMutation.mutate({
+															betId: bet.id,
+															status: "win",
+														})
+													}
+												/>
+												<QuickSettleButton
+													label="Loss"
+													onClick={() =>
+														settleMutation.mutate({
+															betId: bet.id,
+															status: "loss",
+														})
+													}
+												/>
+												<QuickSettleButton
+													label="Void"
+													onClick={() =>
+														settleMutation.mutate({
+															betId: bet.id,
+															status: "void",
+														})
+													}
+												/>
+											</>
+										) : (
+											<Button asChild size="sm" variant="outline">
+												<Link to="/bets/$betId" params={{ betId: bet.id }}>
+													{t("bets.detail")}
+												</Link>
+											</Button>
+										)}
+										{bet.status === "open" ? (
+											<Button asChild size="sm" variant="ghost">
+												<Link to="/bets/$betId" params={{ betId: bet.id }}>
+													{t("bets.detail")}
+												</Link>
+											</Button>
+										) : null}
+									</div>
+								</article>
+							))}
+						</div>
+						<div className="hidden overflow-x-auto md:block">
 						<table className="w-full min-w-[1080px] table-fixed border-separate border-spacing-y-3">
 							<thead>
 								{table.getHeaderGroups().map((headerGroup) => (
@@ -387,11 +490,49 @@ function BetsPage() {
 								))}
 							</tbody>
 						</table>
-					</div>
+						</div>
+					</>
 				)}
 			</section>
 		</main>
 	);
+}
+
+function MobileMetric({
+	label,
+	value,
+	valueClassName,
+}: {
+	label: string;
+	value: string;
+	valueClassName?: string;
+}) {
+	return (
+		<div className="min-w-0">
+			<div className="text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+				{label}
+			</div>
+			<div className={`mt-1 truncate text-sm font-semibold text-zinc-100 ${valueClassName ?? ""}`}>
+				{value}
+			</div>
+		</div>
+	);
+}
+
+function getProfitTone(profitAmount: number | null) {
+	if (profitAmount == null) {
+		return "text-zinc-100";
+	}
+
+	if (profitAmount > 0) {
+		return "text-emerald-200";
+	}
+
+	if (profitAmount < 0) {
+		return "text-rose-200";
+	}
+
+	return "text-zinc-100";
 }
 
 function QuickSettleButton({

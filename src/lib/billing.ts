@@ -68,6 +68,10 @@ export function hasPaidAccess(
 		return false;
 	}
 
+	if (planKey === "lifetime") {
+		return true;
+	}
+
 	return status === "active" || status === "trialing";
 }
 

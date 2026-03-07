@@ -200,12 +200,14 @@ export async function assertBillingFeatureAccess(
 
 	if (!allowed) {
 		if (feature === "csv_export") {
-			throw new Error("CSV export is available on Pro and Pro+ only.");
+			throw new Error(
+				"CSV export is available on Pro, Pro+ and Lifetime only.",
+			);
 		}
 
 		if (feature === "extension_capture") {
 			throw new Error(
-				"Chrome extension capture is available on Pro and Pro+ only.",
+				"Chrome extension capture is available on Pro, Pro+ and Lifetime only.",
 			);
 		}
 	}

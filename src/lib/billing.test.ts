@@ -45,10 +45,12 @@ describe("resolvePlanFromPriceId", () => {
 });
 
 describe("hasPaidAccess", () => {
-	it("only grants premium access for active or trialing paid plans", () => {
+	it("grants recurring plans only when active or trialing, but lifetime always", () => {
 		expect(hasPaidAccess("pro", "active")).toBe(true);
 		expect(hasPaidAccess("pro_plus", "trialing")).toBe(true);
 		expect(hasPaidAccess("lifetime", "active")).toBe(true);
+		expect(hasPaidAccess("lifetime", "inactive")).toBe(true);
+		expect(hasPaidAccess("lifetime", "canceled")).toBe(true);
 		expect(hasPaidAccess("pro", "past_due")).toBe(false);
 		expect(hasPaidAccess("free", "active")).toBe(false);
 	});
@@ -59,6 +61,7 @@ describe("getEffectivePlanKey", () => {
 		expect(getEffectivePlanKey("pro", "canceled")).toBe("free");
 		expect(getEffectivePlanKey("pro_plus", "past_due")).toBe("free");
 		expect(getEffectivePlanKey("pro", "active")).toBe("pro");
+		expect(getEffectivePlanKey("lifetime", "inactive")).toBe("lifetime");
 	});
 });
 

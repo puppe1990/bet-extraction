@@ -5,6 +5,7 @@ import {
 	redirect,
 	useNavigate,
 } from "@tanstack/react-router";
+import { CalendarClock, ScrollText } from "lucide-react";
 import { useState } from "react";
 import {
 	BetForm,
@@ -13,6 +14,7 @@ import {
 } from "#/components/BetForm";
 import { StatusBadge } from "#/components/StatusBadge";
 import { Button } from "#/components/ui/button";
+import { DateTimeText } from "#/lib/datetime";
 import { formatCurrency } from "#/lib/money";
 import { betByIdQueryOptions } from "#/lib/query-options";
 import {
@@ -118,7 +120,7 @@ function BetDetailsPage() {
 	return (
 		<main className="page-wrap py-10">
 			<section className="mb-6 grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-				<div className="panel-card space-y-4">
+				<div className="panel-card bet-detail-hero space-y-4">
 					<div className="flex flex-wrap items-center justify-between gap-3">
 						<div>
 							<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
@@ -129,6 +131,22 @@ function BetDetailsPage() {
 							</h1>
 						</div>
 						<StatusBadge status={bet.status} />
+					</div>
+					<div className="bet-detail-mobile-meta md:hidden">
+						<div className="bet-detail-mobile-meta__item">
+							<CalendarClock className="size-4" />
+							<div>
+								<span>{t("bets.placedAt")}</span>
+								<strong><DateTimeText value={bet.placedAt} /></strong>
+							</div>
+						</div>
+						<div className="bet-detail-mobile-meta__item">
+							<ScrollText className="size-4" />
+							<div>
+								<span>{t("bets.bookmaker")}</span>
+								<strong>{bet.bookmaker}</strong>
+							</div>
+						</div>
 					</div>
 					<div className="grid gap-3 sm:grid-cols-3">
 						<KeyMetric
@@ -156,7 +174,7 @@ function BetDetailsPage() {
 					</div>
 				</div>
 
-				<section className="panel-card space-y-5">
+				<section className="panel-card bet-settlement-panel space-y-5">
 					<div>
 							<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
 								{t("bets.quickSettlement")}
@@ -198,46 +216,50 @@ function BetDetailsPage() {
 							placeholder={t("bets.returnCashoutPlaceholder")}
 						/>
 					) : null}
-					<Button
-						disabled={settleMutation.isPending}
-						onClick={() =>
-							settleMutation.mutate({
-								data: {
-									betId,
-									status: settlementStatus,
-									settledAt: new Date().toISOString(),
-									customReturnAmount:
-										settlementStatus === "cashout"
-											? Number(customReturnAmount)
-											: undefined,
-								},
-							})
-						}
-					>
-						{bet.status === "open"
-							? t("bets.settleNow")
-							: t("bets.recalculateSettlement")}
-					</Button>
-					{bet.status !== "open" ? (
+					<div className="grid gap-3">
+						<Button
+							className="min-h-11"
+							disabled={settleMutation.isPending}
+							onClick={() =>
+								settleMutation.mutate({
+									data: {
+										betId,
+										status: settlementStatus,
+										settledAt: new Date().toISOString(),
+										customReturnAmount:
+											settlementStatus === "cashout"
+												? Number(customReturnAmount)
+												: undefined,
+									},
+								})
+							}
+						>
+							{bet.status === "open"
+								? t("bets.settleNow")
+								: t("bets.recalculateSettlement")}
+						</Button>
+						{bet.status !== "open" ? (
+							<Button
+								variant="outline"
+								className="min-h-11"
+								disabled={reopenMutation.isPending}
+								onClick={() => reopenMutation.mutate({ data: { betId } })}
+							>
+								{reopenMutation.isPending
+									? t("bets.reopening")
+									: t("bets.reopenBet")}
+							</Button>
+						) : null}
 						<Button
 							variant="outline"
-							disabled={reopenMutation.isPending}
-							onClick={() => reopenMutation.mutate({ data: { betId } })}
+							className="min-h-11 border-rose-500/30 bg-rose-500/10 text-rose-100 hover:bg-rose-500/15"
+							disabled={deleteMutation.isPending}
+							onClick={() => deleteMutation.mutate({ data: { betId } })}
 						>
-							{reopenMutation.isPending
-								? t("bets.reopening")
-								: t("bets.reopenBet")}
+							{t("bets.deleteBetAndTransactions")}
 						</Button>
-					) : null}
-					<Button
-						variant="outline"
-						className="border-rose-500/30 bg-rose-500/10 text-rose-100 hover:bg-rose-500/15"
-						disabled={deleteMutation.isPending}
-						onClick={() => deleteMutation.mutate({ data: { betId } })}
-					>
-						{t("bets.deleteBetAndTransactions")}
-					</Button>
-					<Button asChild variant="outline">
+					</div>
+					<Button asChild variant="outline" className="min-h-11">
 						<Link to="/bets">{t("bets.backToBook")}</Link>
 					</Button>
 				</section>

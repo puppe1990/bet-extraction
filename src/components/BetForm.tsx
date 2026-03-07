@@ -72,13 +72,13 @@ export function BetForm({
 
 	return (
 		<form
-			className="panel-card grid gap-6"
+			className="panel-card bet-form-shell grid gap-6"
 			onSubmit={async (event) => {
 				event.preventDefault();
 				await onSubmit(values);
 			}}
 		>
-			<div className="flex flex-wrap items-start justify-between gap-4">
+			<div className="bet-form-header flex flex-wrap items-start justify-between gap-4">
 				<div>
 					<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
 						{mode === "create"
@@ -94,6 +94,25 @@ export function BetForm({
 				<Button asChild variant="outline">
 					<Link to="/bets">{t("bets.backToBook")}</Link>
 				</Button>
+			</div>
+
+			<div className="bet-form-mobile-summary md:hidden">
+				<div className="bet-form-mobile-summary__metric">
+					<span>{t("bets.bookmaker")}</span>
+					<strong>{values.bookmaker || "--"}</strong>
+				</div>
+				<div className="bet-form-mobile-summary__metric">
+					<span>{t("bets.odds")}</span>
+					<strong>{formatNumber(values.oddsDecimal || 0)}</strong>
+				</div>
+				<div className="bet-form-mobile-summary__metric">
+					<span>{t("bets.stake")}</span>
+					<strong>{formatCurrency(values.stakeAmount || 0)}</strong>
+				</div>
+				<div className="bet-form-mobile-summary__metric">
+					<span>{t("bets.placedAt")}</span>
+					<strong>{values.placedAt ? values.placedAt.slice(5, 16).replace("T", " ") : "--"}</strong>
+				</div>
 			</div>
 
 			{errorMessage ? (
@@ -239,7 +258,7 @@ export function BetForm({
 				/>
 			</FormField>
 
-			<section className="grid gap-4 rounded-[28px] border border-zinc-800 bg-zinc-950/70 p-5 md:grid-cols-[1fr_auto]">
+			<section className="bet-form-preview grid gap-4 rounded-[28px] border border-zinc-800 bg-zinc-950/70 p-5 md:grid-cols-[1fr_auto]">
 				<div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
 					{(["win", "loss", "void", "half_win", "half_loss"] as const).map(
 						(status) => {
@@ -320,8 +339,8 @@ export function BetForm({
 				</div>
 			</section>
 
-			<div className="flex justify-end">
-				<Button disabled={busy}>
+			<div className="bet-form-submit-row flex justify-end">
+				<Button className="bet-form-submit" disabled={busy}>
 					{busy
 						? `${t("common.save")}...`
 						: t("common.save")}

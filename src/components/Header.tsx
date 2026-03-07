@@ -92,6 +92,23 @@ export default function Header() {
 					</div>
 				) : null}
 
+				<div className="mobile-locale-switch sm:hidden">
+					{appLocales.map((option) => (
+						<button
+							key={option}
+							type="button"
+							className={`mobile-locale-switch__button ${
+								locale === option
+									? "mobile-locale-switch__button--active"
+									: ""
+							}`}
+							onClick={() => setLocale(option as AppLocale)}
+						>
+							{option === "pt-BR" ? t("locale.ptBR") : t("locale.en")}
+						</button>
+					))}
+				</div>
+
 				<div className="ml-auto flex items-center gap-2 sm:gap-3">
 					<div className="hidden items-center gap-1 rounded-full border border-white/8 bg-white/[0.04] p-1 sm:flex">
 						{appLocales.map((option) => (
