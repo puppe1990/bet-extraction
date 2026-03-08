@@ -1,5 +1,5 @@
 const $ = (id) => document.getElementById(id);
-const DEFAULT_APP_URL = "https://bet-extraction.netlify.app";
+const DEFAULT_APP_URL = "https://bankrollkit.netlify.app";
 const LEGACY_LOCAL_APP_URLS = new Set([
   "http://localhost:3000",
   "http://127.0.0.1:3000",
@@ -14,17 +14,17 @@ const bankrollPanel = $("bankroll-panel");
 const capturePanel = $("capture-panel");
 const messagePanel = $("message-panel");
 const messageBody = $("message-body");
+const draftStatusPanel = $("draft-status");
+const draftStatusBadge = $("draft-status-badge");
+const draftStatusMessage = $("draft-status-message");
 
 const appUrlInput = $("app-url");
 const emailInput = $("email");
 const passwordInput = $("password");
-const confirmPasswordField = $("confirm-password-field");
-const confirmPasswordInput = $("confirm-password");
 const deviceNameInput = $("device-name");
 const openAppLink = $("open-app-link");
 const authButton = $("auth-button");
-const modeLoginButton = $("mode-login");
-const modeSignupButton = $("mode-signup");
+const upgradeExtensionLink = $("upgrade-extension-link");
 
 const homeBalance = $("home-balance");
 const homePlan = $("home-plan");
@@ -46,7 +46,7 @@ const fields = {
   note: $("draft-note"),
 };
 
-let authMode = "login";
+let currentState = null;
 
 function normalizeAppUrl(value) {
   const normalized = typeof value === "string" ? value.trim().replace(/\/$/, "") : "";
@@ -81,17 +81,6 @@ function clearMessage() {
   messageBody.textContent = "";
 }
 
-function setAuthMode(nextMode) {
-  authMode = nextMode;
-  const signup = nextMode === "signup";
-  modeLoginButton.classList.toggle("active", !signup);
-  modeSignupButton.classList.toggle("active", signup);
-  confirmPasswordField.classList.toggle("hidden", !signup);
-  authButton.textContent = signup ? "Create account" : "Sign in";
-  openAppLink.textContent = signup ? "Open web signup" : "Open web app";
-  openAppLink.href = `${normalizeAppUrl(appUrlInput.value)}/login`;
-}
-
 function mapDraftFromForm() {
   return {
     bookmaker: fields.bookmaker.value.trim(),
@@ -121,6 +110,73 @@ function draftSummary(draft) {
   const confidence = draft.parserConfidence ? ` (${draft.parserConfidence} confidence)` : "";
   const bookmaker = draft.bookmaker ? ` from ${draft.bookmaker}` : "";
   return `Draft captured${bookmaker}${confidence}.`;
+}
+
+function getDraftValidation(draft) {
+  const missing = [];
+  if (!draft.bookmaker) missing.push("bookmaker");
+  if (!draft.eventName) missing.push("event");
+  if (!draft.market) missing.push("market");
+  if (!draft.selection) missing.push("selection");
+
+  const confidence = draft?.parserConfidence || "manual";
+  const hasCoreFields = missing.length === 0;
+  const level = hasCoreFields ? (confidence === "low" ? "warn" : "good") : "bad";
+
+  return {
+    missing,
+    level,
+    confidence,
+    hasCoreFields,
+  };
+}
+
+function renderDraftStatus(draft) {
+  const hasDraft =
+    draft &&
+    (draft.bookmaker || draft.eventName || draft.market || draft.selection || draft.note);
+
+  draftStatusPanel.classList.remove("draft-status--good", "draft-status--warn", "draft-status--bad");
+
+  if (!hasDraft) {
+    draftStatusBadge.textContent = "Empty";
+    draftStatusMessage.textContent = "Capture a bookmaker page or fill the form manually.";
+    return;
+  }
+
+  const validation = getDraftValidation(draft);
+  draftStatusPanel.classList.add(`draft-status--${validation.level}`);
+
+  if (!validation.hasCoreFields) {
+    draftStatusBadge.textContent = "Needs review";
+    draftStatusMessage.textContent = `Missing required fields: ${validation.missing.join(", ")}.`;
+    return;
+  }
+
+  if (validation.confidence === "low") {
+    draftStatusBadge.textContent = "Low confidence";
+    draftStatusMessage.textContent =
+      "The core fields are filled, but this capture still needs a manual review before saving.";
+    return;
+  }
+
+  draftStatusBadge.textContent = "Ready";
+  draftStatusMessage.textContent =
+    validation.confidence === "manual"
+      ? "Manual draft looks complete enough to preview or save."
+      : `Draft looks solid with ${validation.confidence} parser confidence.`;
+}
+
+function getIsExtensionPremium(home) {
+  return Boolean(home && home.planKey && home.planKey !== "free");
+}
+
+function syncCaptureAvailability(state) {
+  const isPremium = getIsExtensionPremium(state?.home);
+  $("preview-button").disabled = !isPremium;
+  $("save-button").disabled = !isPremium;
+  upgradeExtensionLink.classList.toggle("hidden", isPremium);
+  upgradeExtensionLink.href = `${normalizeAppUrl(state?.appUrl || appUrlInput.value)}/settings?upgradeSource=extension_capture_lock#extension`;
 }
 
 function renderHome(home) {
@@ -219,6 +275,7 @@ function renderHome(home) {
 }
 
 function setConnectedState(state) {
+  currentState = state;
   const connected = Boolean(state.accessToken);
   connectPanel.classList.toggle("hidden", connected);
   devicePanel.classList.toggle("hidden", !connected);
@@ -231,7 +288,7 @@ function setConnectedState(state) {
   }
 
   if (state.device) {
-    $("device-name-readonly").textContent = state.device.name || "Ledger device";
+    $("device-name-readonly").textContent = state.device.name || "BankrollKit device";
   }
 
   if (state.appUrl) {
@@ -244,6 +301,9 @@ function setConnectedState(state) {
   if (state.draft) {
     fillDraft(state.draft);
   }
+
+  renderDraftStatus(state.draft || mapDraftFromForm());
+  syncCaptureAvailability(state);
 }
 
 async function sendMessage(type, payload) {
@@ -256,7 +316,6 @@ async function sendMessage(type, payload) {
 
 async function boot() {
   try {
-    setAuthMode("login");
     const state = await sendMessage("LEDGER_GET_STATE");
     setConnectedState(state);
     if (state.accessToken) {
@@ -273,9 +332,6 @@ async function boot() {
   }
 }
 
-modeLoginButton.addEventListener("click", () => setAuthMode("login"));
-modeSignupButton.addEventListener("click", () => setAuthMode("signup"));
-
 appUrlInput.addEventListener("input", () => {
   const appUrl = normalizeAppUrl(appUrlInput.value);
   openAppLink.href = `${appUrl}/login`;
@@ -286,18 +342,21 @@ authButton.addEventListener("click", async () => {
   try {
     const appUrl = normalizeAppUrl(appUrlInput.value);
     appUrlInput.value = appUrl;
+    if (!emailInput.value.trim()) {
+      throw new Error("Enter your BankrollKit email.");
+    }
+    if (!passwordInput.value) {
+      throw new Error("Enter your BankrollKit password.");
+    }
     const payload = {
       appUrl,
       email: emailInput.value.trim(),
       password: passwordInput.value,
-      confirmPassword: confirmPasswordInput.value,
-      name: deviceNameInput.value.trim() || "Ledger Chrome Extension",
+      name: deviceNameInput.value.trim() || "BankrollKit Chrome Extension",
     };
 
-    const action = authMode === "signup" ? "LEDGER_SIGNUP" : "LEDGER_LOGIN";
-    const result = await sendMessage(action, payload);
+    const result = await sendMessage("LEDGER_LOGIN", payload);
     passwordInput.value = "";
-    confirmPasswordInput.value = "";
 
     const refreshed = await sendMessage("LEDGER_REFRESH_ME");
     setConnectedState({
@@ -308,11 +367,7 @@ authButton.addEventListener("click", async () => {
       home: refreshed.home,
       draft: null,
     });
-    showMessage(
-      authMode === "signup"
-        ? "Account created. You can now capture and save bets."
-        : "Signed in. You can now capture and save bets.",
-    );
+    showMessage("Signed in. You can now capture and save bets.");
   } catch (error) {
     showMessage(error.message, "error");
   }
@@ -408,6 +463,7 @@ $("capture-button").addEventListener("click", async () => {
   try {
     const draft = await sendMessage("LEDGER_CAPTURE_ACTIVE_TAB");
     fillDraft(draft);
+    renderDraftStatus(draft);
     showMessage(draftSummary(draft));
   } catch (error) {
     showMessage(error.message, "error");
@@ -417,9 +473,20 @@ $("capture-button").addEventListener("click", async () => {
 $("preview-button").addEventListener("click", async () => {
   clearMessage();
   try {
-    const draft = await sendMessage("LEDGER_PREVIEW_DRAFT", mapDraftFromForm());
+    if (!getIsExtensionPremium(currentState?.home)) {
+      throw new Error("Upgrade to Pro in BankrollKit to preview and save extension drafts.");
+    }
+
+    const formDraft = mapDraftFromForm();
+    const validation = getDraftValidation(formDraft);
+    if (!validation.hasCoreFields) {
+      throw new Error(`Fill the required fields first: ${validation.missing.join(", ")}.`);
+    }
+
+    const draft = await sendMessage("LEDGER_PREVIEW_DRAFT", formDraft);
     fillDraft(draft);
-    showMessage("Draft normalized by Ledger. Review and save when ready.");
+    renderDraftStatus(draft);
+    showMessage("Draft normalized by BankrollKit. Review and save when ready.");
   } catch (error) {
     showMessage(error.message, "error");
   }
@@ -428,8 +495,18 @@ $("preview-button").addEventListener("click", async () => {
 $("save-button").addEventListener("click", async () => {
   clearMessage();
   try {
-    const result = await sendMessage("LEDGER_SAVE_DRAFT", mapDraftFromForm());
-    showMessage(`Saved to Ledger: ${result.bet.eventName}`);
+    if (!getIsExtensionPremium(currentState?.home)) {
+      throw new Error("Upgrade to Pro in BankrollKit to preview and save extension drafts.");
+    }
+
+    const formDraft = mapDraftFromForm();
+    const validation = getDraftValidation(formDraft);
+    if (!validation.hasCoreFields) {
+      throw new Error(`Fill the required fields first: ${validation.missing.join(", ")}.`);
+    }
+
+    const result = await sendMessage("LEDGER_SAVE_DRAFT", formDraft);
+    showMessage(`Saved to BankrollKit: ${result.bet.eventName}`);
     fillDraft({
       bookmaker: "",
       sport: "",
@@ -440,6 +517,7 @@ $("save-button").addEventListener("click", async () => {
       stakeAmount: "",
       note: "",
     });
+    renderDraftStatus(mapDraftFromForm());
     const refreshed = await sendMessage("LEDGER_REFRESH_ME");
     setConnectedState({
       accessToken: true,
@@ -451,6 +529,12 @@ $("save-button").addEventListener("click", async () => {
   } catch (error) {
     showMessage(error.message, "error");
   }
+});
+
+Object.values(fields).forEach((field) => {
+  field.addEventListener("input", () => {
+    renderDraftStatus(mapDraftFromForm());
+  });
 });
 
 boot();

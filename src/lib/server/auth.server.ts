@@ -9,8 +9,9 @@ import { db } from "#/db/index";
 import { bankrollAccounts, sessions, users } from "#/db/schema";
 import { hashPassword, nowIso, verifyPassword } from "#/lib/auth";
 
-const SESSION_COOKIE = "ledger_session";
+const SESSION_COOKIE = "bankrollkit_session";
 const SESSION_AGE_MS = 1000 * 60 * 60 * 24 * 30;
+const ADMIN_EMAILS = new Set(["matheus.puppe@gmail.com"]);
 
 export async function getUserByEmail(email: string) {
 	return db.query.users.findFirst({
@@ -154,6 +155,14 @@ export async function requireCurrentSession() {
 	const session = await getCurrentSession();
 	if (!session) {
 		throw new Error("UNAUTHORIZED");
+	}
+	return session;
+}
+
+export async function requireAdminSession() {
+	const session = await requireCurrentSession();
+	if (!ADMIN_EMAILS.has(session.user.email.toLowerCase().trim())) {
+		throw new Error("FORBIDDEN");
 	}
 	return session;
 }

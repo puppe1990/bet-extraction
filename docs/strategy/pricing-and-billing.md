@@ -2,7 +2,7 @@
 
 ## Positioning
 
-Ledger is not a picks product. It is a workflow and analytics product for serious sports bettors.
+BankrollKit is not a picks product. It is a workflow and analytics product for serious sports bettors.
 
 That means pricing should map to:
 - speed of logging
@@ -91,16 +91,16 @@ If the extension becomes the strongest differentiator, keep full bookmaker-aware
 ## Products
 
 Create two core Stripe products:
-- `Ledger Pro`
-- `Ledger Pro Plus`
+- `BankrollKit Pro`
+- `BankrollKit Pro Plus`
 
 ## Prices
 
 Recommended Stripe prices:
-- `ledger_pro_monthly`
-- `ledger_pro_yearly`
-- `ledger_pro_plus_monthly`
-- `ledger_pro_plus_yearly`
+- `bankrollkit_pro_monthly`
+- `bankrollkit_pro_yearly`
+- `bankrollkit_pro_plus_monthly`
+- `bankrollkit_pro_plus_yearly`
 
 ## Billing model
 

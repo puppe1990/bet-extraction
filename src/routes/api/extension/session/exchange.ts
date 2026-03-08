@@ -4,7 +4,7 @@ import { exchangeExtensionConnectionToken } from "#/lib/server/extension.server"
 
 const exchangeSchema = z.object({
 	token: z.string().min(1),
-	name: z.string().min(1).max(120).default("Ledger Chrome Extension"),
+	name: z.string().min(1).max(120).default("BankrollKit Chrome Extension"),
 });
 
 export const Route = createFileRoute("/api/extension/session/exchange")({

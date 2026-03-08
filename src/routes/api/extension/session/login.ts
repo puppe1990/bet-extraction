@@ -5,7 +5,7 @@ import { loginExtensionWithPassword } from "#/lib/server/extension.server";
 const loginSchema = z.object({
 	email: z.string().email(),
 	password: z.string().min(8),
-	name: z.string().min(1).max(120).default("Ledger Chrome Extension"),
+	name: z.string().min(1).max(120).default("BankrollKit Chrome Extension"),
 });
 
 export const Route = createFileRoute("/api/extension/session/login")({

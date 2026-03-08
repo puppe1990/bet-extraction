@@ -4,7 +4,7 @@ import { z } from "zod";
 export const clientEnv = createEnv({
 	clientPrefix: "VITE_",
 	client: {
-		VITE_APP_TITLE: z.string().min(1).default("Ledger"),
+		VITE_APP_TITLE: z.string().min(1).default("BankrollKit"),
 	},
 	runtimeEnv: import.meta.env,
 	emptyStringAsUndefined: true,

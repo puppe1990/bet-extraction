@@ -2,7 +2,7 @@
 
 ## Product goal
 
-Let users capture bets from bookmaker pages and sync them into Ledger with minimal manual input.
+Let users capture bets from bookmaker pages and sync them into BankrollKit with minimal manual input.
 
 ## High-level system
 
@@ -83,7 +83,7 @@ Popup states:
 Do not rely on reading the web app cookie directly from bookmaker pages.
 
 Recommended flow:
-1. user logs into the Ledger web app
+1. user logs into the BankrollKit web app
 2. user visits Settings
 3. app starts `Connect Chrome extension`
 4. app generates a short-lived connection token
@@ -179,7 +179,7 @@ Include:
 - popup UI
 - login connect flow
 - 1-2 bookmaker parsers
-- create bet in Ledger
+- create bet in BankrollKit
 - fallback edit before save
 
 Exclude:

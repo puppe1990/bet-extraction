@@ -11,20 +11,20 @@ STRIPE_PRO_MONTHLY_PRICE_ID="price_..."
 STRIPE_PRO_YEARLY_PRICE_ID="price_..."
 STRIPE_PRO_PLUS_MONTHLY_PRICE_ID="price_..."
 STRIPE_PRO_PLUS_YEARLY_PRICE_ID="price_..."
-APP_URL="https://bet-extraction.netlify.app"
+APP_URL="https://bankrollkit.netlify.app"
 ```
 
 ## Stripe dashboard checklist
 
 1. Create live products:
-   - `Ledger Pro`
-   - `Ledger Pro Plus`
+   - `BankrollKit Pro`
+   - `BankrollKit Pro Plus`
 2. Create one monthly and one yearly live price for each product.
 3. Enable the Customer Portal in live mode.
 4. Create a live webhook pointing to:
 
 ```text
-https://bet-extraction.netlify.app/api/stripe/webhook
+https://bankrollkit.netlify.app/api/stripe/webhook
 ```
 
 ## Required webhook events

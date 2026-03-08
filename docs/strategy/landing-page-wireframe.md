@@ -12,7 +12,7 @@ Convert English-speaking bettors into free users and push qualified users toward
 `Track every bet. Understand your edge.`
 
 **Subheadline**
-`Ledger helps serious sports bettors log bets faster, manage bankroll with discipline, and analyze performance across bookmakers, markets and sports.`
+`BankrollKit helps serious sports bettors log bets faster, manage bankroll with discipline, and analyze performance across bookmakers, markets and sports.`
 
 **Primary CTA**
 `Start free`
@@ -35,7 +35,7 @@ Convert English-speaking bettors into free users and push qualified users toward
 `Most bettors don’t actually know what’s working.`
 
 **Body**
-`Bets are scattered. Bankroll history is incomplete. Reviewing results takes too long. Ledger gives you one operating layer for every bet you place.`
+`Bets are scattered. Bankroll history is incomplete. Reviewing results takes too long. BankrollKit gives you one operating layer for every bet you place.`
 
 **Three cards**
 - `Messy records`
@@ -71,7 +71,7 @@ Convert English-speaking bettors into free users and push qualified users toward
 **Feature bullets**
 - `Capture selection, odds and stake`
 - `Review before saving`
-- `Sync instantly to your Ledger account`
+- `Sync instantly to your BankrollKit account`
 - `Use manual entry as fallback when parsing is unavailable`
 
 **CTA**
@@ -83,7 +83,7 @@ Convert English-speaking bettors into free users and push qualified users toward
 `See where your edge actually is`
 
 **Body**
-`Ledger turns your bet history into a usable performance layer. Review profit, ROI, yield, win rate and bankroll curve in one place.`
+`BankrollKit turns your bet history into a usable performance layer. Review profit, ROI, yield, win rate and bankroll curve in one place.`
 
 **Analytics grid**
 - ROI and yield
@@ -130,7 +130,7 @@ CTA: `Go Pro+`
 ### 7. FAQ
 
 **Questions**
-- `Is Ledger a picks app?`
+- `Is BankrollKit a picks app?`
 - `Do I need the Chrome extension?`
 - `Who is this for?`
 - `Which sportsbooks will be supported first?`

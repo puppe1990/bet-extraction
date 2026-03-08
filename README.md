@@ -1,8 +1,8 @@
-# Ledger
+# BankrollKit
 
 Sistema multi-user para registrar apostas, controlar banca e acompanhar retorno operacional por conta.
 
-![Tela de acesso do Ledger](docs/ledger-login.png)
+![Tela de acesso do BankrollKit](docs/ledger-login.png)
 
 ## O que o produto cobre
 
@@ -82,7 +82,7 @@ TURSO_AUTH_TOKEN=""
 SESSION_COOKIE_SECRET="dev-session-secret-1234"
 BOOTSTRAP_EMAIL="owner@example.com"
 BOOTSTRAP_PASSWORD="changeme123"
-VITE_APP_TITLE="Ledger"
+VITE_APP_TITLE="BankrollKit"
 ```
 
 Observacoes:
@@ -176,7 +176,7 @@ Local flow:
 3. open the popup
 4. sign in or sign up directly in the extension
 5. capture the active tab or fill the draft manually
-6. save the draft into Ledger
+6. save the draft into BankrollKit
 
 The extension scaffold is gated by billing. Only `Pro` and `Pro+` can connect and save through the extension endpoints.
 
@@ -191,7 +191,7 @@ pnpm test:e2e
 Set these env vars if you want the extension login smoke to run:
 
 ```bash
-E2E_EXTENSION_APP_URL="https://bet-extraction.netlify.app"
+E2E_EXTENSION_APP_URL="https://bankrollkit.netlify.app"
 E2E_EXTENSION_EMAIL=""
 E2E_EXTENSION_PASSWORD=""
 ```
@@ -215,5 +215,6 @@ Pronto para desenvolvimento local, deploy em Netlify e uso multi-user basico com
 - `docs/strategy/landing-page-wireframe.md`
 - `docs/strategy/pricing-and-billing.md`
 - `docs/strategy/chrome-extension-architecture.md`
+- `docs/strategy/product-analytics-queries.md`
 - `docs/deployment/production.md`
 - `docs/deployment/stripe-live.md`

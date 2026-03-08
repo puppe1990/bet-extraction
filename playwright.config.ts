@@ -7,7 +7,7 @@ export default defineConfig({
 		timeout: 10_000,
 	},
 	use: {
-		baseURL: process.env.E2E_EXTENSION_APP_URL ?? "https://bet-extraction.netlify.app",
+		baseURL: process.env.E2E_EXTENSION_APP_URL ?? "https://bankrollkit.netlify.app",
 		trace: "retain-on-failure",
 	},
 });

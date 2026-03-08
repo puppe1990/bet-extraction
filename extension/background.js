@@ -1,4 +1,4 @@
-const DEFAULT_APP_URL = "https://bet-extraction.netlify.app";
+const DEFAULT_APP_URL = "https://bankrollkit.netlify.app";
 const LEGACY_LOCAL_APP_URLS = new Set([
   "http://localhost:3000",
   "http://127.0.0.1:3000",
@@ -74,28 +74,6 @@ async function loginWithPassword({ appUrl, email, password, name }) {
   return json;
 }
 
-async function signupWithPassword({ appUrl, email, password, confirmPassword, name }) {
-  const normalizedAppUrl = normalizeAppUrl(appUrl);
-  const json = await fetchJson(`${normalizedAppUrl}/api/extension/session/signup`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ email, password, confirmPassword, name }),
-  });
-
-  await setState({
-    appUrl: normalizedAppUrl,
-    accessToken: json.accessToken,
-    user: json.user,
-    device: {
-      name,
-      expiresAt: json.expiresAt,
-    },
-    home: null,
-  });
-
-  return json;
-}
-
 async function getAuthHeaders() {
   const state = await getState();
   if (!state.accessToken) {
@@ -129,6 +107,23 @@ async function captureActiveTabDraft() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) {
     throw new Error("No active tab.");
+  }
+
+  if (!tab.url || !/^https?:\/\//i.test(tab.url)) {
+    throw new Error("Open a supported bookmaker page before capturing.");
+  }
+
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      files: ["content.js"],
+    });
+  } catch (error) {
+    throw new Error(
+      error instanceof Error
+        ? `Could not access this page: ${error.message}`
+        : "Could not access this page.",
+    );
   }
 
   const response = await chrome.tabs.sendMessage(tab.id, {
@@ -200,8 +195,6 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         return getState();
       case "LEDGER_LOGIN":
         return loginWithPassword(message.payload);
-      case "LEDGER_SIGNUP":
-        return signupWithPassword(message.payload);
       case "LEDGER_REFRESH_ME":
         return refreshMe();
       case "LEDGER_CAPTURE_ACTIVE_TAB":
