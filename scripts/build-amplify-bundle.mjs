@@ -69,11 +69,29 @@ const server = http.createServer(async (req, res) => {
     });
 
     if (!response.body) {
+      if (response.status >= 500) {
+        console.error("Amplify SSR response without body", {
+          method: req.method,
+          url: url.toString(),
+          status: response.status,
+          statusText: response.statusText,
+        });
+      }
       res.end();
       return;
     }
 
     const arrayBuffer = await response.arrayBuffer();
+    if (response.status >= 500) {
+      const bodyText = Buffer.from(arrayBuffer).toString("utf8");
+      console.error("Amplify SSR response error", {
+        method: req.method,
+        url: url.toString(),
+        status: response.status,
+        statusText: response.statusText,
+        body: bodyText.slice(0, 2000),
+      });
+    }
     res.end(Buffer.from(arrayBuffer));
   } catch (error) {
     console.error("Amplify server wrapper failed", error);
