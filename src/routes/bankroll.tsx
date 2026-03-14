@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import { DateTimeText } from "#/lib/datetime";
@@ -11,6 +11,7 @@ import { bankrollSummaryQueryOptions } from "#/lib/query-options";
 import {
 	authSession,
 	bankrollAddTransaction,
+	bankrollDeleteTransaction,
 	bankrollUpdateTransaction,
 } from "#/lib/server-functions";
 
@@ -83,6 +84,21 @@ function BankrollPage() {
 		},
 	});
 
+	const deleteTransactionMutation = useMutation({
+		mutationFn: async (transactionId: string) => {
+			return bankrollDeleteTransaction({
+				data: {
+					transactionId,
+				},
+			});
+		},
+		onSuccess: async () => {
+			closeEditModal();
+			await queryClient.invalidateQueries({ queryKey: ["bankroll"] });
+			await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+		},
+	});
+
 	function resetCreateForm() {
 		setType("deposit");
 		setAmount("100");
@@ -90,9 +106,9 @@ function BankrollPage() {
 		setOccurredAt(toDatetimeLocal());
 	}
 
-	function closeEditModal() {
+	const closeEditModal = useCallback(() => {
 		setEditingTransaction(null);
-	}
+	}, []);
 
 	function startEditing(transaction: {
 		id: string;
@@ -135,7 +151,7 @@ function BankrollPage() {
 		return () => {
 			window.removeEventListener("keydown", onKeyDown);
 		};
-	}, [editingTransaction]);
+	}, [editingTransaction, closeEditModal]);
 
 	return (
 		<main className="page-wrap py-10">
@@ -286,7 +302,7 @@ function BankrollPage() {
 										</div>
 									</div>
 									{isEditableTransaction(normalizedType) ? (
-										<div className="mt-4 flex justify-end border-t border-white/6 pt-4">
+										<div className="mt-4 flex justify-end gap-3 border-t border-white/6 pt-4">
 											<button
 												type="button"
 												className="flex min-h-11 items-center gap-2 rounded-full border border-amber-300/18 bg-amber-300/10 px-4 py-2 text-sm font-semibold text-amber-50 transition hover:bg-amber-300/16"
@@ -294,6 +310,19 @@ function BankrollPage() {
 											>
 												<Pencil className="size-4" />
 												{t("bankroll.editTransaction")}
+											</button>
+											<button
+												type="button"
+												className="flex min-h-11 items-center gap-2 rounded-full border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm font-semibold text-rose-100 transition hover:bg-rose-500/15"
+												disabled={deleteTransactionMutation.isPending}
+												onClick={() =>
+													deleteTransactionMutation.mutate(transaction.id)
+												}
+											>
+												<Trash2 className="size-4" />
+												{deleteTransactionMutation.isPending
+													? t("bankroll.deleting")
+													: t("bankroll.deleteTransaction")}
 											</button>
 										</div>
 									) : null}
@@ -304,16 +333,21 @@ function BankrollPage() {
 					</div>
 				</section>
 			</section>
-			{editingTransaction ? (
-				<div
-					className="fixed inset-0 z-80 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
-					onClick={closeEditModal}
-				>
-					<form
-						className="panel-card w-full max-w-xl gap-5"
-						onClick={(event) => event.stopPropagation()}
-						onSubmit={async (event) => {
-							event.preventDefault();
+				{editingTransaction ? (
+					<div
+						className="fixed inset-0 z-80 flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
+					>
+						<button
+							type="button"
+							aria-label={t("bankroll.cancelEdit")}
+							className="absolute inset-0"
+							onClick={closeEditModal}
+						/>
+						<form
+							className="panel-card relative z-10 w-full max-w-xl gap-5"
+							onMouseDown={(event) => event.stopPropagation()}
+							onSubmit={async (event) => {
+								event.preventDefault();
 							await editTransactionMutation.mutateAsync();
 						}}
 					>
@@ -385,6 +419,19 @@ function BankrollPage() {
 							placeholder={t("bankroll.notePlaceholder")}
 						/>
 						<div className="flex flex-wrap justify-end gap-3">
+							<Button
+								type="button"
+								variant="outline"
+								className="border-rose-500/30 bg-rose-500/10 text-rose-100 hover:bg-rose-500/15"
+								disabled={deleteTransactionMutation.isPending}
+								onClick={() =>
+									deleteTransactionMutation.mutate(editingTransaction.id)
+								}
+							>
+								{deleteTransactionMutation.isPending
+									? t("bankroll.deleting")
+									: t("bankroll.deleteTransaction")}
+							</Button>
 							<Button type="button" variant="outline" onClick={closeEditModal}>
 								{t("bankroll.cancelEdit")}
 							</Button>

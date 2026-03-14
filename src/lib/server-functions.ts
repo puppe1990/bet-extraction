@@ -10,6 +10,7 @@ import {
 } from "#/lib/server/auth.server";
 import {
 	addManualTransaction,
+	deleteManualTransaction,
 	getBankrollSummary,
 	updateManualTransaction,
 } from "#/lib/server/bankroll.server";
@@ -143,6 +144,18 @@ export const bankrollUpdateTransaction = createServerFn({ method: "POST" })
 			userId: session.user.id,
 			transactionId: data.transactionId,
 			...data.values,
+		});
+	});
+
+export const bankrollDeleteTransaction = createServerFn({ method: "POST" })
+	.inputValidator((input: unknown) =>
+		z.object({ transactionId: z.string().uuid() }).parse(input),
+	)
+	.handler(async ({ data }) => {
+		const session = await requireCurrentSession();
+		return deleteManualTransaction({
+			userId: session.user.id,
+			transactionId: data.transactionId,
 		});
 	});
 

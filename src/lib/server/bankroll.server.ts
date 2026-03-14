@@ -90,6 +90,37 @@ export async function updateManualTransaction(input: {
 	return getBankrollSummary(input.userId);
 }
 
+export async function deleteManualTransaction(input: {
+	userId: string;
+	transactionId: string;
+}) {
+	const account = await getPrimaryAccount(input.userId);
+	const transaction = await db.query.bankrollTransactions.findFirst({
+		where: and(
+			eq(bankrollTransactions.id, input.transactionId),
+			eq(bankrollTransactions.accountId, account.id),
+		),
+	});
+
+	if (!transaction) {
+		throw new Error("Transaction not found.");
+	}
+
+	if (
+		transaction.type !== "deposit" &&
+		transaction.type !== "withdraw" &&
+		transaction.type !== "adjustment"
+	) {
+		throw new Error("Only manual transactions can be deleted.");
+	}
+
+	await db
+		.delete(bankrollTransactions)
+		.where(eq(bankrollTransactions.id, transaction.id));
+
+	return getBankrollSummary(input.userId);
+}
+
 export async function getBankrollSummary(userId: string) {
 	const account = await getPrimaryAccount(userId);
 	const totals = await db
