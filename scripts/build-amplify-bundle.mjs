@@ -113,6 +113,21 @@ const deployManifest = {
   },
 };
 
+const runtimeEnvKeys = [
+  "TURSO_DATABASE_URL",
+  "TURSO_AUTH_TOKEN",
+  "SESSION_COOKIE_SECRET",
+  "APP_URL",
+  "STRIPE_SECRET_KEY",
+  "STRIPE_WEBHOOK_SECRET",
+  "STRIPE_PRO_MONTHLY_PRICE_ID",
+  "STRIPE_PRO_YEARLY_PRICE_ID",
+  "STRIPE_PRO_PLUS_MONTHLY_PRICE_ID",
+  "STRIPE_PRO_PLUS_YEARLY_PRICE_ID",
+  "BOOTSTRAP_EMAIL",
+  "BOOTSTRAP_PASSWORD",
+];
+
 await rm(outputDir, { recursive: true, force: true });
 await mkdir(staticDir, { recursive: true });
 await mkdir(computeDir, { recursive: true });
@@ -131,5 +146,22 @@ await bundle({
   sourcemap: false,
   minify: false,
 });
+
+const runtimeEnvFile = runtimeEnvKeys
+  .map((key) => {
+    const value = process.env[key];
+
+    if (typeof value !== "string" || value.length === 0) {
+      return null;
+    }
+
+    return `${key}=${JSON.stringify(value)}`;
+  })
+  .filter(Boolean)
+  .join("\n");
+
+if (runtimeEnvFile) {
+  await writeFile(path.join(computeDir, ".env"), `${runtimeEnvFile}\n`, "utf8");
+}
 
 await writeFile(path.join(outputDir, "deploy-manifest.json"), JSON.stringify(deployManifest, null, 2));
