@@ -12,6 +12,7 @@ import {
 	addManualTransaction,
 	deleteManualTransaction,
 	getBankrollSummary,
+	importManualTransactions,
 	updateManualTransaction,
 } from "#/lib/server/bankroll.server";
 import {
@@ -20,6 +21,7 @@ import {
 	deleteBet,
 	exportBetsCsv,
 	getBetById,
+	importBets,
 	listBets,
 	listTags,
 	normalizeBetInput,
@@ -63,6 +65,10 @@ const manualTransactionSchema = z.object({
 	occurredAt: z.string().optional(),
 });
 
+const bankrollImportSchema = z.object({
+	items: z.array(manualTransactionSchema).min(1).max(500),
+});
+
 const betInputSchema = z.object({
 	sport: z.string().min(1),
 	market: z.string().min(1),
@@ -75,6 +81,16 @@ const betInputSchema = z.object({
 	note: z.string().optional(),
 	tags: z.array(z.string()).optional(),
 	tagsText: z.string().optional(),
+});
+
+const betImportItemSchema = betInputSchema.extend({
+	status: z.enum(betStatuses),
+	settledAt: z.string().optional(),
+	grossReturnAmount: z.number().min(0).optional(),
+});
+
+const betsImportSchema = z.object({
+	items: z.array(betImportItemSchema).min(1).max(500),
 });
 
 const betFiltersSchema = z.object({
@@ -159,6 +175,13 @@ export const bankrollDeleteTransaction = createServerFn({ method: "POST" })
 		});
 	});
 
+export const bankrollImportCsv = createServerFn({ method: "POST" })
+	.inputValidator((input: unknown) => bankrollImportSchema.parse(input))
+	.handler(async ({ data }) => {
+		const session = await requireCurrentSession();
+		return importManualTransactions(session.user.id, data.items);
+	});
+
 export const betsList = createServerFn({ method: "GET" })
 	.inputValidator((input: unknown) => betFiltersSchema.parse(input ?? {}))
 	.handler(async ({ data }) => {
@@ -171,6 +194,21 @@ export const betsExportCsv = createServerFn({ method: "GET" })
 	.handler(async ({ data }) => {
 		const session = await requireCurrentSession();
 		return exportBetsCsv({ ...data, userId: session.user.id });
+	});
+
+export const betsImportCsv = createServerFn({ method: "POST" })
+	.inputValidator((input: unknown) => betsImportSchema.parse(input))
+	.handler(async ({ data }) => {
+		const session = await requireCurrentSession();
+		return importBets(
+			session.user.id,
+			data.items.map((item) => ({
+				...normalizeBetInput(item),
+				status: item.status,
+				settledAt: item.settledAt,
+				grossReturnAmount: item.grossReturnAmount,
+			})),
+		);
 	});
 
 export const betsCreate = createServerFn({ method: "POST" })

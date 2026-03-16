@@ -10,12 +10,13 @@ import {
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
-import { Download, LockKeyhole, Plus } from "lucide-react";
-import { useState } from "react";
+import { Download, LockKeyhole, Plus, Upload } from "lucide-react";
+import { useRef, useState } from "react";
 import { EmptyState } from "#/components/EmptyState";
 import { StatusBadge } from "#/components/StatusBadge";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
+import { parseBetsCsvImport } from "#/lib/csv-import";
 import { DateTimeText } from "#/lib/datetime";
 import { useI18n } from "#/lib/i18n";
 import { formatCurrency, formatNumber } from "#/lib/money";
@@ -23,7 +24,12 @@ import {
 	betsListQueryOptions,
 	billingSummaryQueryOptions,
 } from "#/lib/query-options";
-import { authSession, betsExportCsv, betsSettle } from "#/lib/server-functions";
+import {
+	authSession,
+	betsExportCsv,
+	betsImportCsv,
+	betsSettle,
+} from "#/lib/server-functions";
 
 const searchSchema = {
 	status: "all",
@@ -61,6 +67,11 @@ function BetsPage() {
 	const search = Route.useSearch();
 	const navigate = useNavigate({ from: Route.fullPath });
 	const queryClient = useQueryClient();
+	const importInputRef = useRef<HTMLInputElement | null>(null);
+	const [importFeedback, setImportFeedback] = useState<{
+		tone: "success" | "error";
+		message: string;
+	} | null>(null);
 	const billingQuery = useQuery(billingSummaryQueryOptions());
 	const betsQuery = useQuery(
 		betsListQueryOptions({
@@ -111,6 +122,31 @@ function BetsPage() {
 			link.click();
 			link.remove();
 			URL.revokeObjectURL(url);
+		},
+	});
+
+	const importMutation = useMutation({
+		mutationFn: async (file: File) => {
+			const text = await file.text();
+			const items = parseBetsCsvImport(text);
+			return betsImportCsv({
+				data: { items },
+			});
+		},
+		onSuccess: async (result) => {
+			setImportFeedback({
+				tone: "success",
+				message: t("bets.importSuccess", { count: result.importedCount }),
+			});
+			await queryClient.invalidateQueries({ queryKey: ["bets"] });
+			await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+			await queryClient.invalidateQueries({ queryKey: ["bankroll"] });
+		},
+		onError: (error) => {
+			setImportFeedback({
+				tone: "error",
+				message: error.message || t("bets.importError"),
+			});
 		},
 	});
 
@@ -221,6 +257,22 @@ function BetsPage() {
 	return (
 		<main className="page-wrap py-10">
 			<section className="panel-card space-y-6">
+				<input
+					ref={importInputRef}
+					type="file"
+					accept=".csv,text/csv"
+					className="hidden"
+					onChange={(event) => {
+						const file = event.target.files?.[0];
+						event.target.value = "";
+						if (!file) {
+							return;
+						}
+
+						setImportFeedback(null);
+						importMutation.mutate(file);
+					}}
+				/>
 				<div className="flex flex-wrap items-start justify-between gap-4">
 					<div>
 						<p className="text-[11px] uppercase tracking-[0.32em] text-zinc-500">
@@ -231,6 +283,16 @@ function BetsPage() {
 						</h1>
 					</div>
 					<div className="flex flex-wrap gap-3">
+						<Button
+							variant="outline"
+							className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
+							disabled={importMutation.isPending}
+							onClick={() => importInputRef.current?.click()}
+							type="button"
+						>
+							<Upload className="size-4" />
+							{importMutation.isPending ? t("bets.importing") : t("bets.importCsv")}
+						</Button>
 						<Button
 							variant="outline"
 							className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
@@ -257,6 +319,9 @@ function BetsPage() {
 						</Button>
 					</div>
 				</div>
+				<div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-sm text-zinc-300">
+					{t("bets.importHint")}
+				</div>
 				{!billingQuery.data?.canExportCsv ? (
 					<div className="rounded-2xl border border-amber-300/18 bg-amber-300/8 px-4 py-3 text-sm text-amber-100">
 						{t("bets.csvUpgrade")}{" "}
@@ -272,6 +337,17 @@ function BetsPage() {
 				{exportMutation.error ? (
 					<div className="rounded-2xl border border-rose-400/18 bg-rose-400/10 px-4 py-3 text-sm text-rose-100">
 						{exportMutation.error.message}
+					</div>
+				) : null}
+				{importFeedback ? (
+					<div
+						className={
+							importFeedback.tone === "success"
+								? "rounded-2xl border border-emerald-400/18 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100"
+								: "rounded-2xl border border-rose-400/18 bg-rose-400/10 px-4 py-3 text-sm text-rose-100"
+						}
+					>
+						{importFeedback.message}
 					</div>
 				) : null}
 

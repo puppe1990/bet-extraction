@@ -154,6 +154,33 @@ export async function createBet(userId: string, input: BetInput) {
 	return getBetById(userId, betId);
 }
 
+export async function importBets(
+	userId: string,
+	items: Array<
+		BetInput & {
+			status: BetStatus;
+			settledAt?: string;
+			grossReturnAmount?: number;
+		}
+	>,
+) {
+	for (const item of items) {
+		const bet = await createBet(userId, item);
+
+		if (item.status !== "open") {
+			await settleBet(
+				userId,
+				bet.id,
+				item.status,
+				item.settledAt ?? item.placedAt,
+				item.status === "cashout" ? item.grossReturnAmount : undefined,
+			);
+		}
+	}
+
+	return { importedCount: items.length };
+}
+
 export async function updateBet(
 	userId: string,
 	betId: string,

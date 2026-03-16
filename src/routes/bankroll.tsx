@@ -1,9 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Upload } from "lucide-react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
+import { parseBankrollCsvImport } from "#/lib/csv-import";
 import { DateTimeText } from "#/lib/datetime";
 import { useI18n } from "#/lib/i18n";
 import { formatCurrency } from "#/lib/money";
@@ -12,6 +13,7 @@ import {
 	authSession,
 	bankrollAddTransaction,
 	bankrollDeleteTransaction,
+	bankrollImportCsv,
 	bankrollUpdateTransaction,
 } from "#/lib/server-functions";
 
@@ -29,10 +31,15 @@ function BankrollPage() {
 	const { t } = useI18n();
 	const queryClient = useQueryClient();
 	const summaryQuery = useQuery(bankrollSummaryQueryOptions());
+	const importInputRef = useRef<HTMLInputElement | null>(null);
 	const [type, setType] = useState<"deposit" | "withdraw" | "adjustment">("deposit");
 	const [amount, setAmount] = useState("100");
 	const [note, setNote] = useState("");
 	const [occurredAt, setOccurredAt] = useState(toDatetimeLocal());
+	const [importFeedback, setImportFeedback] = useState<{
+		tone: "success" | "error";
+		message: string;
+	} | null>(null);
 	const [editingTransaction, setEditingTransaction] = useState<{
 		id: string;
 		type: "deposit" | "withdraw" | "adjustment";
@@ -99,6 +106,30 @@ function BankrollPage() {
 		},
 	});
 
+	const importMutation = useMutation({
+		mutationFn: async (file: File) => {
+			const text = await file.text();
+			const items = parseBankrollCsvImport(text);
+			return bankrollImportCsv({
+				data: { items },
+			});
+		},
+		onSuccess: async (result) => {
+			setImportFeedback({
+				tone: "success",
+				message: t("bankroll.importSuccess", { count: result.importedCount }),
+			});
+			await queryClient.invalidateQueries({ queryKey: ["bankroll"] });
+			await queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+		},
+		onError: (error) => {
+			setImportFeedback({
+				tone: "error",
+				message: error.message || t("bankroll.importError"),
+			});
+		},
+	});
+
 	function resetCreateForm() {
 		setType("deposit");
 		setAmount("100");
@@ -155,6 +186,22 @@ function BankrollPage() {
 
 	return (
 		<main className="page-wrap py-10">
+			<input
+				ref={importInputRef}
+				type="file"
+				accept=".csv,text/csv"
+				className="hidden"
+				onChange={(event) => {
+					const file = event.target.files?.[0];
+					event.target.value = "";
+					if (!file) {
+						return;
+					}
+
+					setImportFeedback(null);
+					importMutation.mutate(file);
+				}}
+			/>
 			<section className="mb-32 grid gap-6 xl:mb-0 xl:grid-cols-[0.9fr_1.1fr]">
 				<form
 					className="panel-card space-y-5"
@@ -171,6 +218,34 @@ function BankrollPage() {
 							{t("bankroll.title")}
 						</h1>
 					</div>
+					<div className="flex flex-wrap gap-3">
+						<Button
+							type="button"
+							variant="outline"
+							className="border-white/10 bg-white/5 text-zinc-100 hover:bg-white/10"
+							disabled={importMutation.isPending}
+							onClick={() => importInputRef.current?.click()}
+						>
+							<Upload className="size-4" />
+							{importMutation.isPending
+								? t("bankroll.importing")
+								: t("bankroll.importCsv")}
+						</Button>
+					</div>
+					<div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-sm text-zinc-300">
+						{t("bankroll.importHint")}
+					</div>
+					{importFeedback ? (
+						<div
+							className={
+								importFeedback.tone === "success"
+									? "rounded-2xl border border-emerald-400/18 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100"
+									: "rounded-2xl border border-rose-400/18 bg-rose-400/10 px-4 py-3 text-sm text-rose-100"
+							}
+						>
+							{importFeedback.message}
+						</div>
+					) : null}
 					<select
 						className="field-input"
 						value={type}

@@ -249,6 +249,12 @@ const messages = {
 		bankroll: {
 			kicker: "Cash desk",
 			title: "Move bankroll",
+			importCsv: "Import CSV",
+			importing: "Importing...",
+			importHint:
+				"Import movements with columns type, amount_brl, occurred_at and optional note. Accepts deposit, withdraw and adjustment.",
+			importSuccess: "{{count}} movements imported.",
+			importError: "Could not import the CSV movements.",
 			currentBalance: "Current balance",
 			occurredAt: "Date and time",
 			deposit: "Deposit",
@@ -275,6 +281,12 @@ const messages = {
 		bets: {
 			book: "Book",
 			title: "All bets",
+			importCsv: "Import CSV",
+			importing: "Importing...",
+			importHint:
+				"Import bets from a CSV using the exported headers: event_name, status, sport, market, selection, bookmaker, odds_decimal, stake_brl, placed_at and optional settled_at, gross_return_brl, tags, note.",
+			importSuccess: "{{count}} bets imported.",
+			importError: "Could not import the CSV bets.",
 			newBet: "New bet",
 			exportCsv: "Export CSV",
 			exporting: "Exporting...",
@@ -661,6 +673,12 @@ const messages = {
 		bankroll: {
 			kicker: "Caixa",
 			title: "Movimentar banca",
+			importCsv: "Importar CSV",
+			importing: "Importando...",
+			importHint:
+				"Importe movimentações com as colunas type, amount_brl, occurred_at e note opcional. Aceita deposit, withdraw e adjustment.",
+			importSuccess: "{{count}} movimentações importadas.",
+			importError: "Nao foi possivel importar as movimentacoes do CSV.",
 			currentBalance: "Saldo atual",
 			occurredAt: "Data e hora",
 			deposit: "Depósito",
@@ -687,6 +705,12 @@ const messages = {
 		bets: {
 			book: "Book",
 			title: "Todas as bets",
+			importCsv: "Importar CSV",
+			importing: "Importando...",
+			importHint:
+				"Importe bets de um CSV usando os headers exportados: event_name, status, sport, market, selection, bookmaker, odds_decimal, stake_brl, placed_at e opcionais settled_at, gross_return_brl, tags, note.",
+			importSuccess: "{{count}} bets importadas.",
+			importError: "Nao foi possivel importar as bets do CSV.",
 			newBet: "Nova bet",
 			exportCsv: "Exportar CSV",
 			exporting: "Exportando...",

@@ -44,6 +44,30 @@ export async function addManualTransaction(input: {
 	return getBankrollSummary(input.userId);
 }
 
+export async function importManualTransactions(
+	userId: string,
+	items: Array<{
+		type: Extract<BankrollTransactionType, "deposit" | "withdraw" | "adjustment">;
+		amount: number;
+		note?: string;
+		occurredAt?: string;
+	}>,
+) {
+	for (const item of items) {
+		await addManualTransaction({
+			userId,
+			type: item.type,
+			amount: item.amount,
+			note: item.note,
+			occurredAt: item.occurredAt,
+		});
+	}
+
+	return {
+		importedCount: items.length,
+	};
+}
+
 export async function updateManualTransaction(input: {
 	userId: string;
 	transactionId: string;
